@@ -1,0 +1,22 @@
+[workspace]
+members = ["programs/*"]
+resolver = "2"
+[profile.release]
+overflow-checks = true
+lto = "fat"
+codegen-units = 1
+[profile.release.build-override]
+opt-level = 3
+incremental = false
+codegen-units = 1
+
+[workspace.dependencies]
+anchor-lang = { version = "0.29.0", features = ["event-cpi"] }
+light-system-program = { version = "1.0.0", features = ["cpi"] }
+account-compression = { version = "1.0.0", features = ["cpi"] }
+light-hasher = { version = "1.0.0" }
+light-sdk = { version = "0.8.0" }
+light-utils = { version = "1.0.0" }
+spl-noop = { version = "0.2.0", features = ["no-entrypoint"] }
+light-macros = "1.0.0"
+light-sdk-macros = "0.1.0"

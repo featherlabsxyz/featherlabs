@@ -1,0 +1,31 @@
+[package]
+name = "feather_assets"
+version = "0.1.0"
+description = "Created with Anchor"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "feather_assets"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+custom-heap = ["light-heap"]
+default = ["custom-heap"]
+test-sbf = []
+bench-sbf = []
+
+[dependencies]
+anchor-lang = { workspace = true, features = ["event-cpi"] }
+light-system-program = { workspace = true, features = ["cpi"] }
+account-compression = { workspace = true, features = ["cpi"] }
+light-hasher = { workspace = true }
+light-sdk = { workspace = true }
+light-utils = { workspace = true }
+spl-noop = { workspace = true, features = ["no-entrypoint"] }
+light-macros = { workspace = true }
+light-sdk-macros = { workspace = true }
+light-heap = { version = "1.0.0", optional = true }
