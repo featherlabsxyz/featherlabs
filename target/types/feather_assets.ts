@@ -8,14 +8,234 @@ export type FeatherAssets = {
       "value": "[102, 101, 97, 116, 104, 101, 114, 95, 97, 115, 115, 101, 116, 115]"
     }
   ],
-  "instructions": [
-    {
-      "name": "initialize",
-      "accounts": [],
-      "args": []
-    }
-  ],
+  "instructions": [],
   "types": [
+    {
+      "name": "CreateGroupArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "maxSize",
+            "type": "u32"
+          },
+          {
+            "name": "metadata",
+            "type": {
+              "option": {
+                "defined": "GroupMetadataArgsV1"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "GroupMetadataArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "uri",
+            "type": "string"
+          },
+          {
+            "name": "mutable",
+            "type": "bool"
+          },
+          {
+            "name": "attributes",
+            "type": {
+              "vec": {
+                "defined": "super::AttributeV1"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdateGroupMetadataArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "uri",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "attributes",
+            "type": {
+              "option": {
+                "vec": {
+                  "defined": "super::AttributeV1"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "CreateAssetArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "transferrable",
+            "type": "bool"
+          },
+          {
+            "name": "mutable",
+            "type": "bool"
+          },
+          {
+            "name": "metadata",
+            "type": {
+              "option": {
+                "defined": "AssetMetadataArgsV1"
+              }
+            }
+          },
+          {
+            "name": "royalty",
+            "type": {
+              "option": {
+                "defined": "RoyaltyArgsV1"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "RoyaltyArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "basisPoints",
+            "type": "u8"
+          },
+          {
+            "name": "creators",
+            "type": {
+              "vec": {
+                "defined": "CreatorArgsV1"
+              }
+            }
+          },
+          {
+            "name": "ruleset",
+            "type": {
+              "defined": "RuleSetV1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AssetMetadataArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "uri",
+            "type": "string"
+          },
+          {
+            "name": "mutable",
+            "type": "string"
+          },
+          {
+            "name": "attributes",
+            "type": {
+              "vec": {
+                "defined": "AttributeV1"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdateRoyaltyArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "basisPoints",
+            "type": {
+              "option": "u8"
+            }
+          },
+          {
+            "name": "creators",
+            "type": {
+              "option": {
+                "vec": {
+                  "defined": "CreatorArgsV1"
+                }
+              }
+            }
+          },
+          {
+            "name": "ruleset",
+            "type": {
+              "option": {
+                "defined": "RuleSetV1"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdateAssetMetadataArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "uri",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "attributes",
+            "type": {
+              "option": {
+                "vec": {
+                  "defined": "AttributeV1"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
     {
       "name": "RuleSetV1",
       "type": {
@@ -44,7 +264,7 @@ export type FeatherAssets = {
       }
     },
     {
-      "name": "AssetOwnerVariantV1",
+      "name": "AssetAuthorityVariantV1",
       "docs": [
         "Represents different states of ownership for an asset."
       ],
@@ -57,10 +277,19 @@ export type FeatherAssets = {
           {
             "name": "Renter",
             "fields": [
-              "u32",
-              "publicKey",
               {
-                "defined": "AssetPrivilege"
+                "name": "rentTime",
+                "type": "u32"
+              },
+              {
+                "name": "fallbackOwner",
+                "type": "publicKey"
+              },
+              {
+                "name": "privilege",
+                "type": {
+                  "defined": "AssetPrivilege"
+                }
               }
             ]
           },
@@ -68,20 +297,35 @@ export type FeatherAssets = {
             "name": "OwnerDelegate",
             "fields": [
               {
-                "option": "u32"
+                "name": "timeLock",
+                "type": {
+                  "option": "u32"
+                }
               },
-              "publicKey",
               {
-                "defined": "AssetPrivilege"
+                "name": "delegate",
+                "type": "publicKey"
+              },
+              {
+                "name": "privilege",
+                "type": {
+                  "defined": "AssetPrivilege"
+                }
               }
             ]
           },
           {
             "name": "OwnerPermanentDelegate",
             "fields": [
-              "publicKey",
               {
-                "defined": "AssetPrivilege"
+                "name": "delegate",
+                "type": "publicKey"
+              },
+              {
+                "name": "privilege",
+                "type": {
+                  "defined": "AssetPrivilege"
+                }
               }
             ]
           }
@@ -101,9 +345,6 @@ export type FeatherAssets = {
           },
           {
             "name": "LockedByOwner"
-          },
-          {
-            "name": "Rented"
           }
         ]
       }
@@ -135,32 +376,10 @@ export type FeatherAssets = {
             "name": "Tbf"
           },
           {
-            "name": "MetadataPrivileges",
-            "fields": [
-              {
-                "defined": "AssetDataDelegatePrivilegeV1"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "name": "AssetDataDelegatePrivilegeV1",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "All"
+            "name": "AssetMetadataPrivilegeAttributes"
           },
           {
-            "name": "Uri"
-          },
-          {
-            "name": "Attributes"
-          },
-          {
-            "name": "PrivilegeAttributes"
+            "name": "AllExceptBurn"
           }
         ]
       }
@@ -185,14 +404,234 @@ export const IDL: FeatherAssets = {
       "value": "[102, 101, 97, 116, 104, 101, 114, 95, 97, 115, 115, 101, 116, 115]"
     }
   ],
-  "instructions": [
-    {
-      "name": "initialize",
-      "accounts": [],
-      "args": []
-    }
-  ],
+  "instructions": [],
   "types": [
+    {
+      "name": "CreateGroupArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "maxSize",
+            "type": "u32"
+          },
+          {
+            "name": "metadata",
+            "type": {
+              "option": {
+                "defined": "GroupMetadataArgsV1"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "GroupMetadataArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "uri",
+            "type": "string"
+          },
+          {
+            "name": "mutable",
+            "type": "bool"
+          },
+          {
+            "name": "attributes",
+            "type": {
+              "vec": {
+                "defined": "super::AttributeV1"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdateGroupMetadataArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "uri",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "attributes",
+            "type": {
+              "option": {
+                "vec": {
+                  "defined": "super::AttributeV1"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "CreateAssetArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "transferrable",
+            "type": "bool"
+          },
+          {
+            "name": "mutable",
+            "type": "bool"
+          },
+          {
+            "name": "metadata",
+            "type": {
+              "option": {
+                "defined": "AssetMetadataArgsV1"
+              }
+            }
+          },
+          {
+            "name": "royalty",
+            "type": {
+              "option": {
+                "defined": "RoyaltyArgsV1"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "RoyaltyArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "basisPoints",
+            "type": "u8"
+          },
+          {
+            "name": "creators",
+            "type": {
+              "vec": {
+                "defined": "CreatorArgsV1"
+              }
+            }
+          },
+          {
+            "name": "ruleset",
+            "type": {
+              "defined": "RuleSetV1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AssetMetadataArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "uri",
+            "type": "string"
+          },
+          {
+            "name": "mutable",
+            "type": "string"
+          },
+          {
+            "name": "attributes",
+            "type": {
+              "vec": {
+                "defined": "AttributeV1"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdateRoyaltyArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "basisPoints",
+            "type": {
+              "option": "u8"
+            }
+          },
+          {
+            "name": "creators",
+            "type": {
+              "option": {
+                "vec": {
+                  "defined": "CreatorArgsV1"
+                }
+              }
+            }
+          },
+          {
+            "name": "ruleset",
+            "type": {
+              "option": {
+                "defined": "RuleSetV1"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdateAssetMetadataArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "uri",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "attributes",
+            "type": {
+              "option": {
+                "vec": {
+                  "defined": "AttributeV1"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
     {
       "name": "RuleSetV1",
       "type": {
@@ -221,7 +660,7 @@ export const IDL: FeatherAssets = {
       }
     },
     {
-      "name": "AssetOwnerVariantV1",
+      "name": "AssetAuthorityVariantV1",
       "docs": [
         "Represents different states of ownership for an asset."
       ],
@@ -234,10 +673,19 @@ export const IDL: FeatherAssets = {
           {
             "name": "Renter",
             "fields": [
-              "u32",
-              "publicKey",
               {
-                "defined": "AssetPrivilege"
+                "name": "rentTime",
+                "type": "u32"
+              },
+              {
+                "name": "fallbackOwner",
+                "type": "publicKey"
+              },
+              {
+                "name": "privilege",
+                "type": {
+                  "defined": "AssetPrivilege"
+                }
               }
             ]
           },
@@ -245,20 +693,35 @@ export const IDL: FeatherAssets = {
             "name": "OwnerDelegate",
             "fields": [
               {
-                "option": "u32"
+                "name": "timeLock",
+                "type": {
+                  "option": "u32"
+                }
               },
-              "publicKey",
               {
-                "defined": "AssetPrivilege"
+                "name": "delegate",
+                "type": "publicKey"
+              },
+              {
+                "name": "privilege",
+                "type": {
+                  "defined": "AssetPrivilege"
+                }
               }
             ]
           },
           {
             "name": "OwnerPermanentDelegate",
             "fields": [
-              "publicKey",
               {
-                "defined": "AssetPrivilege"
+                "name": "delegate",
+                "type": "publicKey"
+              },
+              {
+                "name": "privilege",
+                "type": {
+                  "defined": "AssetPrivilege"
+                }
               }
             ]
           }
@@ -278,9 +741,6 @@ export const IDL: FeatherAssets = {
           },
           {
             "name": "LockedByOwner"
-          },
-          {
-            "name": "Rented"
           }
         ]
       }
@@ -312,32 +772,10 @@ export const IDL: FeatherAssets = {
             "name": "Tbf"
           },
           {
-            "name": "MetadataPrivileges",
-            "fields": [
-              {
-                "defined": "AssetDataDelegatePrivilegeV1"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "name": "AssetDataDelegatePrivilegeV1",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "All"
+            "name": "AssetMetadataPrivilegeAttributes"
           },
           {
-            "name": "Uri"
-          },
-          {
-            "name": "Attributes"
-          },
-          {
-            "name": "PrivilegeAttributes"
+            "name": "AllExceptBurn"
           }
         ]
       }

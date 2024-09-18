@@ -18,5 +18,4 @@ light-hasher = { version = "1.0.0" }
 light-sdk = { version = "0.8.0" }
 light-utils = { version = "1.0.0" }
 spl-noop = { version = "0.2.0", features = ["no-entrypoint"] }
-light-macros = "1.0.0"
-light-sdk-macros = "0.1.0"
+solana-sdk = "=1.18.22"

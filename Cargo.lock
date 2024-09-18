@@ -894,11 +894,10 @@ dependencies = [
  "anchor-lang",
  "light-hasher",
  "light-heap",
- "light-macros",
  "light-sdk",
- "light-sdk-macros",
  "light-system-program",
  "light-utils",
+ "solana-sdk",
  "spl-noop",
 ]
 
