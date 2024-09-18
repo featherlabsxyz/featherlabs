@@ -10,6 +10,7 @@ pub struct AssetRoyaltiesV1 {
 }
 
 #[light_account]
+#[derive(Debug, Clone)]
 pub struct CreatorArgsV1 {
     address: Pubkey,
     percentage: u8,
