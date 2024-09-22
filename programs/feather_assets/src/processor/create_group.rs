@@ -42,13 +42,12 @@ pub fn handler<'info>(
     group.owner = authority.key();
     group.size = 0;
 
-    if let Some(oca) = group.output_compressed_account(&crate::ID, remaining_accounts)? {
-        output_compressed_accounts.push(oca);
-    }
-
     match args.metadata {
         Some(metadata_args) => {
             group.has_metadata = true;
+            if let Some(oca) = group.output_compressed_account(&crate::ID, remaining_accounts)? {
+                output_compressed_accounts.push(oca);
+            }
             let mut group_data: LightAccount<GroupDataV1> = LightAccount::new_init(
                 &lrp.merkle_context,
                 &lrp.address_merkle_context,
@@ -79,6 +78,9 @@ pub fn handler<'info>(
         }
         None => {
             group.has_metadata = false;
+            if let Some(oca) = group.output_compressed_account(&crate::ID, remaining_accounts)? {
+                output_compressed_accounts.push(oca);
+            }
         }
     }
     let bump = Pubkey::find_program_address(
@@ -88,11 +90,7 @@ pub fn handler<'info>(
     .1;
     let signer_seeds = [CPI_AUTHORITY_PDA_SEED, &[bump]];
     let instruction = InstructionDataInvokeCpi {
-        proof: Some(light_sdk::proof::CompressedProof {
-            a: lrp.proof.a,
-            b: lrp.proof.b,
-            c: lrp.proof.c,
-        }),
+        proof: Some(lrp.proof),
         new_address_params,
         relay_fee: None,
         input_compressed_accounts_with_merkle_context: Vec::new(),

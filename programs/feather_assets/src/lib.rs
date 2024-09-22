@@ -5,7 +5,10 @@ pub mod processor;
 pub mod state;
 
 use anchor_lang::prelude::*;
-use light_sdk::merkle_context::{PackedAddressMerkleContext, PackedMerkleContext};
+use light_sdk::{
+    merkle_context::{PackedAddressMerkleContext, PackedMerkleContext},
+    proof::CompressedProof,
+};
 
 declare_id!("DD9JdX9UBs7MvfZTX8NrxVYDRXyC2aWymsQmqZc9avTo");
 
@@ -296,10 +299,4 @@ pub struct LightRootParams {
     pub merkle_tree_root_index: u16,
     pub address_merkle_context: PackedAddressMerkleContext,
     pub address_merkle_tree_root_index: u16,
-}
-#[derive(Debug, Clone, PartialEq, Eq, AnchorSerialize, AnchorDeserialize)]
-pub struct CompressedProof {
-    pub a: [u8; 32],
-    pub b: [u8; 64],
-    pub c: [u8; 32],
 }

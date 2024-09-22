@@ -6,7 +6,9 @@ use light_sdk::light_account;
 pub struct GroupV1 {
     pub max_size: u32,
     pub size: u32,
+    #[truncate]
     pub owner: Pubkey,
+    #[truncate]
     /// If true, there's an associated metadata compressed account created
     pub has_metadata: bool,
 }

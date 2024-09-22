@@ -28,3 +28,9 @@ light-heap = { version = "1.0.0", optional = true }
 
 [target.'cfg(not(target_os = "solana"))'.dependencies]
 solana-sdk = { workspace = true }
+
+[dev-dependencies]
+solana-program-test = { workspace = true }
+tokio = { workspace = true }
+light-client = { workspace = true, features = ["devenv"] }
+light-test-utils = { workspace = true, features = ["devenv"] }
