@@ -3,13 +3,254 @@ export type FeatherAssets = {
   "name": "feather_assets",
   "constants": [
     {
+      "name": "CPI_AUTHORITY_PDA_SEED",
+      "type": "bytes",
+      "value": "[99, 112, 105, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121]"
+    },
+    {
+      "name": "GROUP_SEED",
+      "type": "bytes",
+      "value": "[103, 114, 111, 117, 112]"
+    },
+    {
       "name": "SEED",
       "type": "bytes",
       "value": "[102, 101, 97, 116, 104, 101, 114, 95, 97, 115, 115, 101, 116, 115]"
     }
   ],
-  "instructions": [],
+  "instructions": [
+    {
+      "name": "createGroup",
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "selfProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "cpiSigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "lightSystemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "registeredProgramPda",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "noopProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionAuthority",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lrp",
+          "type": {
+            "defined": "LightRootParams"
+          }
+        },
+        {
+          "name": "seeds",
+          "type": "u64"
+        },
+        {
+          "name": "args",
+          "type": {
+            "defined": "CreateGroupArgsV1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "updateGroupMaxSize",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "selfProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "cpiSigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "lightSystemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "registeredProgramPda",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "noopProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionAuthority",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lrp",
+          "type": {
+            "defined": "LightRootParams"
+          }
+        },
+        {
+          "name": "seeds",
+          "type": "u64"
+        },
+        {
+          "name": "maxSize",
+          "type": "u32"
+        }
+      ]
+    }
+  ],
   "types": [
+    {
+      "name": "CompressedProof",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "a",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "b",
+            "type": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          },
+          {
+            "name": "c",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "LightRootParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "inputs",
+            "type": {
+              "vec": "bytes"
+            }
+          },
+          {
+            "name": "proof",
+            "type": {
+              "defined": "CompressedProof"
+            }
+          },
+          {
+            "name": "merkleContext",
+            "type": {
+              "defined": "PackedMerkleContext"
+            }
+          },
+          {
+            "name": "merkleTreeRootIndex",
+            "type": "u16"
+          },
+          {
+            "name": "addressMerkleContext",
+            "type": {
+              "defined": "PackedAddressMerkleContext"
+            }
+          },
+          {
+            "name": "addressMerkleTreeRootIndex",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AttributeV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "key",
+            "type": "string"
+          },
+          {
+            "name": "value",
+            "type": "string"
+          }
+        ]
+      }
+    },
     {
       "name": "CreateGroupArgsV1",
       "type": {
@@ -51,122 +292,6 @@ export type FeatherAssets = {
             "name": "attributes",
             "type": {
               "vec": {
-                "defined": "super::AttributeV1"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "UpdateGroupMetadataArgsV1",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "name",
-            "type": {
-              "option": "string"
-            }
-          },
-          {
-            "name": "uri",
-            "type": {
-              "option": "string"
-            }
-          },
-          {
-            "name": "attributes",
-            "type": {
-              "option": {
-                "vec": {
-                  "defined": "super::AttributeV1"
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "CreateAssetArgsV1",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "transferrable",
-            "type": "bool"
-          },
-          {
-            "name": "mutable",
-            "type": "bool"
-          },
-          {
-            "name": "metadata",
-            "type": {
-              "option": {
-                "defined": "AssetMetadataArgsV1"
-              }
-            }
-          },
-          {
-            "name": "royalty",
-            "type": {
-              "option": {
-                "defined": "RoyaltyArgsV1"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "RoyaltyArgsV1",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "basisPoints",
-            "type": "u8"
-          },
-          {
-            "name": "creators",
-            "type": {
-              "vec": {
-                "defined": "CreatorArgsV1"
-              }
-            }
-          },
-          {
-            "name": "ruleset",
-            "type": {
-              "defined": "RuleSetV1"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "AssetMetadataArgsV1",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "name",
-            "type": "string"
-          },
-          {
-            "name": "uri",
-            "type": "string"
-          },
-          {
-            "name": "mutable",
-            "type": "string"
-          },
-          {
-            "name": "attributes",
-            "type": {
-              "vec": {
                 "defined": "AttributeV1"
               }
             }
@@ -175,61 +300,47 @@ export type FeatherAssets = {
       }
     },
     {
-      "name": "UpdateRoyaltyArgsV1",
+      "name": "PackedAddressMerkleContext",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "basisPoints",
-            "type": {
-              "option": "u8"
-            }
+            "name": "addressMerkleTreePubkeyIndex",
+            "type": "u8"
           },
           {
-            "name": "creators",
-            "type": {
-              "option": {
-                "vec": {
-                  "defined": "CreatorArgsV1"
-                }
-              }
-            }
-          },
-          {
-            "name": "ruleset",
-            "type": {
-              "option": {
-                "defined": "RuleSetV1"
-              }
-            }
+            "name": "addressQueuePubkeyIndex",
+            "type": "u8"
           }
         ]
       }
     },
     {
-      "name": "UpdateAssetMetadataArgsV1",
+      "name": "PackedMerkleContext",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "name",
-            "type": {
-              "option": "string"
-            }
+            "name": "merkleTreePubkeyIndex",
+            "type": "u8"
           },
           {
-            "name": "uri",
-            "type": {
-              "option": "string"
-            }
+            "name": "nullifierQueuePubkeyIndex",
+            "type": "u8"
           },
           {
-            "name": "attributes",
+            "name": "leafIndex",
+            "type": "u32"
+          },
+          {
+            "name": "queueIndex",
+            "docs": [
+              "Index of leaf in queue. Placeholder of batched Merkle tree updates",
+              "currently unimplemented."
+            ],
             "type": {
               "option": {
-                "vec": {
-                  "defined": "AttributeV1"
-                }
+                "defined": "QueueIndex"
               }
             }
           }
@@ -237,149 +348,23 @@ export type FeatherAssets = {
       }
     },
     {
-      "name": "RuleSetV1",
+      "name": "QueueIndex",
       "type": {
-        "kind": "enum",
-        "variants": [
+        "kind": "struct",
+        "fields": [
           {
-            "name": "None"
+            "name": "queueId",
+            "docs": [
+              "Id of queue in queue account."
+            ],
+            "type": "u8"
           },
           {
-            "name": "ProgramAllowList",
-            "fields": [
-              {
-                "vec": "publicKey"
-              }
-            ]
-          },
-          {
-            "name": "ProgramDenyList",
-            "fields": [
-              {
-                "vec": "publicKey"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "name": "AssetAuthorityVariantV1",
-      "docs": [
-        "Represents different states of ownership for an asset."
-      ],
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "Owner"
-          },
-          {
-            "name": "Renter",
-            "fields": [
-              {
-                "name": "rentTime",
-                "type": "u32"
-              },
-              {
-                "name": "fallbackOwner",
-                "type": "publicKey"
-              },
-              {
-                "name": "privilege",
-                "type": {
-                  "defined": "AssetPrivilege"
-                }
-              }
-            ]
-          },
-          {
-            "name": "OwnerDelegate",
-            "fields": [
-              {
-                "name": "timeLock",
-                "type": {
-                  "option": "u32"
-                }
-              },
-              {
-                "name": "delegate",
-                "type": "publicKey"
-              },
-              {
-                "name": "privilege",
-                "type": {
-                  "defined": "AssetPrivilege"
-                }
-              }
-            ]
-          },
-          {
-            "name": "OwnerPermanentDelegate",
-            "fields": [
-              {
-                "name": "delegate",
-                "type": "publicKey"
-              },
-              {
-                "name": "privilege",
-                "type": {
-                  "defined": "AssetPrivilege"
-                }
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "name": "AssetStateV1",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "Unlocked"
-          },
-          {
-            "name": "LockedByDelegate"
-          },
-          {
-            "name": "LockedByOwner"
-          }
-        ]
-      }
-    },
-    {
-      "name": "AssetPrivilege",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "None"
-          },
-          {
-            "name": "All"
-          },
-          {
-            "name": "Transfer"
-          },
-          {
-            "name": "Burn"
-          },
-          {
-            "name": "Freeze"
-          },
-          {
-            "name": "FreezeAndTransfer"
-          },
-          {
-            "name": "Tbf"
-          },
-          {
-            "name": "AssetMetadataPrivilegeAttributes"
-          },
-          {
-            "name": "AllExceptBurn"
+            "name": "index",
+            "docs": [
+              "Index of compressed account hash in queue."
+            ],
+            "type": "u16"
           }
         ]
       }
@@ -390,6 +375,11 @@ export type FeatherAssets = {
       "code": 6000,
       "name": "CustomError",
       "msg": "Custom error message"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidMaxSize",
+      "msg": "Invalid Max Size, there are existing members"
     }
   ]
 };
@@ -399,13 +389,254 @@ export const IDL: FeatherAssets = {
   "name": "feather_assets",
   "constants": [
     {
+      "name": "CPI_AUTHORITY_PDA_SEED",
+      "type": "bytes",
+      "value": "[99, 112, 105, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121]"
+    },
+    {
+      "name": "GROUP_SEED",
+      "type": "bytes",
+      "value": "[103, 114, 111, 117, 112]"
+    },
+    {
       "name": "SEED",
       "type": "bytes",
       "value": "[102, 101, 97, 116, 104, 101, 114, 95, 97, 115, 115, 101, 116, 115]"
     }
   ],
-  "instructions": [],
+  "instructions": [
+    {
+      "name": "createGroup",
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "selfProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "cpiSigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "lightSystemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "registeredProgramPda",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "noopProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionAuthority",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lrp",
+          "type": {
+            "defined": "LightRootParams"
+          }
+        },
+        {
+          "name": "seeds",
+          "type": "u64"
+        },
+        {
+          "name": "args",
+          "type": {
+            "defined": "CreateGroupArgsV1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "updateGroupMaxSize",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "selfProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "cpiSigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "lightSystemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "registeredProgramPda",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "noopProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionAuthority",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lrp",
+          "type": {
+            "defined": "LightRootParams"
+          }
+        },
+        {
+          "name": "seeds",
+          "type": "u64"
+        },
+        {
+          "name": "maxSize",
+          "type": "u32"
+        }
+      ]
+    }
+  ],
   "types": [
+    {
+      "name": "CompressedProof",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "a",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "b",
+            "type": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          },
+          {
+            "name": "c",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "LightRootParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "inputs",
+            "type": {
+              "vec": "bytes"
+            }
+          },
+          {
+            "name": "proof",
+            "type": {
+              "defined": "CompressedProof"
+            }
+          },
+          {
+            "name": "merkleContext",
+            "type": {
+              "defined": "PackedMerkleContext"
+            }
+          },
+          {
+            "name": "merkleTreeRootIndex",
+            "type": "u16"
+          },
+          {
+            "name": "addressMerkleContext",
+            "type": {
+              "defined": "PackedAddressMerkleContext"
+            }
+          },
+          {
+            "name": "addressMerkleTreeRootIndex",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AttributeV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "key",
+            "type": "string"
+          },
+          {
+            "name": "value",
+            "type": "string"
+          }
+        ]
+      }
+    },
     {
       "name": "CreateGroupArgsV1",
       "type": {
@@ -447,122 +678,6 @@ export const IDL: FeatherAssets = {
             "name": "attributes",
             "type": {
               "vec": {
-                "defined": "super::AttributeV1"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "UpdateGroupMetadataArgsV1",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "name",
-            "type": {
-              "option": "string"
-            }
-          },
-          {
-            "name": "uri",
-            "type": {
-              "option": "string"
-            }
-          },
-          {
-            "name": "attributes",
-            "type": {
-              "option": {
-                "vec": {
-                  "defined": "super::AttributeV1"
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "CreateAssetArgsV1",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "transferrable",
-            "type": "bool"
-          },
-          {
-            "name": "mutable",
-            "type": "bool"
-          },
-          {
-            "name": "metadata",
-            "type": {
-              "option": {
-                "defined": "AssetMetadataArgsV1"
-              }
-            }
-          },
-          {
-            "name": "royalty",
-            "type": {
-              "option": {
-                "defined": "RoyaltyArgsV1"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "RoyaltyArgsV1",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "basisPoints",
-            "type": "u8"
-          },
-          {
-            "name": "creators",
-            "type": {
-              "vec": {
-                "defined": "CreatorArgsV1"
-              }
-            }
-          },
-          {
-            "name": "ruleset",
-            "type": {
-              "defined": "RuleSetV1"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "AssetMetadataArgsV1",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "name",
-            "type": "string"
-          },
-          {
-            "name": "uri",
-            "type": "string"
-          },
-          {
-            "name": "mutable",
-            "type": "string"
-          },
-          {
-            "name": "attributes",
-            "type": {
-              "vec": {
                 "defined": "AttributeV1"
               }
             }
@@ -571,61 +686,47 @@ export const IDL: FeatherAssets = {
       }
     },
     {
-      "name": "UpdateRoyaltyArgsV1",
+      "name": "PackedAddressMerkleContext",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "basisPoints",
-            "type": {
-              "option": "u8"
-            }
+            "name": "addressMerkleTreePubkeyIndex",
+            "type": "u8"
           },
           {
-            "name": "creators",
-            "type": {
-              "option": {
-                "vec": {
-                  "defined": "CreatorArgsV1"
-                }
-              }
-            }
-          },
-          {
-            "name": "ruleset",
-            "type": {
-              "option": {
-                "defined": "RuleSetV1"
-              }
-            }
+            "name": "addressQueuePubkeyIndex",
+            "type": "u8"
           }
         ]
       }
     },
     {
-      "name": "UpdateAssetMetadataArgsV1",
+      "name": "PackedMerkleContext",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "name",
-            "type": {
-              "option": "string"
-            }
+            "name": "merkleTreePubkeyIndex",
+            "type": "u8"
           },
           {
-            "name": "uri",
-            "type": {
-              "option": "string"
-            }
+            "name": "nullifierQueuePubkeyIndex",
+            "type": "u8"
           },
           {
-            "name": "attributes",
+            "name": "leafIndex",
+            "type": "u32"
+          },
+          {
+            "name": "queueIndex",
+            "docs": [
+              "Index of leaf in queue. Placeholder of batched Merkle tree updates",
+              "currently unimplemented."
+            ],
             "type": {
               "option": {
-                "vec": {
-                  "defined": "AttributeV1"
-                }
+                "defined": "QueueIndex"
               }
             }
           }
@@ -633,149 +734,23 @@ export const IDL: FeatherAssets = {
       }
     },
     {
-      "name": "RuleSetV1",
+      "name": "QueueIndex",
       "type": {
-        "kind": "enum",
-        "variants": [
+        "kind": "struct",
+        "fields": [
           {
-            "name": "None"
+            "name": "queueId",
+            "docs": [
+              "Id of queue in queue account."
+            ],
+            "type": "u8"
           },
           {
-            "name": "ProgramAllowList",
-            "fields": [
-              {
-                "vec": "publicKey"
-              }
-            ]
-          },
-          {
-            "name": "ProgramDenyList",
-            "fields": [
-              {
-                "vec": "publicKey"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "name": "AssetAuthorityVariantV1",
-      "docs": [
-        "Represents different states of ownership for an asset."
-      ],
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "Owner"
-          },
-          {
-            "name": "Renter",
-            "fields": [
-              {
-                "name": "rentTime",
-                "type": "u32"
-              },
-              {
-                "name": "fallbackOwner",
-                "type": "publicKey"
-              },
-              {
-                "name": "privilege",
-                "type": {
-                  "defined": "AssetPrivilege"
-                }
-              }
-            ]
-          },
-          {
-            "name": "OwnerDelegate",
-            "fields": [
-              {
-                "name": "timeLock",
-                "type": {
-                  "option": "u32"
-                }
-              },
-              {
-                "name": "delegate",
-                "type": "publicKey"
-              },
-              {
-                "name": "privilege",
-                "type": {
-                  "defined": "AssetPrivilege"
-                }
-              }
-            ]
-          },
-          {
-            "name": "OwnerPermanentDelegate",
-            "fields": [
-              {
-                "name": "delegate",
-                "type": "publicKey"
-              },
-              {
-                "name": "privilege",
-                "type": {
-                  "defined": "AssetPrivilege"
-                }
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "name": "AssetStateV1",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "Unlocked"
-          },
-          {
-            "name": "LockedByDelegate"
-          },
-          {
-            "name": "LockedByOwner"
-          }
-        ]
-      }
-    },
-    {
-      "name": "AssetPrivilege",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "None"
-          },
-          {
-            "name": "All"
-          },
-          {
-            "name": "Transfer"
-          },
-          {
-            "name": "Burn"
-          },
-          {
-            "name": "Freeze"
-          },
-          {
-            "name": "FreezeAndTransfer"
-          },
-          {
-            "name": "Tbf"
-          },
-          {
-            "name": "AssetMetadataPrivilegeAttributes"
-          },
-          {
-            "name": "AllExceptBurn"
+            "name": "index",
+            "docs": [
+              "Index of compressed account hash in queue."
+            ],
+            "type": "u16"
           }
         ]
       }
@@ -786,6 +761,11 @@ export const IDL: FeatherAssets = {
       "code": 6000,
       "name": "CustomError",
       "msg": "Custom error message"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidMaxSize",
+      "msg": "Invalid Max Size, there are existing members"
     }
   ]
 };

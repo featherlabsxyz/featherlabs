@@ -12,10 +12,13 @@ codegen-units = 1
 
 [workspace.dependencies]
 anchor-lang = { version = "0.29.0", features = ["event-cpi"] }
-light-system-program = { version = "1.0.0", features = ["cpi"] }
-account-compression = { version = "1.0.0", features = ["cpi"] }
-light-hasher = { version = "1.0.0" }
+light-hasher = { version = "1.0.0", features = ["solana"] }
 light-sdk = { version = "0.8.0" }
 light-utils = { version = "1.0.0" }
 spl-noop = { version = "0.2.0", features = ["no-entrypoint"] }
 solana-sdk = "=1.18.22"
+
+[patch.crates-io]
+light-sdk = { git = "https://github.com/Lightprotocol/light-protocol", rev = "81f4456154a7eb4b612bbbdd0ec1930a2a15b272" }
+light-sdk-macros = { git = "https://github.com/Lightprotocol/light-protocol", rev = "81f4456154a7eb4b612bbbdd0ec1930a2a15b272" }
+light-hasher = { git = "https://github.com/Lightprotocol/light-protocol", rev = "81f4456154a7eb4b612bbbdd0ec1930a2a15b272" }
