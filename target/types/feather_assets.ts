@@ -3,9 +3,9 @@ export type FeatherAssets = {
   "name": "feather_assets",
   "constants": [
     {
-      "name": "CPI_AUTHORITY_PDA_SEED",
+      "name": "GROUP_DATA_SEED",
       "type": "bytes",
-      "value": "[99, 112, 105, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121]"
+      "value": "[103, 114, 111, 117, 112, 95, 100, 97, 116, 97]"
     },
     {
       "name": "GROUP_SEED",
@@ -157,44 +157,212 @@ export type FeatherAssets = {
           "type": "u32"
         }
       ]
+    },
+    {
+      "name": "addMetadataToGroup",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "selfProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "cpiSigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "lightSystemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "registeredProgramPda",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "noopProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionAuthority",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lrp",
+          "type": {
+            "defined": "LightRootParams"
+          }
+        },
+        {
+          "name": "groupSeed",
+          "type": "u64"
+        },
+        {
+          "name": "args",
+          "type": {
+            "defined": "GroupMetadataArgsV1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "updateGroupMetadata",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "selfProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "cpiSigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "lightSystemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "registeredProgramPda",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "noopProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionAuthority",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lrp",
+          "type": {
+            "defined": "LightRootParams"
+          }
+        },
+        {
+          "name": "groupSeed",
+          "type": "u64"
+        },
+        {
+          "name": "args",
+          "type": {
+            "defined": "UpdateGroupMetadataArgsV1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "transferGroupAuthority",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "newAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "selfProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "cpiSigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "lightSystemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "registeredProgramPda",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "noopProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionAuthority",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lrp",
+          "type": {
+            "defined": "LightRootParams"
+          }
+        },
+        {
+          "name": "groupSeed",
+          "type": "u64"
+        }
+      ]
     }
   ],
   "types": [
-    {
-      "name": "CompressedProof",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "a",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          },
-          {
-            "name": "b",
-            "type": {
-              "array": [
-                "u8",
-                64
-              ]
-            }
-          },
-          {
-            "name": "c",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          }
-        ]
-      }
-    },
     {
       "name": "LightRootParams",
       "type": {
@@ -209,7 +377,7 @@ export type FeatherAssets = {
           {
             "name": "proof",
             "type": {
-              "defined": "CompressedProof"
+              "defined": ""
             }
           },
           {
@@ -300,6 +468,36 @@ export type FeatherAssets = {
       }
     },
     {
+      "name": "UpdateGroupMetadataArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "uri",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "attributes",
+            "type": {
+              "option": {
+                "vec": {
+                  "defined": "AttributeV1"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "PackedAddressMerkleContext",
       "type": {
         "kind": "struct",
@@ -380,6 +578,16 @@ export type FeatherAssets = {
       "code": 6001,
       "name": "InvalidMaxSize",
       "msg": "Invalid Max Size, there are existing members"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidGroupSigner",
+      "msg": "Unauthorized group signer"
+    },
+    {
+      "code": 6003,
+      "name": "ArgumentsNotFound",
+      "msg": "No Update Inputs found"
     }
   ]
 };
@@ -389,9 +597,9 @@ export const IDL: FeatherAssets = {
   "name": "feather_assets",
   "constants": [
     {
-      "name": "CPI_AUTHORITY_PDA_SEED",
+      "name": "GROUP_DATA_SEED",
       "type": "bytes",
-      "value": "[99, 112, 105, 95, 97, 117, 116, 104, 111, 114, 105, 116, 121]"
+      "value": "[103, 114, 111, 117, 112, 95, 100, 97, 116, 97]"
     },
     {
       "name": "GROUP_SEED",
@@ -543,44 +751,212 @@ export const IDL: FeatherAssets = {
           "type": "u32"
         }
       ]
+    },
+    {
+      "name": "addMetadataToGroup",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "selfProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "cpiSigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "lightSystemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "registeredProgramPda",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "noopProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionAuthority",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lrp",
+          "type": {
+            "defined": "LightRootParams"
+          }
+        },
+        {
+          "name": "groupSeed",
+          "type": "u64"
+        },
+        {
+          "name": "args",
+          "type": {
+            "defined": "GroupMetadataArgsV1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "updateGroupMetadata",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "selfProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "cpiSigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "lightSystemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "registeredProgramPda",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "noopProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionAuthority",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lrp",
+          "type": {
+            "defined": "LightRootParams"
+          }
+        },
+        {
+          "name": "groupSeed",
+          "type": "u64"
+        },
+        {
+          "name": "args",
+          "type": {
+            "defined": "UpdateGroupMetadataArgsV1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "transferGroupAuthority",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "newAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "selfProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "cpiSigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "lightSystemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "registeredProgramPda",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "noopProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionAuthority",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lrp",
+          "type": {
+            "defined": "LightRootParams"
+          }
+        },
+        {
+          "name": "groupSeed",
+          "type": "u64"
+        }
+      ]
     }
   ],
   "types": [
-    {
-      "name": "CompressedProof",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "a",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          },
-          {
-            "name": "b",
-            "type": {
-              "array": [
-                "u8",
-                64
-              ]
-            }
-          },
-          {
-            "name": "c",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          }
-        ]
-      }
-    },
     {
       "name": "LightRootParams",
       "type": {
@@ -595,7 +971,7 @@ export const IDL: FeatherAssets = {
           {
             "name": "proof",
             "type": {
-              "defined": "CompressedProof"
+              "defined": ""
             }
           },
           {
@@ -686,6 +1062,36 @@ export const IDL: FeatherAssets = {
       }
     },
     {
+      "name": "UpdateGroupMetadataArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "uri",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "attributes",
+            "type": {
+              "option": {
+                "vec": {
+                  "defined": "AttributeV1"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "PackedAddressMerkleContext",
       "type": {
         "kind": "struct",
@@ -766,6 +1172,16 @@ export const IDL: FeatherAssets = {
       "code": 6001,
       "name": "InvalidMaxSize",
       "msg": "Invalid Max Size, there are existing members"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidGroupSigner",
+      "msg": "Unauthorized group signer"
+    },
+    {
+      "code": 6003,
+      "name": "ArgumentsNotFound",
+      "msg": "No Update Inputs found"
     }
   ]
 };

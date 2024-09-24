@@ -4,6 +4,9 @@ use light_sdk::light_account;
 #[light_account]
 #[derive(Clone, Debug, Default)]
 pub struct GroupV1 {
+    #[truncate]
+    pub address: Pubkey,
+    #[truncate]
     pub max_size: u32,
     pub size: u32,
     #[truncate]

@@ -1,24 +1,23 @@
 pub mod constants;
 pub mod error;
-// pub mod exapanded_2;
 pub mod processor;
 pub mod state;
 
 use anchor_lang::prelude::*;
+pub use constants::*;
+pub use error::*;
 use light_sdk::{
-    merkle_context::{PackedAddressMerkleContext, PackedMerkleContext},
-    proof::CompressedProof,
+    address::*, compressed_account::*, context::*, light_account, light_accounts,
+    merkle_context::*, program_merkle_context::*, proof::CompressedProof, traits::*, verify::*,
+    CPI_AUTHORITY_PDA_SEED,
 };
-
+use processor::*;
+pub use state::*;
 declare_id!("DD9JdX9UBs7MvfZTX8NrxVYDRXyC2aWymsQmqZc9avTo");
 
 #[program]
 pub mod feather_assets {
     use super::*;
-    pub use constants::*;
-    pub use processor::*;
-    pub use state::*;
-
     // <-------------------------------------------------------------------------------------------->
 
     pub fn create_group<'info>(
@@ -39,23 +38,32 @@ pub mod feather_assets {
         processor::update_group_max_size::handler(ctx, lrp, seeds, max_size)?;
         Ok(())
     }
-    // pub fn add_metadata_to_group<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
-    //     args: GroupMetadataArgsV1,
-    // ) -> Result<()> {
-    //     Ok(())
-    // }
-    // pub fn update_group_metadata<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
-    //     args: UpdateGroupMetadataArgsV1,
-    // ) -> Result<()> {
-    //     Ok(())
-    // }
-    // pub fn transfer_group_authority<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
-    // ) -> Result<()> {
-    //     Ok(())
-    // }
+    pub fn add_metadata_to_group<'info>(
+        ctx: Context<'_, '_, '_, 'info, AddMetadataToGroup<'info>>,
+        lrp: LightRootParams,
+        group_seed: u64,
+        args: GroupMetadataArgsV1,
+    ) -> Result<()> {
+        processor::add_metadata_group::handler(ctx, lrp, group_seed, args)?;
+        Ok(())
+    }
+    pub fn update_group_metadata<'info>(
+        ctx: Context<'_, '_, '_, 'info, UpdateGroupMetadata<'info>>,
+        lrp: LightRootParams,
+        group_seed: u64,
+        args: UpdateGroupMetadataArgsV1,
+    ) -> Result<()> {
+        processor::update_group_metadata::handler(ctx, lrp, group_seed, args)?;
+        Ok(())
+    }
+    pub fn transfer_group_authority<'info>(
+        ctx: Context<'_, '_, '_, 'info, TransferGroupAuthority<'info>>,
+        lrp: LightRootParams,
+        group_seed: u64,
+    ) -> Result<()> {
+        processor::transfer_group_authority::handler(ctx, lrp, group_seed)?;
+        Ok(())
+    }
 
     // // <-------------------------------------------------------------------------------------------->
 

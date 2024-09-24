@@ -4,6 +4,7 @@ mod setup;
 use anchor_lang::{InstructionData, ToAccountMetas};
 use feather_assets::{
     accounts::CreateGroup as CreateGroupAcc,
+    constants::{GROUP_DATA_SEED, GROUP_SEED},
     instruction::CreateGroup as CreateGroupIx,
     state::{CreateGroupArgsV1, GroupMetadataArgsV1},
     LightRootParams,
@@ -17,9 +18,7 @@ use light_sdk::{
 };
 use light_test_utils::{test_env::NOOP_PROGRAM_ID, RpcConnection};
 use setup::*;
-use solana_sdk::{
-    instruction::Instruction, msg, signer::Signer, system_program::ID as SYSTEM_PROGRAM,
-};
+use solana_sdk::{instruction::Instruction, signer::Signer, system_program::ID as SYSTEM_PROGRAM};
 #[tokio::test]
 async fn create_group() {
     let (
@@ -36,10 +35,10 @@ async fn create_group() {
     let packed_merkle_context = pack_merkle_context(merkle_context, &mut remaining_accounts);
     let packed_address_merkle_context =
         pack_address_merkle_context(address_merkle_context, &mut remaining_accounts);
-    let seed: u64 = 21093104141;
+    let seed: u64 = 2109141;
     let group_address_seed = derive_address_seed(
         &[
-            b"group",
+            GROUP_SEED,
             payer.pubkey().as_ref(),
             seed.to_le_bytes().as_ref(),
         ],
@@ -48,7 +47,7 @@ async fn create_group() {
     );
     let group_address = derive_address(&group_address_seed, &address_merkle_context);
     let group_data_address_seed = derive_address_seed(
-        &[group_address.as_ref()],
+        &[GROUP_DATA_SEED, group_address.as_ref()],
         &PROGRAM_ID,
         &address_merkle_context,
     );

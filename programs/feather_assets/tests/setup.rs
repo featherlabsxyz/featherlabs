@@ -33,7 +33,6 @@ pub async fn setup_rpc_indexer() -> (
     )]))
     .await;
     let payer = rpc.get_payer().insecure_clone();
-
     let test_indexer: TestIndexer<ProgramTestRpcConnection> = TestIndexer::new(
         &[StateMerkleTreeAccounts {
             merkle_tree: env.merkle_tree_pubkey,

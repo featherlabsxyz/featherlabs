@@ -1,10 +1,4 @@
 use crate::*;
-use error::ErrorCode;
-use light_sdk::{
-    compressed_account::LightAccount, context::LightContext, light_account, light_accounts,
-    merkle_context::PackedAddressMerkleContext,
-};
-
 pub fn handler<'info>(
     ctx: Context<'_, '_, '_, 'info, UpdateGroupMaxSize<'info>>,
     lrp: LightRootParams,
@@ -23,13 +17,9 @@ pub fn handler<'info>(
     ctx.check_constraints(&inputs)?;
     ctx.derive_address_seeds(lrp.address_merkle_context, &inputs);
     let current_size = ctx.light_accounts.group.size;
-    require_gt!(max_size, current_size, ErrorCode::InvalidMaxSize);
+    require_gt!(max_size, current_size, FeatherErrorCode::InvalidMaxSize);
     ctx.light_accounts.group.max_size = max_size;
-    ctx.verify(light_sdk::proof::CompressedProof {
-        a: lrp.proof.a,
-        b: lrp.proof.b,
-        c: lrp.proof.c,
-    })?;
+    ctx.verify(lrp.proof)?;
     Ok(())
 }
 #[light_accounts]
