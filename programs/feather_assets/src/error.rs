@@ -8,6 +8,16 @@ pub enum FeatherErrorCode {
     InvalidMaxSize,
     #[msg("Unauthorized group signer")]
     InvalidGroupSigner,
+    #[msg("Unauthorized asset signer")]
+    InvalidAssetSigner,
     #[msg("No Update Inputs found")]
     ArgumentsNotFound,
+    #[msg("Max members reached")]
+    MemberAssetOverflow,
+    #[msg("Metadata Account Already Exist")]
+    MetadataAccountExistAlready,
+    #[msg("Royalty Account Already Exist")]
+    RoyaltyAccountExistAlready,
+    #[msg("Group Account Not Found")]
+    GroupAccountNotFound,
 }

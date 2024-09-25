@@ -18,7 +18,9 @@ pub fn handler<'info>(
     ctx.derive_address_seeds(lrp.address_merkle_context, &inputs);
     let group_data = &mut ctx.light_accounts.group_data;
     let group = &mut ctx.light_accounts.group;
-
+    if group.has_metadata {
+        return Err(FeatherErrorCode::MetadataAccountExistAlready.into());
+    }
     group_data.group_key = group.address;
     group_data.attributes = args.attributes;
     group_data.mutable = args.mutable;

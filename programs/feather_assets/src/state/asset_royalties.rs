@@ -2,6 +2,7 @@ use anchor_lang::prelude::*;
 use light_sdk::light_account;
 
 #[light_account]
+#[derive(Clone, Debug, Default)]
 pub struct AssetRoyaltiesV1 {
     pub basis_points: u8,
     pub creators: Vec<CreatorArgsV1>,
@@ -27,9 +28,10 @@ impl CreatorsVecExt for Vec<CreatorArgsV1> {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, AnchorSerialize, AnchorDeserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, AnchorSerialize, AnchorDeserialize, Default)]
 #[repr(u8)]
 pub enum RuleSetV1 {
+    #[default]
     None,
     ProgramAllowList(Vec<Pubkey>),
     ProgramDenyList(Vec<Pubkey>), // empty means all

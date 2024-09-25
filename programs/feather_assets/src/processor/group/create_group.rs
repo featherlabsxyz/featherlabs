@@ -30,7 +30,8 @@ pub fn handler<'info>(
     group.size = 0;
     group.address = group_address;
     let mut new_address_params = vec![group_address_params];
-    let output_compressed_accounts = match args.metadata {
+    let mut output_compressed_accounts = vec![];
+    match args.metadata {
         Some(metadata_args) => {
             group.has_metadata = true;
             let mut group_data: LightInitAccount<GroupDataV1> = LightInitAccount::new(
@@ -50,21 +51,18 @@ pub fn handler<'info>(
             group_data.mutable = metadata_args.mutable;
             group_data.group_key = group_address;
             group_data.uri = metadata_args.uri;
-            let mut output_compressed_accounts = vec![group
-                .output_compressed_account(&crate::ID, remaining_accounts)?
-                .unwrap()];
             output_compressed_accounts
                 .push(group_data.output_compressed_account(&crate::ID, remaining_accounts)?);
-            output_compressed_accounts
         }
         None => {
             group.has_metadata = false;
-            let output_compressed_accounts = vec![group
-                .output_compressed_account(&crate::ID, remaining_accounts)?
-                .unwrap()];
-            output_compressed_accounts
         }
     };
+    output_compressed_accounts.push(
+        group
+            .output_compressed_account(&crate::ID, remaining_accounts)?
+            .ok_or(FeatherErrorCode::CustomError)?,
+    );
     let bump = Pubkey::find_program_address(
         &[CPI_AUTHORITY_PDA_SEED],
         ctx.accounts.get_invoking_program().key,

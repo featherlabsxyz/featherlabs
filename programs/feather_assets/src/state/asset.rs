@@ -1,17 +1,17 @@
 use anchor_lang::prelude::*;
-use light_sdk::light_account;
+use light_sdk::{light_account, LightDiscriminator, LightHasher};
 
 #[light_account]
+#[derive(Clone, Debug, Default)]
 pub struct AssetV1 {
     pub owner: Pubkey,
     pub asset_authority_state: AssetAuthorityVariantV1,
     pub asset_state: AssetStateV1,
-
+    pub address: Pubkey,
     pub group_membership: Option<GroupMembership>,
 
     pub transferable: bool,
     pub rentable: bool,
-    pub delegatable: bool,
 
     /// If true, there's an associated royalties compressed account created
     pub has_royalties: bool,
@@ -21,7 +21,9 @@ pub struct AssetV1 {
     pub has_multisig: bool,
 }
 
-#[light_account]
+#[derive(
+    Clone, Debug, Default, LightDiscriminator, LightHasher, AnchorSerialize, AnchorDeserialize,
+)]
 pub struct GroupMembership {
     pub group_key: Pubkey,
     pub member_number: u32,

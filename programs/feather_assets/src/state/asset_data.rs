@@ -2,6 +2,7 @@ use super::*;
 use anchor_lang::prelude::*;
 use light_sdk::light_account;
 #[light_account]
+#[derive(Clone, Debug, Default)]
 pub struct AssetDataV1 {
     pub name: String,
     pub uri: String,

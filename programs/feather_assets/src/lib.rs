@@ -65,26 +65,32 @@ pub mod feather_assets {
         Ok(())
     }
 
-    // // <-------------------------------------------------------------------------------------------->
+    // <-------------------------------------------------------------------------------------------->
 
-    // pub fn create_asset<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
-    //     args: CreateAssetArgsV1,
-    // ) -> Result<()> {
-    //     Ok(())
-    // }
+    pub fn create_asset<'info>(
+        ctx: Context<'_, '_, '_, 'info, CreateAsset<'info>>,
+        lrp: LightRootParams,
+        seeds: u64,
+        args: CreateAssetArgsV1,
+    ) -> Result<()> {
+        processor::create_asset::handler(ctx, lrp, seeds, args)?;
+        Ok(())
+    }
     // // needs to send group light account
-    // pub fn create_group_member_asset<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
-    //     args: CreateAssetArgsV1,
-    // ) -> Result<()> {
-    //     Ok(())
-    // }
+    pub fn create_member_asset<'info>(
+        ctx: Context<'_, '_, '_, 'info, CreateMemberAsset<'info>>,
+        lrp: LightRootParams,
+        group_seed: u64,
+        args: CreateAssetArgsV1,
+    ) -> Result<()> {
+        processor::create_member_asset::handler(ctx, lrp, group_seed, args)?;
+        Ok(())
+    }
 
-    // // <-------------------------------------------------------------------------------------------->
+    // <-------------------------------------------------------------------------------------------->
 
     // pub fn create_multisig_asset<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     //     args: CreateAssetArgsV1,
     //     minimum_signers: u8, // need to provide n number of signers in remaining accounts
     //     n_signers: u8,       // used to calculate index in remaining_accounts where signers starts
@@ -93,7 +99,7 @@ pub mod feather_assets {
     // }
     // // needs to send group light account
     // pub fn create_multisig_group_memeber_asset<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     //     args: CreateAssetArgsV1,
     //     minimum_signers: u8, // need to provide n number of signers in remaining accounts
     //     n_signers: u8,       // used to calculate index in remaining_accounts where signers starts
@@ -101,28 +107,34 @@ pub mod feather_assets {
     //     Ok(())
     // }
 
-    // // <-------------------------------------------------------------------------------------------->
+    // <-------------------------------------------------------------------------------------------->
 
-    // pub fn add_metadata_to_asset<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
-    //     args: AssetMetadataArgsV1,
-    // ) -> Result<()> {
-    //     Ok(())
-    // }
-    // pub fn add_royalties_to_asset<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
-    //     args: RoyaltyArgsV1,
-    // ) -> Result<()> {
-    //     Ok(())
-    // }
+    pub fn add_metadata_to_asset<'info>(
+        ctx: Context<'_, '_, '_, 'info, AddMetadataToAsset<'info>>,
+        lrp: LightRootParams,
+        asset_type: AssetType,
+        args: AssetMetadataArgsV1,
+    ) -> Result<()> {
+        processor::add_metadata_asset::handler(ctx, lrp, asset_type, args)?;
+        Ok(())
+    }
+    pub fn add_royalties_to_asset<'info>(
+        ctx: Context<'_, '_, '_, 'info, AddRoyaltiesToAsset<'info>>,
+        lrp: LightRootParams,
+        asset_type: AssetType,
+        args: RoyaltyArgsV1,
+    ) -> Result<()> {
+        processor::add_royalties_asset::handler(ctx, lrp, asset_type, args)?;
+        Ok(())
+    }
     // pub fn update_asset_royalties<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     //     args: UpdateRoyaltyArgsV1,
     // ) -> Result<()> {
     //     Ok(())
     // }
     // pub fn update_asset_metadata<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     //     args: UpdateAssetMetadataArgsV1,
     // ) -> Result<()> {
     //     Ok(())
@@ -131,28 +143,28 @@ pub mod feather_assets {
     // // <-------------------------------------------------------------------------------------------->
 
     // pub fn add_metadata_to_asset_multisig<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     //     args: AssetMetadataArgsV1,
     //     number_of_signer: u8, // used to calculate index in remaining_accounts where signers starts
     // ) -> Result<()> {
     //     Ok(())
     // }
     // pub fn add_royalties_to_asset_multisig<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     //     args: RoyaltyArgsV1,
     //     number_of_signer: u8, // used to calculate index in remaining_accounts where signers starts
     // ) -> Result<()> {
     //     Ok(())
     // }
     // pub fn update_asset_royalties_multisig<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     //     args: UpdateRoyaltyArgsV1,
     //     number_of_signer: u8, // used to calculate index in remaining_accounts where signers starts
     // ) -> Result<()> {
     //     Ok(())
     // }
     // pub fn update_asset_metadata_multisig<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     //     args: UpdateAssetMetadataArgsV1,
     //     number_of_signer: u8, // used to calculate index in remaining_accounts where signers starts
     // ) -> Result<()> {
@@ -162,22 +174,22 @@ pub mod feather_assets {
     // // <-------------------------------------------------------------------------------------------->
 
     // pub fn freeze_asset<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     // ) -> Result<()> {
     //     Ok(())
     // }
     // pub fn thaw_asset<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     // ) -> Result<()> {
     //     Ok(())
     // }
     // pub fn burn_asset<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     // ) -> Result<()> {
     //     Ok(())
     // }
     // pub fn transfer_asset<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     // ) -> Result<()> {
     //     Ok(())
     // }
@@ -185,25 +197,25 @@ pub mod feather_assets {
     // // <-------------------------------------------------------------------------------------------->
 
     // pub fn freeze_asset_multisig<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     //     number_of_signer: u8,
     // ) -> Result<()> {
     //     Ok(())
     // }
     // pub fn thaw_asset_multisig<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     //     number_of_signer: u8,
     // ) -> Result<()> {
     //     Ok(())
     // }
     // pub fn burn_asset_multisig<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     //     number_of_signer: u8,
     // ) -> Result<()> {
     //     Ok(())
     // }
     // pub fn transfer_asset_multisig<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     //     number_of_signer: u8,
     // ) -> Result<()> {
     //     Ok(())
@@ -212,32 +224,32 @@ pub mod feather_assets {
     // // <-------------------------------------------------------------------------------------------->
 
     // pub fn delegate_asset<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     //     asset_privelege: AssetPrivilege,
     //     time_lock: Option<u32>,
     // ) -> Result<()> {
     //     Ok(())
     // }
     // pub fn revoke_delegate_asset<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     // ) -> Result<()> {
     //     Ok(())
     // }
     // pub fn update_delegate_privledge<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     //     asset_privelege: AssetPrivilege,
     //     time_lock: Option<u32>,
     // ) -> Result<()> {
     //     Ok(())
     // }
     // pub fn permanent_delegate_asset<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     //     asset_privelege: AssetPrivilege,
     // ) -> Result<()> {
     //     Ok(())
     // }
     // pub fn rent_asset<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     //     asset_privelege: AssetPrivilege,
     //     rent_time: u32,
     // ) -> Result<()> {
@@ -246,7 +258,7 @@ pub mod feather_assets {
 
     // // <-------------------------------------------------------------------------------------------->
     // pub fn delegate_asset_multisig<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     //     asset_privelege: AssetPrivilege,
     //     time_lock: Option<u32>,
     //     number_of_signer: u8,
@@ -255,13 +267,13 @@ pub mod feather_assets {
     // }
 
     // pub fn revoke_delegate_asset_multsig<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     //     number_of_signer: u8,
     // ) -> Result<()> {
     //     Ok(())
     // }
     // pub fn update_delegate_privledge_multisig<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     //     asset_privelege: AssetPrivilege,
     //     time_lock: Option<u32>,
     //     number_of_signer: u8,
@@ -269,14 +281,14 @@ pub mod feather_assets {
     //     Ok(())
     // }
     // pub fn permanent_delegate_asset_multisig<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     //     asset_privelege: AssetPrivilege,
     //     number_of_signer: u8,
     // ) -> Result<()> {
     //     Ok(())
     // }
     // pub fn rent_asset_multisig<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     //     asset_privelege: AssetPrivilege,
     //     rent_time: u32,
     //     number_of_signer: u8,
@@ -288,12 +300,12 @@ pub mod feather_assets {
 
     // No plans for protocol fees for now
     // pub fn initialize_fee_config<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     // ) -> Result<()> {
     //     Ok(())
     // }
     // pub fn update_fee_config<'info>(
-    //     ctx: LightContext<'_, '_, '_, 'info, Initialize<'info>>,
+    //     ctx: Context<'_, '_, '_, 'info, Initialize<'info>>,
     // ) -> Result<()> {
     //     Ok(())
     // }
