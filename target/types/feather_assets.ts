@@ -3,6 +3,21 @@ export type FeatherAssets = {
   "name": "feather_assets",
   "constants": [
     {
+      "name": "ASSET_DATA_SEED",
+      "type": "bytes",
+      "value": "[97, 115, 115, 101, 116, 95, 100, 97, 116, 97]"
+    },
+    {
+      "name": "ASSET_ROYALTY_SEED",
+      "type": "bytes",
+      "value": "[97, 115, 115, 101, 116, 95, 114, 111, 121, 97, 108, 116, 121]"
+    },
+    {
+      "name": "ASSET_SEED",
+      "type": "bytes",
+      "value": "[97, 115, 115, 101, 116]"
+    },
+    {
       "name": "GROUP_DATA_SEED",
       "type": "bytes",
       "value": "[103, 114, 111, 117, 112, 95, 100, 97, 116, 97]"
@@ -360,6 +375,292 @@ export type FeatherAssets = {
           "type": "u64"
         }
       ]
+    },
+    {
+      "name": "createAsset",
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "selfProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "cpiSigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "lightSystemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "registeredProgramPda",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "noopProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionAuthority",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lrp",
+          "type": {
+            "defined": "LightRootParams"
+          }
+        },
+        {
+          "name": "seeds",
+          "type": "u64"
+        },
+        {
+          "name": "args",
+          "type": {
+            "defined": "CreateAssetArgsV1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "createMemberAsset",
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "selfProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "cpiSigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "lightSystemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "registeredProgramPda",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "noopProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionAuthority",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lrp",
+          "type": {
+            "defined": "LightRootParams"
+          }
+        },
+        {
+          "name": "groupSeed",
+          "type": "u64"
+        },
+        {
+          "name": "args",
+          "type": {
+            "defined": "CreateAssetArgsV1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "addMetadataToAsset",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "selfProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "cpiSigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "lightSystemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "registeredProgramPda",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "noopProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionAuthority",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lrp",
+          "type": {
+            "defined": "LightRootParams"
+          }
+        },
+        {
+          "name": "assetType",
+          "type": {
+            "defined": "AssetType"
+          }
+        },
+        {
+          "name": "args",
+          "type": {
+            "defined": "AssetMetadataArgsV1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "addRoyaltiesToAsset",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "selfProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "cpiSigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "lightSystemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "registeredProgramPda",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "noopProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionAuthority",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lrp",
+          "type": {
+            "defined": "LightRootParams"
+          }
+        },
+        {
+          "name": "assetType",
+          "type": {
+            "defined": "AssetType"
+          }
+        },
+        {
+          "name": "args",
+          "type": {
+            "defined": "RoyaltyArgsV1"
+          }
+        }
+      ]
     }
   ],
   "types": [
@@ -404,6 +705,64 @@ export type FeatherAssets = {
       }
     },
     {
+      "name": "AssetMetadataArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "uri",
+            "type": "string"
+          },
+          {
+            "name": "mutable",
+            "type": "bool"
+          },
+          {
+            "name": "attributes",
+            "type": {
+              "vec": {
+                "defined": "AttributeV1"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AssetType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Alone",
+            "fields": [
+              {
+                "name": "seeds",
+                "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "Member",
+            "fields": [
+              {
+                "name": "groupSeed",
+                "type": "u64"
+              },
+              {
+                "name": "memberNumber",
+                "type": "u32"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "name": "AttributeV1",
       "type": {
         "kind": "struct",
@@ -415,6 +774,42 @@ export type FeatherAssets = {
           {
             "name": "value",
             "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CreateAssetArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "transferrable",
+            "type": "bool"
+          },
+          {
+            "name": "mutable",
+            "type": "bool"
+          },
+          {
+            "name": "rentable",
+            "type": "bool"
+          },
+          {
+            "name": "metadata",
+            "type": {
+              "option": {
+                "defined": "AssetMetadataArgsV1"
+              }
+            }
+          },
+          {
+            "name": "royalty",
+            "type": {
+              "option": {
+                "defined": "RoyaltyArgsV1"
+              }
+            }
           }
         ]
       }
@@ -468,6 +863,32 @@ export type FeatherAssets = {
       }
     },
     {
+      "name": "RoyaltyArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "basisPoints",
+            "type": "u8"
+          },
+          {
+            "name": "creators",
+            "type": {
+              "vec": {
+                "defined": "CreatorArgsV1"
+              }
+            }
+          },
+          {
+            "name": "ruleset",
+            "type": {
+              "defined": "RuleSetV1"
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "UpdateGroupMetadataArgsV1",
       "type": {
         "kind": "struct",
@@ -493,6 +914,49 @@ export type FeatherAssets = {
                 }
               }
             }
+          }
+        ]
+      }
+    },
+    {
+      "name": "CreatorArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "address",
+            "type": "publicKey"
+          },
+          {
+            "name": "percentage",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RuleSetV1",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "None"
+          },
+          {
+            "name": "ProgramAllowList",
+            "fields": [
+              {
+                "vec": "publicKey"
+              }
+            ]
+          },
+          {
+            "name": "ProgramDenyList",
+            "fields": [
+              {
+                "vec": "publicKey"
+              }
+            ]
           }
         ]
       }
@@ -586,8 +1050,33 @@ export type FeatherAssets = {
     },
     {
       "code": 6003,
+      "name": "InvalidAssetSigner",
+      "msg": "Unauthorized asset signer"
+    },
+    {
+      "code": 6004,
       "name": "ArgumentsNotFound",
       "msg": "No Update Inputs found"
+    },
+    {
+      "code": 6005,
+      "name": "MemberAssetOverflow",
+      "msg": "Max members reached"
+    },
+    {
+      "code": 6006,
+      "name": "MetadataAccountExistAlready",
+      "msg": "Metadata Account Already Exist"
+    },
+    {
+      "code": 6007,
+      "name": "RoyaltyAccountExistAlready",
+      "msg": "Royalty Account Already Exist"
+    },
+    {
+      "code": 6008,
+      "name": "GroupAccountNotFound",
+      "msg": "Group Account Not Found"
     }
   ]
 };
@@ -597,6 +1086,21 @@ export const IDL: FeatherAssets = {
   "name": "feather_assets",
   "constants": [
     {
+      "name": "ASSET_DATA_SEED",
+      "type": "bytes",
+      "value": "[97, 115, 115, 101, 116, 95, 100, 97, 116, 97]"
+    },
+    {
+      "name": "ASSET_ROYALTY_SEED",
+      "type": "bytes",
+      "value": "[97, 115, 115, 101, 116, 95, 114, 111, 121, 97, 108, 116, 121]"
+    },
+    {
+      "name": "ASSET_SEED",
+      "type": "bytes",
+      "value": "[97, 115, 115, 101, 116]"
+    },
+    {
       "name": "GROUP_DATA_SEED",
       "type": "bytes",
       "value": "[103, 114, 111, 117, 112, 95, 100, 97, 116, 97]"
@@ -954,6 +1458,292 @@ export const IDL: FeatherAssets = {
           "type": "u64"
         }
       ]
+    },
+    {
+      "name": "createAsset",
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "selfProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "cpiSigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "lightSystemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "registeredProgramPda",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "noopProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionAuthority",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lrp",
+          "type": {
+            "defined": "LightRootParams"
+          }
+        },
+        {
+          "name": "seeds",
+          "type": "u64"
+        },
+        {
+          "name": "args",
+          "type": {
+            "defined": "CreateAssetArgsV1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "createMemberAsset",
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "selfProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "cpiSigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "lightSystemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "registeredProgramPda",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "noopProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionAuthority",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lrp",
+          "type": {
+            "defined": "LightRootParams"
+          }
+        },
+        {
+          "name": "groupSeed",
+          "type": "u64"
+        },
+        {
+          "name": "args",
+          "type": {
+            "defined": "CreateAssetArgsV1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "addMetadataToAsset",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "selfProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "cpiSigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "lightSystemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "registeredProgramPda",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "noopProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionAuthority",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lrp",
+          "type": {
+            "defined": "LightRootParams"
+          }
+        },
+        {
+          "name": "assetType",
+          "type": {
+            "defined": "AssetType"
+          }
+        },
+        {
+          "name": "args",
+          "type": {
+            "defined": "AssetMetadataArgsV1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "addRoyaltiesToAsset",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "selfProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "cpiSigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "lightSystemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "registeredProgramPda",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "noopProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "accountCompressionAuthority",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lrp",
+          "type": {
+            "defined": "LightRootParams"
+          }
+        },
+        {
+          "name": "assetType",
+          "type": {
+            "defined": "AssetType"
+          }
+        },
+        {
+          "name": "args",
+          "type": {
+            "defined": "RoyaltyArgsV1"
+          }
+        }
+      ]
     }
   ],
   "types": [
@@ -998,6 +1788,64 @@ export const IDL: FeatherAssets = {
       }
     },
     {
+      "name": "AssetMetadataArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "uri",
+            "type": "string"
+          },
+          {
+            "name": "mutable",
+            "type": "bool"
+          },
+          {
+            "name": "attributes",
+            "type": {
+              "vec": {
+                "defined": "AttributeV1"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AssetType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Alone",
+            "fields": [
+              {
+                "name": "seeds",
+                "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "Member",
+            "fields": [
+              {
+                "name": "groupSeed",
+                "type": "u64"
+              },
+              {
+                "name": "memberNumber",
+                "type": "u32"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "name": "AttributeV1",
       "type": {
         "kind": "struct",
@@ -1009,6 +1857,42 @@ export const IDL: FeatherAssets = {
           {
             "name": "value",
             "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CreateAssetArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "transferrable",
+            "type": "bool"
+          },
+          {
+            "name": "mutable",
+            "type": "bool"
+          },
+          {
+            "name": "rentable",
+            "type": "bool"
+          },
+          {
+            "name": "metadata",
+            "type": {
+              "option": {
+                "defined": "AssetMetadataArgsV1"
+              }
+            }
+          },
+          {
+            "name": "royalty",
+            "type": {
+              "option": {
+                "defined": "RoyaltyArgsV1"
+              }
+            }
           }
         ]
       }
@@ -1062,6 +1946,32 @@ export const IDL: FeatherAssets = {
       }
     },
     {
+      "name": "RoyaltyArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "basisPoints",
+            "type": "u8"
+          },
+          {
+            "name": "creators",
+            "type": {
+              "vec": {
+                "defined": "CreatorArgsV1"
+              }
+            }
+          },
+          {
+            "name": "ruleset",
+            "type": {
+              "defined": "RuleSetV1"
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "UpdateGroupMetadataArgsV1",
       "type": {
         "kind": "struct",
@@ -1087,6 +1997,49 @@ export const IDL: FeatherAssets = {
                 }
               }
             }
+          }
+        ]
+      }
+    },
+    {
+      "name": "CreatorArgsV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "address",
+            "type": "publicKey"
+          },
+          {
+            "name": "percentage",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RuleSetV1",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "None"
+          },
+          {
+            "name": "ProgramAllowList",
+            "fields": [
+              {
+                "vec": "publicKey"
+              }
+            ]
+          },
+          {
+            "name": "ProgramDenyList",
+            "fields": [
+              {
+                "vec": "publicKey"
+              }
+            ]
           }
         ]
       }
@@ -1180,8 +2133,33 @@ export const IDL: FeatherAssets = {
     },
     {
       "code": 6003,
+      "name": "InvalidAssetSigner",
+      "msg": "Unauthorized asset signer"
+    },
+    {
+      "code": 6004,
       "name": "ArgumentsNotFound",
       "msg": "No Update Inputs found"
+    },
+    {
+      "code": 6005,
+      "name": "MemberAssetOverflow",
+      "msg": "Max members reached"
+    },
+    {
+      "code": 6006,
+      "name": "MetadataAccountExistAlready",
+      "msg": "Metadata Account Already Exist"
+    },
+    {
+      "code": 6007,
+      "name": "RoyaltyAccountExistAlready",
+      "msg": "Royalty Account Already Exist"
+    },
+    {
+      "code": 6008,
+      "name": "GroupAccountNotFound",
+      "msg": "Group Account Not Found"
     }
   ]
 };

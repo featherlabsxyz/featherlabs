@@ -12,6 +12,7 @@ use feather_assets::{
 use light_client::indexer::Indexer;
 use light_sdk::{
     address::{derive_address, derive_address_seed},
+    event::PublicTransactionEvent,
     merkle_context::{pack_address_merkle_context, pack_merkle_context},
     verify::find_cpi_signer,
     PROGRAM_ID_ACCOUNT_COMPRESSION, PROGRAM_ID_LIGHT_SYSTEM,
@@ -66,7 +67,7 @@ async fn create_group() {
             &mut rpc,
         )
         .await;
-    let create_group_ix = CreateGroupIx {
+    let ix_data = CreateGroupIx {
         args: CreateGroupArgsV1 {
             max_size: 10,
             metadata: Some(GroupMetadataArgsV1 {
@@ -86,7 +87,7 @@ async fn create_group() {
         },
         seeds: seed,
     };
-    let create_group_acc = CreateGroupAcc {
+    let accounts = CreateGroupAcc {
         account_compression_authority,
         account_compression_program: PROGRAM_ID_ACCOUNT_COMPRESSION,
         authority: payer.pubkey(),
@@ -100,29 +101,25 @@ async fn create_group() {
     };
     let ix = Instruction {
         accounts: [
-            create_group_acc.to_account_metas(Some(true)),
+            accounts.to_account_metas(Some(true)),
             remaining_accounts.to_account_metas(),
         ]
         .concat(),
-        data: create_group_ix.data(),
+        data: ix_data.data(),
         program_id: PROGRAM_ID,
     };
 
-    match rpc
-        .create_and_send_transaction_with_event(&[ix], &payer.pubkey(), &[&payer], None)
-        .await
-    {
-        Ok(event) => match event {
-            Some(event_data) => {
-                println!("{:#?}", event_data.0);
-                test_indexer.add_compressed_accounts_with_token_data(&event_data.0);
-            }
-            None => {
-                println!("Event data is None");
-            }
-        },
-        Err(e) => {
-            eprintln!("Error creating and sending transaction: {:?}", e);
-        }
+    let event = rpc
+        .create_and_send_transaction_with_event::<PublicTransactionEvent>(
+            &[ix],
+            &payer.pubkey(),
+            &[&payer],
+            None,
+        )
+        .await;
+    match event {
+        Err(err) => println!("{err}"),
+        Ok(event) => println!("Success"),
     }
+    // test_indexer.add_compressed_accounts_with_token_data(&event.unwrap().0);
 }

@@ -6,6 +6,7 @@ pub fn handler<'info>(
     args: CreateGroupArgsV1,
 ) -> Result<()> {
     let remaining_accounts = ctx.remaining_accounts;
+    let invoking_program = &ctx.accounts.get_invoking_program().key();
     let mut ctx: LightContext<CreateGroup, LightCreateGroup> = LightContext::new(
         ctx,
         lrp.inputs,
@@ -58,16 +59,13 @@ pub fn handler<'info>(
             group.has_metadata = false;
         }
     };
-    output_compressed_accounts.push(
+    output_compressed_accounts.insert(
+        0,
         group
             .output_compressed_account(&crate::ID, remaining_accounts)?
-            .ok_or(FeatherErrorCode::CustomError)?,
+            .unwrap(),
     );
-    let bump = Pubkey::find_program_address(
-        &[CPI_AUTHORITY_PDA_SEED],
-        ctx.accounts.get_invoking_program().key,
-    )
-    .1;
+    let bump = Pubkey::find_program_address(&[CPI_AUTHORITY_PDA_SEED], invoking_program).1;
     let signer_seeds = [CPI_AUTHORITY_PDA_SEED, &[bump]];
     let instruction = InstructionDataInvokeCpi {
         proof: Some(lrp.proof),

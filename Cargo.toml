@@ -18,7 +18,7 @@ light-utils = { version = "1.1.0" }
 spl-noop = { version = "0.2.0", features = ["no-entrypoint"] }
 solana-sdk = "=1.18.22"
 
-light-client = { version = "0.9.1", features = ["devenv"] }
-light-test-utils = { version = "1.2.1", features = ["devenv"] }
+light-client = { version = "0.9.1" }
+light-test-utils = { version = "1.2.1" }
 solana-program-test = "=1.18.22"
 tokio = "1.36.0"
