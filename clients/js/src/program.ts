@@ -15,6 +15,7 @@ import {
   CompressedAccount,
   CompressedAccountWithMerkleContext,
   createMerkleContext,
+  PackedMerkleContext,
 } from "@lightprotocol/stateless.js";
 import { FeatherAssets, IDL } from "./idl";
 import { CreateGroupArgsV1, GroupMetadataArgsV1 } from "./types";
@@ -109,7 +110,6 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
     } = this.pack([], outputCompressedAccounts, newAddresses, proof);
     const ix = await FeatherAssetsProgram.getInstance()
       .program.methods.createGroup(
-        // @ts-ignore
         {
           addressMerkleContext,
           addressMerkleTreeRootIndex,
@@ -168,14 +168,14 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       addressMerkleTreeRootIndex,
       addressQueueAccountIndex,
     } = newAddressParamsPacked[0];
-    let merkleContext = {
+    let merkleContext: PackedMerkleContext = {
       leafIndex: 0,
       merkleTreePubkeyIndex: getIndexOrAdd(remainingAccounts, this.merkleTree),
       nullifierQueuePubkeyIndex: getIndexOrAdd(
         remainingAccounts,
         this.nullifierQueue
       ),
-      queueIndex: undefined,
+      queueIndex: null,
     };
     return {
       addressMerkleContext: {

@@ -2,7 +2,7 @@ import { PublicKey } from "@solana/web3.js";
 
 export interface CreateGroupArgsV1 {
   maxSize: number;
-  metadata?: GroupMetadataArgsV1;
+  metadata: GroupMetadataArgsV1 | null;
 }
 
 export interface GroupMetadataArgsV1 {
