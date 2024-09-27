@@ -4,13 +4,14 @@
     "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
     "lightv": "light test-validator",
     "depl": "anchor deploy --provider.cluster http://localhost:8899",
-    "testl": "anchor test --provider.cluster http://localhost:8899 --skip-deploy --skip-local-validator --skip-build"
+    "testl": "anchor test --provider.cluster http://localhost:8899 --skip-deploy --skip-local-validator --skip-build",
+    "gen": "ts-node migrations/generate-client.ts"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.29.0",
     "@lightprotocol/stateless.js": "^0.13.0",
-    "@solana/web3.js": "^1.95.3",
-    "@noble/hashes": "^1.5.0"
+    "@noble/hashes": "^1.5.0",
+    "@solana/web3.js": "^1.95.3"
   },
   "devDependencies": {
     "@types/bn.js": "^5.1.0",

@@ -58,7 +58,6 @@ pub struct UpdateGroupMetadataArgsV1 {
 #[derive(Clone, Debug, AnchorSerialize, AnchorDeserialize)]
 pub struct CreateAssetArgsV1 {
     pub transferrable: bool,
-    pub mutable: bool,
     pub rentable: bool,
     pub metadata: Option<AssetMetadataArgsV1>,
     pub royalty: Option<RoyaltyArgsV1>,

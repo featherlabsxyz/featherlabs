@@ -26,6 +26,7 @@ pub fn handler<'info>(
         &group_address_params.seed,
         &address_merkle_context,
     ));
+    msg!("{:?}", group_address);
     group.max_size = args.max_size;
     group.owner = ctx.anchor_context.accounts.authority.key();
     group.size = 0;

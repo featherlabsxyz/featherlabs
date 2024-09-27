@@ -1787,6 +1787,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "feather_assets_rust_sdk"
+version = "0.1.0"
+dependencies = [
+ "anchor-lang",
+ "light-client",
+ "light-hasher",
+ "light-heap",
+ "light-sdk",
+ "light-test-utils",
+ "light-utils",
+ "solana-program-test",
+ "solana-sdk",
+ "spl-noop",
+ "tokio",
+]
+
+[[package]]
 name = "feature-probe"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"

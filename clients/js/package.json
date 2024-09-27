@@ -1,0 +1,31 @@
+{
+  "name": "@featherlabs/feather-assets",
+  "version": "1.0.0",
+  "description": "Unified, flexible, stateless asset protocol for ownership, delegation, and rentability.",
+  "main": "dist/src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/me-imfhd/featherlabs.git"
+  },
+  "author": "me-imfhd",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/me-imfhd/featherlabs/issues"
+  },
+  "homepage": "https://github.com/me-imfhd/featherlabs#readme",
+  "devDependencies": {
+    "@solana/web3.js": "^1.95.3",
+    "@types/chai": "^4.3.0",
+    "@types/mocha": "^9.0.0",
+    "@types/bn.js": "^5.1.0",
+    "chai": "^4.3.4",
+    "mocha": "^9.0.3",
+    "ts-mocha": "^10.0.0",
+    "@coral-xyz/anchor": "^0.29.0",
+    "@lightprotocol/stateless.js": "^0.13.0",
+    "@noble/hashes": "^1.5.0"
+  }
+}

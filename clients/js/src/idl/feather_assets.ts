@@ -1,3 +1,4 @@
+// @ts-nocheck
 export type FeatherAssets = {
   "version": "0.1.0",
   "name": "feather_assets",

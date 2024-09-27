@@ -665,6 +665,41 @@
   ],
   "types": [
     {
+      "name": "CompressedProof",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "a",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "b",
+            "type": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          },
+          {
+            "name": "c",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "LightRootParams",
       "type": {
         "kind": "struct",
@@ -678,7 +713,7 @@
           {
             "name": "proof",
             "type": {
-              "defined": ""
+              "defined": "CompressedProof"
             }
           },
           {
@@ -785,10 +820,6 @@
         "fields": [
           {
             "name": "transferrable",
-            "type": "bool"
-          },
-          {
-            "name": "mutable",
             "type": "bool"
           },
           {
@@ -1078,5 +1109,8 @@
       "name": "GroupAccountNotFound",
       "msg": "Group Account Not Found"
     }
-  ]
+  ],
+  "metadata": {
+    "address": "bFAZoSQTAnpQdh4ekcn79Hn958ehWxJ4TsniCRgpYrj"
+  }
 }
