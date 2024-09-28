@@ -1,5 +1,6 @@
 import {
   CompressedProofWithContext,
+  createCompressedAccountWithMerkleContext,
   defaultStaticAccountsStruct as staticAccounts,
   defaultTestStateTreeAccounts as stateTree,
   LightSystemProgram,
@@ -11,7 +12,7 @@ import BN from "bn.js";
 
 export class FeatherAssetsConstants {
   static readonly programId: PublicKey = new PublicKey(
-    "bFAZoSQTAnpQdh4ekcn79Hn958ehWxJ4TsniCRgpYrj"
+    "HNyzkDmhZayxRG77bk84oxe13Qp3PcRhd5o5NJEF6E5W"
   );
   static readonly accountCompressionAuthority =
     staticAccounts().accountCompressionAuthority;
@@ -29,7 +30,7 @@ export class FeatherAssetsConstants {
     [Buffer.from("cpi_authority")],
     this.programId
   )[0];
-  static constantAccounts() {
+  static lightAccounts() {
     return {
       cpiSigner: this.cpiSigner,
       selfProgram: this.programId,
@@ -61,4 +62,5 @@ export class FeatherAssetsConstants {
     };
     return addressParams;
   }
+  protected static createCompressedAccountWithMerkleContext() {}
 }

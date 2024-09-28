@@ -1,4 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
+import BN from "bn.js";
 
 export interface CreateGroupArgsV1 {
   maxSize: number;
@@ -15,29 +16,38 @@ export interface GroupMetadataArgsV1 {
 export interface CreateAssetArgsV1 {
   transferrable: boolean;
   rentable: boolean;
-  metadata?: AssetMetadataArgsV1;
-  royalty?: RoyaltyArgsV1;
+  metadata: AssetMetadataArgsV1 | null;
+  royalty: RoyaltyArgsV1 | null;
 }
 
 export type AssetType =
-  | { type: "Alone"; seeds: number }
-  | { type: "Member"; groupSeed: number; memberNumber: number };
+  | { type: "Alone"; seeds: BN }
+  | { type: "Member"; groupSeed: BN; memberNumber: number };
 export interface RoyaltyArgsV1 {
   basisPoints: number;
   creators: CreatorArgsV1[];
   ruleset: RuleSetV1;
 }
-
+/**
+ * Asset Metadata
+ */
 export interface AssetMetadataArgsV1 {
   name: string;
   uri: string;
   mutable: boolean;
+  /**
+   * Custom Additional Attributes
+   */
   attributes: AttributeV1[];
 }
 export type RuleSetV1 =
-  | { type: "None" }
-  | { type: "ProgramAllowList"; programs: PublicKey[] }
-  | { type: "ProgramDenyList"; programs: PublicKey[] };
+  | { none: {} }
+  | {
+      programAllowList: [PublicKey[]];
+    }
+  | {
+      programDenyList: [PublicKey[]];
+    };
 
 export interface CreatorArgsV1 {
   address: PublicKey;
