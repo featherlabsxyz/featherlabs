@@ -3,10 +3,11 @@ use crate::*;
 pub fn handler<'info>(
     ctx: Context<'_, '_, '_, 'info, CreateMemberAsset<'info>>,
     lrp: LightRootParams,
-    group_seed: u64,
+    group_id: u32,
     args: CreateAssetArgsV1,
 ) -> Result<()> {
     let remaining_accounts = ctx.remaining_accounts;
+    let authority = ctx.accounts.authority.key();
     let mut ctx: LightContext<CreateMemberAsset, LightCreateMemberAsset> = LightContext::new(
         ctx,
         lrp.inputs,
@@ -15,7 +16,7 @@ pub fn handler<'info>(
         lrp.address_merkle_context,
         lrp.address_merkle_tree_root_index,
     )?;
-    let inputs = &ParamsCreateMemberAsset { group_seed };
+    let inputs = &ParamsCreateMemberAsset { group_id };
     ctx.check_constraints(inputs)?;
     ctx.derive_address_seeds(lrp.address_merkle_context, inputs);
     let group = &mut ctx.light_accounts.group;
@@ -40,6 +41,7 @@ pub fn handler<'info>(
             .ok_or(FeatherErrorCode::CustomError)?,
     );
     asset.address = asset_address;
+    asset.owner = authority;
     asset.has_multisig = false;
     asset.asset_authority_state = AssetAuthorityVariantV1::Owner;
     asset.asset_state = AssetStateV1::Unlocked;
@@ -126,11 +128,12 @@ pub fn handler<'info>(
     Ok(())
 }
 #[light_accounts]
-#[instruction(group_seed: u64)]
+#[instruction(group_id: u32)]
 pub struct CreateMemberAsset<'info> {
     #[account(mut)]
     #[fee_payer]
     pub signer: Signer<'info>,
+    pub group_authority: Signer<'info>,
     /// CHECK: this is safe
     pub authority: UncheckedAccount<'info>,
     #[self_program]
@@ -138,12 +141,14 @@ pub struct CreateMemberAsset<'info> {
     /// CHECK: Checked in light-system-program.
     #[authority]
     pub cpi_signer: AccountInfo<'info>,
-    #[light_account(mut, seeds = [GROUP_SEED, authority.key().as_ref(), group_seed.to_le_bytes().as_ref()])]
+    #[light_account(mut, seeds = [GROUP_SEED, group_authority.key().as_ref(), group_id.to_le_bytes().as_ref()],
+        constraint = group_authority.key() == group.owner @ FeatherErrorCode::InvalidGroupSigner
+    )]
     pub group: LightAccount<GroupV1>,
     #[light_account(init, seeds = [ASSET_SEED, group.address.as_ref(), (group.size + 1).to_le_bytes().as_ref()])]
     pub asset: LightAccount<AssetV1>,
 }
 
 struct ParamsCreateMemberAsset {
-    pub group_seed: u64,
+    pub group_id: u32,
 }

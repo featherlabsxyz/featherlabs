@@ -3,10 +3,11 @@ use crate::*;
 pub fn handler<'info>(
     ctx: Context<'_, '_, '_, 'info, CreateAsset<'info>>,
     lrp: LightRootParams,
-    seeds: u64,
+    asset_id: u32,
     args: CreateAssetArgsV1,
 ) -> Result<()> {
     let remaining_accounts = ctx.remaining_accounts;
+    let authority = ctx.accounts.authority.key();
     let mut ctx: LightContext<CreateAsset, LightCreateAsset> = LightContext::new(
         ctx,
         lrp.inputs,
@@ -15,17 +16,7 @@ pub fn handler<'info>(
         lrp.address_merkle_context,
         lrp.address_merkle_tree_root_index,
     )?;
-    // let seeds = match args.asset_type {
-    //     AssetType::Alone { seeds } => {
-    //         let complete_seed:&[&[u8]] = &[ASSET_SEED, seeds.to_le_bytes().as_ref()];
-    //         complete_seed
-    //     },
-    //     AssetType::Member { group_seeds } => {
-    //         let group:LightMutAccount<GroupV1> = LightMutAccount::try_from_slice(lrp.inputs., merkle_context, merkle_tree_root_index, address_merkle_context)
-    //         let complete_seed:&[&[u8]] = &[ASSET_SEED, seeds.to_le_bytes().as_ref()];
-    //     }
-    // };
-    let inputs = &ParamsCreateAsset { seeds };
+    let inputs = &ParamsCreateAsset { asset_id };
     ctx.check_constraints(inputs)?;
     ctx.derive_address_seeds(lrp.address_merkle_context, inputs);
     let asset = &mut ctx.light_accounts.asset;
@@ -39,6 +30,7 @@ pub fn handler<'info>(
         &address_merkle_context,
     ));
     asset.address = asset_address;
+    asset.owner = authority;
     asset.has_multisig = false;
     asset.asset_authority_state = AssetAuthorityVariantV1::Owner;
     asset.asset_state = AssetStateV1::Unlocked;
@@ -120,7 +112,7 @@ pub fn handler<'info>(
     Ok(())
 }
 #[light_accounts]
-#[instruction(seeds: u64)]
+#[instruction(asset_id: u32)]
 pub struct CreateAsset<'info> {
     #[account(mut)]
     #[fee_payer]
@@ -132,10 +124,10 @@ pub struct CreateAsset<'info> {
     /// CHECK: Checked in light-system-program.
     #[authority]
     pub cpi_signer: AccountInfo<'info>,
-    #[light_account(init, seeds = [ASSET_SEED, authority.key().as_ref(), seeds.to_le_bytes().as_ref()])]
+    #[light_account(init, seeds = [ASSET_SEED, authority.key().as_ref(), asset_id.to_le_bytes().as_ref()])]
     pub asset: LightAccount<AssetV1>,
 }
 
 struct ParamsCreateAsset {
-    pub seeds: u64,
+    pub asset_id: u32,
 }

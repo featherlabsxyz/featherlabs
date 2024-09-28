@@ -5,14 +5,7 @@ pub fn handler<'info>(
     asset_type: AssetType,
     args: AssetMetadataArgsV1,
 ) -> Result<()> {
-    let remaining_accounts = ctx.remaining_accounts;
-    let address_merkle_context =
-        unpack_address_merkle_context(lrp.address_merkle_context, remaining_accounts);
-    let asset_seed = asset_type.generate_asset_seed(
-        &ctx.accounts.authority.key(),
-        &lrp,
-        &address_merkle_context,
-    )?;
+    let asset_seed = asset_type.generate_asset_seed(&lrp)?;
     let mut ctx: LightContext<AddMetadataToAsset, LightAddMetadataToAsset> = LightContext::new(
         ctx,
         lrp.inputs,
@@ -26,16 +19,18 @@ pub fn handler<'info>(
     ctx.derive_address_seeds(lrp.address_merkle_context, &inputs);
     let asset_data = &mut ctx.light_accounts.asset_data;
     let asset = &mut ctx.light_accounts.asset;
+    asset_type.validate_asset(&asset)?;
+
     if asset.has_metadata {
         return Err(FeatherErrorCode::MetadataAccountExistAlready.into());
     }
+    asset.has_metadata = true;
     asset_data.asset_key = asset.address;
     asset_data.attributes = args.attributes;
     asset_data.mutable = args.mutable;
     asset_data.name = args.name;
     asset_data.uri = args.uri;
     asset_data.privilege_attributes = Vec::new();
-    asset.has_metadata = true;
 
     ctx.verify(lrp.proof)?;
     Ok(())
@@ -51,12 +46,13 @@ pub struct AddMetadataToAsset<'info> {
     /// CHECK: Checked in light-system-program.
     #[authority]
     pub cpi_signer: AccountInfo<'info>,
-    #[light_account(mut, seeds = [&asset_seed.concat()])]
+    #[light_account(mut, seeds = [&asset_seed.concat()]
+        constraint = asset.owner == authority.key() @ FeatherErrorCode::InvalidAssetSigner
+    )]
     pub asset: LightAccount<AssetV1>,
     #[light_account(
         init,
         seeds = [ASSET_DATA_SEED ,asset.address.as_ref()],
-        constraint = asset.owner == authority.key() @ FeatherErrorCode::InvalidAssetSigner
     )]
     pub asset_data: LightAccount<AssetDataV1>,
 }

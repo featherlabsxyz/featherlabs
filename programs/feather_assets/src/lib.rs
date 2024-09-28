@@ -23,45 +23,45 @@ pub mod feather_assets {
     pub fn create_group<'info>(
         ctx: Context<'_, '_, '_, 'info, CreateGroup<'info>>,
         lrp: LightRootParams,
-        seeds: u64,
+        group_id: u32,
         args: CreateGroupArgsV1,
     ) -> Result<()> {
-        processor::create_group::handler(ctx, lrp, seeds, args)?;
+        processor::create_group::handler(ctx, lrp, group_id, args)?;
         Ok(())
     }
     pub fn update_group_max_size<'info>(
         ctx: Context<'_, '_, '_, 'info, UpdateGroupMaxSize<'info>>,
         lrp: LightRootParams,
-        seeds: u64,
+        group_id: u32,
         max_size: u32,
     ) -> Result<()> {
-        processor::update_group_max_size::handler(ctx, lrp, seeds, max_size)?;
+        processor::update_group_max_size::handler(ctx, lrp, group_id, max_size)?;
         Ok(())
     }
     pub fn add_metadata_to_group<'info>(
         ctx: Context<'_, '_, '_, 'info, AddMetadataToGroup<'info>>,
         lrp: LightRootParams,
-        group_seed: u64,
+        group_id: u32,
         args: GroupMetadataArgsV1,
     ) -> Result<()> {
-        processor::add_metadata_group::handler(ctx, lrp, group_seed, args)?;
+        processor::add_metadata_group::handler(ctx, lrp, group_id, args)?;
         Ok(())
     }
     pub fn update_group_metadata<'info>(
         ctx: Context<'_, '_, '_, 'info, UpdateGroupMetadata<'info>>,
         lrp: LightRootParams,
-        group_seed: u64,
+        group_id: u32,
         args: UpdateGroupMetadataArgsV1,
     ) -> Result<()> {
-        processor::update_group_metadata::handler(ctx, lrp, group_seed, args)?;
+        processor::update_group_metadata::handler(ctx, lrp, group_id, args)?;
         Ok(())
     }
     pub fn transfer_group_authority<'info>(
         ctx: Context<'_, '_, '_, 'info, TransferGroupAuthority<'info>>,
         lrp: LightRootParams,
-        group_seed: u64,
+        group_id: u32,
     ) -> Result<()> {
-        processor::transfer_group_authority::handler(ctx, lrp, group_seed)?;
+        processor::transfer_group_authority::handler(ctx, lrp, group_id)?;
         Ok(())
     }
 
@@ -70,20 +70,20 @@ pub mod feather_assets {
     pub fn create_asset<'info>(
         ctx: Context<'_, '_, '_, 'info, CreateAsset<'info>>,
         lrp: LightRootParams,
-        seeds: u64,
+        asset_id: u32,
         args: CreateAssetArgsV1,
     ) -> Result<()> {
-        processor::create_asset::handler(ctx, lrp, seeds, args)?;
+        processor::create_asset::handler(ctx, lrp, asset_id, args)?;
         Ok(())
     }
     // // needs to send group light account
     pub fn create_member_asset<'info>(
         ctx: Context<'_, '_, '_, 'info, CreateMemberAsset<'info>>,
         lrp: LightRootParams,
-        group_seed: u64,
+        group_id: u32,
         args: CreateAssetArgsV1,
     ) -> Result<()> {
-        processor::create_member_asset::handler(ctx, lrp, group_seed, args)?;
+        processor::create_member_asset::handler(ctx, lrp, group_id, args)?;
         Ok(())
     }
 

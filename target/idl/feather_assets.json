@@ -96,8 +96,8 @@
           }
         },
         {
-          "name": "seeds",
-          "type": "u64"
+          "name": "groupId",
+          "type": "u32"
         },
         {
           "name": "args",
@@ -164,8 +164,8 @@
           }
         },
         {
-          "name": "seeds",
-          "type": "u64"
+          "name": "groupId",
+          "type": "u32"
         },
         {
           "name": "maxSize",
@@ -230,8 +230,8 @@
           }
         },
         {
-          "name": "groupSeed",
-          "type": "u64"
+          "name": "groupId",
+          "type": "u32"
         },
         {
           "name": "args",
@@ -298,8 +298,8 @@
           }
         },
         {
-          "name": "groupSeed",
-          "type": "u64"
+          "name": "groupId",
+          "type": "u32"
         },
         {
           "name": "args",
@@ -371,8 +371,8 @@
           }
         },
         {
-          "name": "groupSeed",
-          "type": "u64"
+          "name": "groupId",
+          "type": "u32"
         }
       ]
     },
@@ -438,8 +438,8 @@
           }
         },
         {
-          "name": "seeds",
-          "type": "u64"
+          "name": "assetId",
+          "type": "u32"
         },
         {
           "name": "args",
@@ -455,6 +455,11 @@
         {
           "name": "signer",
           "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "groupAuthority",
+          "isMut": false,
           "isSigner": true
         },
         {
@@ -511,8 +516,8 @@
           }
         },
         {
-          "name": "groupSeed",
-          "type": "u64"
+          "name": "groupId",
+          "type": "u32"
         },
         {
           "name": "args",
@@ -741,8 +746,12 @@
             "name": "Alone",
             "fields": [
               {
-                "name": "seeds",
-                "type": "u64"
+                "name": "assetId",
+                "type": "u32"
+              },
+              {
+                "name": "authority",
+                "type": "publicKey"
               }
             ]
           },
@@ -750,8 +759,8 @@
             "name": "Member",
             "fields": [
               {
-                "name": "groupSeed",
-                "type": "u64"
+                "name": "groupAddress",
+                "type": "publicKey"
               },
               {
                 "name": "memberNumber",
@@ -1074,8 +1083,5 @@
       "name": "GroupAccountNotFound",
       "msg": "Group Account Not Found"
     }
-  ],
-  "metadata": {
-    "address": "HNyzkDmhZayxRG77bk84oxe13Qp3PcRhd5o5NJEF6E5W"
-  }
+  ]
 }

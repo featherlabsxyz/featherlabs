@@ -39,12 +39,12 @@ async fn create_group() {
     let packed_merkle_context = pack_merkle_context(merkle_context, &mut remaining_accounts);
     let packed_address_merkle_context =
         pack_address_merkle_context(address_merkle_context, &mut remaining_accounts);
-    let group_seed: u64 = 2109141;
+    let group_id: u32 = 2109141;
     let group_address_seed = derive_address_seed(
         &[
             GROUP_SEED,
             payer.pubkey().as_ref(),
-            group_seed.to_le_bytes().as_ref(),
+            group_id.to_le_bytes().as_ref(),
         ],
         &PROGRAM_ID,
         &address_merkle_context,
@@ -88,7 +88,7 @@ async fn create_group() {
             merkle_context: packed_merkle_context,
             proof: rpc_result.proof,
         },
-        seeds: group_seed,
+        group_id,
     };
     let accounts = CreateGroupAcc {
         authority: payer.pubkey(),

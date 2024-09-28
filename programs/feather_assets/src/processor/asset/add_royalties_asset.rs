@@ -5,14 +5,7 @@ pub fn handler<'info>(
     asset_type: AssetType,
     args: RoyaltyArgsV1,
 ) -> Result<()> {
-    let remaining_accounts = ctx.remaining_accounts;
-    let address_merkle_context =
-        unpack_address_merkle_context(lrp.address_merkle_context, remaining_accounts);
-    let asset_seed = asset_type.generate_asset_seed(
-        &ctx.accounts.authority.key(),
-        &lrp,
-        &address_merkle_context,
-    )?;
+    let asset_seed = asset_type.generate_asset_seed(&lrp)?;
     let mut ctx: LightContext<AddRoyaltiesToAsset, LightAddRoyaltiesToAsset> = LightContext::new(
         ctx,
         lrp.inputs,
@@ -24,16 +17,17 @@ pub fn handler<'info>(
     let inputs = ParamsAddRoyaltiesToAsset { asset_seed };
     ctx.check_constraints(&inputs)?;
     ctx.derive_address_seeds(lrp.address_merkle_context, &inputs);
-    let asset_royalty = &mut ctx.light_accounts.asset_royalty;
     let asset = &mut ctx.light_accounts.asset;
+    asset_type.validate_asset(&asset)?;
+    let asset_royalty = &mut ctx.light_accounts.asset_royalty;
     if asset.has_royalties {
         return Err(FeatherErrorCode::MetadataAccountExistAlready.into());
     }
+    asset.has_royalties = true;
     asset_royalty.asset_key = asset.address;
     asset_royalty.basis_points = args.basis_points;
     asset_royalty.creators = args.creators;
     asset_royalty.ruleset = args.ruleset;
-    asset.has_royalties = true;
 
     ctx.verify(lrp.proof)?;
     Ok(())
@@ -49,12 +43,13 @@ pub struct AddRoyaltiesToAsset<'info> {
     /// CHECK: Checked in light-system-program.
     #[authority]
     pub cpi_signer: AccountInfo<'info>,
-    #[light_account(mut, seeds = [&asset_seed.concat()])]
+    #[light_account(mut, seeds = [&asset_seed.concat()]
+        constraint = asset.owner == authority.key() @ FeatherErrorCode::InvalidAssetSigner
+    )]
     pub asset: LightAccount<AssetV1>,
     #[light_account(
         init,
         seeds = [ASSET_ROYALTY_SEED, asset.address.as_ref()],
-        constraint = asset.owner == authority.key() @ FeatherErrorCode::InvalidAssetSigner
     )]
     pub asset_royalty: LightAccount<AssetRoyaltiesV1>,
 }

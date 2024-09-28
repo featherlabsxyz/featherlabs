@@ -64,8 +64,14 @@ pub struct CreateAssetArgsV1 {
 }
 #[derive(Clone, Debug, AnchorSerialize, AnchorDeserialize)]
 pub enum AssetType {
-    Alone { seeds: u64 },
-    Member { group_seed: u64, member_number: u32 },
+    Alone {
+        asset_id: u32,
+        authority: Pubkey,
+    },
+    Member {
+        group_address: Pubkey,
+        member_number: u32,
+    },
 }
 #[derive(Clone, Debug, AnchorSerialize, AnchorDeserialize)]
 pub struct RoyaltyArgsV1 {
@@ -94,49 +100,74 @@ pub struct UpdateAssetMetadataArgsV1 {
 }
 
 impl AssetType {
-    pub fn generate_asset_seed(
-        &self,
-        authority_key: &Pubkey,
-        lrp: &LightRootParams,
-        address_merkle_context: &AddressMerkleContext,
-    ) -> Result<Vec<Vec<u8>>> {
+    pub fn generate_asset_seed(&self, lrp: &LightRootParams) -> Result<Vec<Vec<u8>>> {
         let asset_seed: Vec<Vec<u8>> = match self {
-            AssetType::Alone { seeds } => {
+            AssetType::Alone {
+                asset_id,
+                authority,
+            } => {
                 vec![
                     ASSET_SEED.to_vec(),
-                    authority_key.try_to_vec()?,
-                    seeds.to_le_bytes().to_vec(),
+                    authority.try_to_vec()?,
+                    asset_id.to_le_bytes().to_vec(),
                 ]
             }
             AssetType::Member {
-                group_seed,
+                group_address,
                 member_number,
             } => {
                 let group: Result<LightMutAccount<GroupV1>> = LightMutAccount::try_from_slice(
-                    lrp.inputs[0].as_slice(),
+                    lrp.inputs[lrp.inputs.len() - 1].as_slice(), // send group account at last so it does not get deserialized by macros
                     &lrp.merkle_context,
                     lrp.merkle_tree_root_index,
                     &lrp.address_merkle_context,
                 );
                 let group = group.map_err(|_| FeatherErrorCode::GroupAccountNotFound)?;
 
-                let group_address_seed = derive_address_seed(
-                    &[
-                        GROUP_SEED,
-                        group.owner.as_ref(),
-                        group_seed.to_le_bytes().as_ref(),
-                    ],
-                    &crate::ID,
-                    &address_merkle_context,
-                );
-                let group_address = derive_address(&group_address_seed, &address_merkle_context);
+                require_eq!(group_address, &group.address, FeatherErrorCode::CustomError);
                 vec![
                     ASSET_SEED.to_vec(),
-                    group_address.to_vec(),
+                    group_address.to_bytes().to_vec(),
                     member_number.to_le_bytes().to_vec(),
                 ]
             }
         };
         Ok(asset_seed)
+    }
+    pub fn validate_asset(&self, asset: &LightAccount<AssetV1>) -> Result<()> {
+        match self {
+            AssetType::Alone {
+                asset_id,
+                authority,
+            } => {
+                require_eq!(
+                    asset.group_membership.is_none(),
+                    true,
+                    FeatherErrorCode::CustomError
+                );
+                require_eq!(&asset.owner, authority, FeatherErrorCode::CustomError);
+            }
+            AssetType::Member {
+                group_address,
+                member_number,
+            } => {
+                require_eq!(
+                    asset.group_membership.is_some(),
+                    true,
+                    FeatherErrorCode::CustomError
+                );
+                require_eq!(
+                    asset.group_membership.as_ref().unwrap().group_key,
+                    *group_address,
+                    FeatherErrorCode::CustomError
+                );
+                require_eq!(
+                    asset.group_membership.as_ref().unwrap().member_number,
+                    *member_number,
+                    FeatherErrorCode::CustomError
+                )
+            }
+        }
+        Ok(())
     }
 }

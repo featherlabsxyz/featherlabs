@@ -2,7 +2,7 @@ use crate::*;
 pub fn handler<'info>(
     ctx: Context<'_, '_, '_, 'info, CreateGroup<'info>>,
     lrp: LightRootParams,
-    seeds: u64,
+    group_id: u32,
     args: CreateGroupArgsV1,
 ) -> Result<()> {
     let remaining_accounts = ctx.remaining_accounts;
@@ -15,7 +15,7 @@ pub fn handler<'info>(
         lrp.address_merkle_context,
         lrp.address_merkle_tree_root_index,
     )?;
-    let inputs = ParamsCreateGroup { seeds };
+    let inputs = ParamsCreateGroup { group_id };
     ctx.check_constraints(&inputs)?;
     ctx.derive_address_seeds(lrp.address_merkle_context, &inputs);
     let group = &mut ctx.light_accounts.group;
@@ -82,7 +82,7 @@ pub fn handler<'info>(
     Ok(())
 }
 #[light_accounts]
-#[instruction(seeds: u64)]
+#[instruction(group_id: u32)]
 pub struct CreateGroup<'info> {
     #[account(mut)]
     #[fee_payer]
@@ -94,10 +94,10 @@ pub struct CreateGroup<'info> {
     /// CHECK: Checked in light-system-program.
     #[authority]
     pub cpi_signer: AccountInfo<'info>,
-    #[light_account(init, seeds = [GROUP_SEED, authority.key().as_ref(), seeds.to_le_bytes().as_ref()])]
+    #[light_account(init, seeds = [GROUP_SEED, authority.key().as_ref(), group_id.to_le_bytes().as_ref()])]
     pub group: LightAccount<GroupV1>,
 }
 
 pub struct ParamsCreateGroup {
-    pub seeds: u64,
+    pub group_id: u32,
 }

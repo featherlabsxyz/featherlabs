@@ -2,7 +2,7 @@ use crate::*;
 pub fn handler<'info>(
     ctx: Context<'_, '_, '_, 'info, UpdateGroupMaxSize<'info>>,
     lrp: LightRootParams,
-    seeds: u64,
+    group_id: u32,
     max_size: u32,
 ) -> Result<()> {
     let mut ctx: LightContext<UpdateGroupMaxSize, LightUpdateGroupMaxSize> = LightContext::new(
@@ -13,7 +13,7 @@ pub fn handler<'info>(
         lrp.address_merkle_context,
         lrp.address_merkle_tree_root_index,
     )?;
-    let inputs = ParamsUpdateGroupMaxSize { max_size, seeds };
+    let inputs = ParamsUpdateGroupMaxSize { max_size, group_id };
     ctx.check_constraints(&inputs)?;
     ctx.derive_address_seeds(lrp.address_merkle_context, &inputs);
     let current_size = ctx.light_accounts.group.size;
@@ -23,7 +23,7 @@ pub fn handler<'info>(
     Ok(())
 }
 #[light_accounts]
-#[instruction(seeds: u64)]
+#[instruction(group_id: u32)]
 pub struct UpdateGroupMaxSize<'info> {
     #[account(mut)]
     #[fee_payer]
@@ -37,12 +37,12 @@ pub struct UpdateGroupMaxSize<'info> {
         mut,
         seeds = [GROUP_SEED,
         authority.key().as_ref(),
-        seeds.to_le_bytes().as_ref()]
+        group_id.to_le_bytes().as_ref()]
     )]
     pub group: LightAccount<GroupV1>,
 }
 
 pub struct ParamsUpdateGroupMaxSize {
-    pub seeds: u64,
+    pub group_id: u32,
     pub max_size: u32,
 }

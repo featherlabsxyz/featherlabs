@@ -2,7 +2,7 @@ use crate::*;
 pub fn handler<'info>(
     ctx: Context<'_, '_, '_, 'info, AddMetadataToGroup<'info>>,
     lrp: LightRootParams,
-    group_seed: u64,
+    group_id: u32,
     args: GroupMetadataArgsV1,
 ) -> Result<()> {
     let mut ctx: LightContext<AddMetadataToGroup, LightAddMetadataToGroup> = LightContext::new(
@@ -13,7 +13,7 @@ pub fn handler<'info>(
         lrp.address_merkle_context,
         lrp.address_merkle_tree_root_index,
     )?;
-    let inputs = ParamsAddMetadataToGroup { group_seed };
+    let inputs = ParamsAddMetadataToGroup { group_id };
     ctx.check_constraints(&inputs)?;
     ctx.derive_address_seeds(lrp.address_merkle_context, &inputs);
     let group_data = &mut ctx.light_accounts.group_data;
@@ -32,7 +32,7 @@ pub fn handler<'info>(
     Ok(())
 }
 #[light_accounts]
-#[instruction(group_seed: u64)]
+#[instruction(group_id: u32)]
 pub struct AddMetadataToGroup<'info> {
     #[account(mut)]
     #[fee_payer]
@@ -46,7 +46,7 @@ pub struct AddMetadataToGroup<'info> {
         mut,
         seeds = [GROUP_SEED,
         authority.key().as_ref(),
-        group_seed.to_le_bytes().as_ref()]
+        group_id.to_le_bytes().as_ref()]
         constraint = authority.key() == group.owner @ FeatherErrorCode::InvalidGroupSigner
     )]
     pub group: LightAccount<GroupV1>,
@@ -55,5 +55,5 @@ pub struct AddMetadataToGroup<'info> {
 }
 
 pub struct ParamsAddMetadataToGroup {
-    pub group_seed: u64,
+    pub group_id: u32,
 }
