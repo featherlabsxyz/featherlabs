@@ -97,8 +97,8 @@ export type FeatherAssets = {
           }
         },
         {
-          "name": "seeds",
-          "type": "u64"
+          "name": "groupId",
+          "type": "u32"
         },
         {
           "name": "args",
@@ -165,8 +165,8 @@ export type FeatherAssets = {
           }
         },
         {
-          "name": "seeds",
-          "type": "u64"
+          "name": "groupId",
+          "type": "u32"
         },
         {
           "name": "maxSize",
@@ -231,8 +231,8 @@ export type FeatherAssets = {
           }
         },
         {
-          "name": "groupSeed",
-          "type": "u64"
+          "name": "groupId",
+          "type": "u32"
         },
         {
           "name": "args",
@@ -299,8 +299,8 @@ export type FeatherAssets = {
           }
         },
         {
-          "name": "groupSeed",
-          "type": "u64"
+          "name": "groupId",
+          "type": "u32"
         },
         {
           "name": "args",
@@ -372,8 +372,8 @@ export type FeatherAssets = {
           }
         },
         {
-          "name": "groupSeed",
-          "type": "u64"
+          "name": "groupId",
+          "type": "u32"
         }
       ]
     },
@@ -439,8 +439,8 @@ export type FeatherAssets = {
           }
         },
         {
-          "name": "seeds",
-          "type": "u64"
+          "name": "assetId",
+          "type": "u32"
         },
         {
           "name": "args",
@@ -456,6 +456,11 @@ export type FeatherAssets = {
         {
           "name": "signer",
           "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "groupAuthority",
+          "isMut": false,
           "isSigner": true
         },
         {
@@ -512,8 +517,8 @@ export type FeatherAssets = {
           }
         },
         {
-          "name": "groupSeed",
-          "type": "u64"
+          "name": "groupId",
+          "type": "u32"
         },
         {
           "name": "args",
@@ -742,8 +747,12 @@ export type FeatherAssets = {
             "name": "Alone",
             "fields": [
               {
-                "name": "seeds",
-                "type": "u64"
+                "name": "assetId",
+                "type": "u32"
+              },
+              {
+                "name": "authority",
+                "type": "publicKey"
               }
             ]
           },
@@ -751,8 +760,8 @@ export type FeatherAssets = {
             "name": "Member",
             "fields": [
               {
-                "name": "groupSeed",
-                "type": "u64"
+                "name": "groupAddress",
+                "type": "publicKey"
               },
               {
                 "name": "memberNumber",
@@ -1176,8 +1185,8 @@ export const IDL: FeatherAssets = {
           }
         },
         {
-          "name": "seeds",
-          "type": "u64"
+          "name": "groupId",
+          "type": "u32"
         },
         {
           "name": "args",
@@ -1244,8 +1253,8 @@ export const IDL: FeatherAssets = {
           }
         },
         {
-          "name": "seeds",
-          "type": "u64"
+          "name": "groupId",
+          "type": "u32"
         },
         {
           "name": "maxSize",
@@ -1310,8 +1319,8 @@ export const IDL: FeatherAssets = {
           }
         },
         {
-          "name": "groupSeed",
-          "type": "u64"
+          "name": "groupId",
+          "type": "u32"
         },
         {
           "name": "args",
@@ -1378,8 +1387,8 @@ export const IDL: FeatherAssets = {
           }
         },
         {
-          "name": "groupSeed",
-          "type": "u64"
+          "name": "groupId",
+          "type": "u32"
         },
         {
           "name": "args",
@@ -1451,8 +1460,8 @@ export const IDL: FeatherAssets = {
           }
         },
         {
-          "name": "groupSeed",
-          "type": "u64"
+          "name": "groupId",
+          "type": "u32"
         }
       ]
     },
@@ -1518,8 +1527,8 @@ export const IDL: FeatherAssets = {
           }
         },
         {
-          "name": "seeds",
-          "type": "u64"
+          "name": "assetId",
+          "type": "u32"
         },
         {
           "name": "args",
@@ -1535,6 +1544,11 @@ export const IDL: FeatherAssets = {
         {
           "name": "signer",
           "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "groupAuthority",
+          "isMut": false,
           "isSigner": true
         },
         {
@@ -1591,8 +1605,8 @@ export const IDL: FeatherAssets = {
           }
         },
         {
-          "name": "groupSeed",
-          "type": "u64"
+          "name": "groupId",
+          "type": "u32"
         },
         {
           "name": "args",
@@ -1856,8 +1870,12 @@ export const IDL: FeatherAssets = {
             "name": "Alone",
             "fields": [
               {
-                "name": "seeds",
-                "type": "u64"
+                "name": "assetId",
+                "type": "u32"
+              },
+              {
+                "name": "authority",
+                "type": "publicKey"
               }
             ]
           },
@@ -1865,8 +1883,8 @@ export const IDL: FeatherAssets = {
             "name": "Member",
             "fields": [
               {
-                "name": "groupSeed",
-                "type": "u64"
+                "name": "groupAddress",
+                "type": "publicKey"
               },
               {
                 "name": "memberNumber",

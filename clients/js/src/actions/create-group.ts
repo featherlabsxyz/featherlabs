@@ -1,8 +1,8 @@
-import { buildTx, Rpc } from "@lightprotocol/stateless.js";
+import { buildTx, deriveAddress, Rpc } from "@lightprotocol/stateless.js";
 import { PublicKey } from "@solana/web3.js";
 import BN from "bn.js";
 import { FeatherAssetsProgram } from "../program";
-import { GroupMetadataArgsV1 } from "../types";
+import { GroupMetadataArgsV1, GroupV1 } from "../types";
 
 /**
  *
@@ -16,7 +16,7 @@ import { GroupMetadataArgsV1 } from "../types";
 export async function createGroupTx(
   rpc: Rpc,
   maxSize: number,
-  groupId: BN,
+  groupId: number,
   authority: PublicKey,
   payerPublicKey: PublicKey,
   metadata?: GroupMetadataArgsV1
@@ -31,4 +31,24 @@ export async function createGroupTx(
   const { blockhash } = await rpc.getLatestBlockhash();
   const transaction = buildTx([ix], payerPublicKey, blockhash);
   return transaction;
+}
+
+/**
+ *
+ * @param rpc Rpc to use
+ * @param groupAddress Provide or derive Group Address
+ * @returns
+ */
+export async function getGroup(rpc: Rpc, groupAddress: PublicKey) {
+  const groupAccount = await rpc.getCompressedAccount(
+    new BN(groupAddress.toBytes())
+  );
+  if (!groupAccount || !groupAccount.data) {
+    throw new Error("Group Account Does Not Exist or Invalid Group Id");
+  }
+  const group = FeatherAssetsProgram.decodeTypes<GroupV1>(
+    "GroupV1",
+    groupAccount.data.data
+  );
+  return group;
 }

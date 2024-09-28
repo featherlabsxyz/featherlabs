@@ -1,14 +1,11 @@
 import {
   CompressedProofWithContext,
-  createCompressedAccountWithMerkleContext,
   defaultStaticAccountsStruct as staticAccounts,
   defaultTestStateTreeAccounts as stateTree,
   LightSystemProgram,
   NewAddressParams,
-  Rpc,
 } from "@lightprotocol/stateless.js";
 import { PublicKey, SystemProgram } from "@solana/web3.js";
-import BN from "bn.js";
 
 export class FeatherAssetsConstants {
   static readonly programId: PublicKey = new PublicKey(
@@ -62,5 +59,4 @@ export class FeatherAssetsConstants {
     };
     return addressParams;
   }
-  protected static createCompressedAccountWithMerkleContext() {}
 }

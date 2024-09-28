@@ -13,11 +13,15 @@ import {
   CompressedAccount,
   CompressedAccountWithMerkleContext,
   PackedMerkleContext,
-  LightSystemProgram,
-  createCompressedAccountWithMerkleContext,
+  toAccountMetas,
 } from "@lightprotocol/stateless.js";
 import { FeatherAssets, IDL } from "./idl";
-import { AssetType, CreateAssetArgsV1, CreateGroupArgsV1 } from "./types";
+import {
+  AssetType,
+  CreateAssetArgsV1,
+  CreateGroupArgsV1,
+  GroupV1,
+} from "./types";
 import { FeatherAssetsConstants } from "./constants";
 
 export class FeatherAssetsProgram extends FeatherAssetsConstants {
@@ -62,19 +66,19 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
   static async createGroupIx(
     rpc: Rpc,
     authority: PublicKey,
-    groupId: BN,
+    groupId: number,
     params: CreateGroupArgsV1,
     payer: PublicKey
   ) {
     const { maxSize, metadata } = params;
 
-    const groupSeed = this.deriveGroupSeed(groupId);
-    const groupDataSeed = metadata && this.deriveGroupDataSeed(groupId);
-
-    const outputAddresses = [];
+    const groupSeed = this.deriveGroupSeed(groupId, authority);
     const groupAddress: PublicKey = await deriveAddress(groupSeed);
+    const groupDataSeed = metadata && this.deriveGroupDataSeed(groupAddress);
     const groupDataAddress: PublicKey | null =
       groupDataSeed && (await deriveAddress(groupDataSeed));
+
+    const outputAddresses = [];
     outputAddresses.push(groupAddress);
     groupDataAddress && outputAddresses.push(groupDataAddress);
 
@@ -121,33 +125,29 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
         authority: authority,
         ...this.lightAccounts(),
       })
-      .remainingAccounts(
-        remainingAccounts.map((acc) => ({
-          isSigner: false,
-          isWritable: false,
-          pubkey: acc,
-        }))
-      )
+      .remainingAccounts(toAccountMetas(remainingAccounts))
       .instruction();
     return ix;
   }
   static async createAssetIx(
     rpc: Rpc,
     authority: PublicKey,
-    assetId: BN,
+    assetId: number,
     payer: PublicKey,
     params: CreateAssetArgsV1
   ) {
     const { rentable, transferrable, metadata, royalty } = params;
-    const assetSeed = this.deriveAssetSeed({ type: "Alone", seeds: assetId });
-    const assetDataSeed =
-      metadata && this.deriveAssetDataSeed({ type: "Alone", seeds: assetId });
-    const assetRoyaltySeed =
-      royalty && this.deriveAssetRoyaltySeed({ type: "Alone", seeds: assetId });
-
+    const assetSeed = this.deriveAssetSeed({
+      type: "Alone",
+      assetId,
+      authority,
+    });
     const assetAddress = await deriveAddress(assetSeed);
+    const assetDataSeed = metadata && this.deriveAssetDataSeed(assetAddress);
     const assetDataAddress =
       assetDataSeed && (await deriveAddress(assetDataSeed));
+    const assetRoyaltySeed =
+      royalty && this.deriveAssetRoyaltySeed(assetAddress);
     const assetRoyaltyAddress =
       assetRoyaltySeed && (await deriveAddress(assetRoyaltySeed));
 
@@ -208,101 +208,117 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
         signer: payer,
         ...this.lightAccounts(),
       })
+      .remainingAccounts(toAccountMetas(remainingAccounts))
       .instruction();
     return ix;
   }
-  // static async createMemberAssetIx(
-  //   rpc: Rpc,
-  //   authority: PublicKey,
-  //   groupSeed: BN,
-  //   memberNumber: number,
-  //   payer: PublicKey,
-  //   params: CreateAssetArgsV1
-  // ) {
-  //   const { rentable, transferrable, metadata, royalty } = params;
-  //   const groupAddressSeed = this.deriveGroupSeed(groupSeed);
-  //   const assetSeed = this.deriveAssetSeed({
-  //     type: "Member",
-  //     groupSeed,
-  //     memberNumber,
-  //   });
-  //   const assetDataSeed =
-  //     metadata &&
-  //     this.deriveAssetDataSeed({ type: "Member", groupSeed, memberNumber });
-  //   const assetRoyaltySeed =
-  //     royalty &&
-  //     this.deriveAssetRoyaltySeed({ type: "Member", groupSeed, memberNumber });
+  static async createMemberAssetIx(
+    rpc: Rpc,
+    groupAuthority: PublicKey,
+    authority: PublicKey,
+    groupId: number,
+    payer: PublicKey,
+    params: CreateAssetArgsV1
+  ) {
+    const { rentable, transferrable, metadata, royalty } = params;
+    const groupAddressSeed = this.deriveGroupSeed(groupId, groupAuthority);
+    const groupAddress = await deriveAddress(groupAddressSeed);
+    const groupAccount = await rpc.getCompressedAccount(
+      new BN(groupAddress.toBytes())
+    );
+    if (!groupAccount || !groupAccount.data) {
+      throw new Error("Group Account Does Not Exist or Invalid Group Id");
+    }
+    const group = this.decodeTypes<GroupV1>("GroupV1", groupAccount.data.data);
+    const inputCompressedAccounts = [groupAccount];
+    const memberNumber = group.size + 1;
+    const assetSeed = this.deriveAssetSeed({
+      type: "Member",
+      groupAddress,
+      memberNumber,
+    });
+    const assetAddress = await deriveAddress(assetSeed);
+    const assetDataSeed = metadata && this.deriveAssetDataSeed(assetAddress);
+    const assetDataAddress =
+      assetDataSeed && (await deriveAddress(assetDataSeed));
+    const assetRoyaltySeed =
+      royalty && this.deriveAssetRoyaltySeed(assetAddress);
+    const assetRoyaltyAddress =
+      assetRoyaltySeed && (await deriveAddress(assetRoyaltySeed));
 
-  //   const groupAddress = await deriveAddress(groupAddressSeed);
-  //   const assetAddress = await deriveAddress(assetSeed);
-  //   const assetDataAddress =
-  //     assetDataSeed && (await deriveAddress(assetDataSeed));
-  //   const assetRoyaltyAddress =
-  //     assetRoyaltySeed && (await deriveAddress(assetRoyaltySeed));
+    const outputAddresses = [];
+    outputAddresses.push(groupAddress);
+    outputAddresses.push(assetAddress);
+    assetDataAddress && outputAddresses.push(assetDataAddress);
+    assetRoyaltyAddress && outputAddresses.push(assetRoyaltyAddress);
+    const inputAddresses = [groupAddress];
+    const proof = await this.getValidityProof(
+      rpc,
+      inputAddresses,
+      outputAddresses
+    );
 
-  //   const outputAddresses = [];
-  //   outputAddresses.push(groupAddress);
-  //   outputAddresses.push(assetAddress);
-  //   assetDataAddress && outputAddresses.push(assetDataAddress);
-  //   assetRoyaltyAddress && outputAddresses.push(assetRoyaltyAddress);
-  //   const inputAddresses = [groupAddress];
-  //   const proof = await this.getValidityProof(rpc, inputAddresses, outputAddresses);
-
-  //   const newAddressesParams = [];
-  //   newAddressesParams.push(this.getNewAddressParams(assetSeed, proof));
-  //   assetDataSeed &&
-  //     newAddressesParams.push(this.getNewAddressParams(assetDataSeed, proof));
-  //   assetRoyaltySeed &&
-  //     newAddressesParams.push(
-  //       this.getNewAddressParams(assetRoyaltySeed, proof)
-  //     );
-
-  //   const outputCompressedAccounts = [];
-  //   outputCompressedAccounts.push(
-  //   )
-  //   outputCompressedAccounts.push(
-  //     ...this.createNewAddressOutputState(assetAddress)
-  //   );
-  //   assetDataAddress &&
-  //     outputCompressedAccounts.push(
-  //       ...this.createNewAddressOutputState(assetDataAddress)
-  //     );
-  //   assetRoyaltyAddress &&
-  //     outputCompressedAccounts.push(
-  //       ...this.createNewAddressOutputState(assetRoyaltyAddress)
-  //     );
-  //   const {
-  //     addressMerkleContext,
-  //     addressMerkleTreeRootIndex,
-  //     merkleContext,
-  //     remainingAccounts,
-  //   } = this.pack([], outputCompressedAccounts, newAddressesParams, proof);
-  //   const ix = FeatherAssetsProgram.getInstance()
-  //     .program.methods.createAsset(
-  //       {
-  //         addressMerkleContext,
-  //         addressMerkleTreeRootIndex,
-  //         inputs: [],
-  //         merkleContext,
-  //         merkleTreeRootIndex: 0,
-  //         proof,
-  //       },
-  //       assetId,
-  //       {
-  //         metadata,
-  //         rentable,
-  //         royalty,
-  //         transferrable,
-  //       }
-  //     )
-  //     .accounts({
-  //       authority,
-  //       signer: payer,
-  //       ...this.lightAccounts(),
-  //     })
-  //     .instruction();
-  //   return ix;
-  // }
+    const newAddressesParams = [];
+    newAddressesParams.push(this.getNewAddressParams(assetSeed, proof));
+    assetDataSeed &&
+      newAddressesParams.push(this.getNewAddressParams(assetDataSeed, proof));
+    assetRoyaltySeed &&
+      newAddressesParams.push(
+        this.getNewAddressParams(assetRoyaltySeed, proof)
+      );
+    const outputCompressedAccounts = [];
+    outputCompressedAccounts.push(
+      ...this.createNewAddressOutputState(groupAddress)
+    );
+    outputCompressedAccounts.push(
+      ...this.createNewAddressOutputState(assetAddress)
+    );
+    assetDataAddress &&
+      outputCompressedAccounts.push(
+        ...this.createNewAddressOutputState(assetDataAddress)
+      );
+    assetRoyaltyAddress &&
+      outputCompressedAccounts.push(
+        ...this.createNewAddressOutputState(assetRoyaltyAddress)
+      );
+    const {
+      addressMerkleContext,
+      addressMerkleTreeRootIndex,
+      merkleContext,
+      remainingAccounts,
+    } = this.pack(
+      inputCompressedAccounts,
+      outputCompressedAccounts,
+      newAddressesParams,
+      proof
+    );
+    const ix = FeatherAssetsProgram.getInstance()
+      .program.methods.createMemberAsset(
+        {
+          addressMerkleContext,
+          addressMerkleTreeRootIndex,
+          inputs: [],
+          merkleContext,
+          merkleTreeRootIndex: 0,
+          proof,
+        },
+        groupId,
+        {
+          metadata,
+          rentable,
+          royalty,
+          transferrable,
+        }
+      )
+      .accounts({
+        authority,
+        signer: payer,
+        ...this.lightAccounts(),
+      })
+      .remainingAccounts(toAccountMetas(remainingAccounts))
+      .instruction();
+    return ix;
+  }
   // ASSET UTILS <--------------------------------------------------------------------->
   static deriveAssetSeed(assetType: AssetType) {
     if (assetType.type === "Alone") {
@@ -310,26 +326,17 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
     }
     return new Uint8Array();
   }
-  static deriveAssetDataSeed(assetType: AssetType) {
-    let assetAddress = deriveAddress(new Uint8Array());
-    if (assetType.type === "Alone") {
-      return new Uint8Array();
-    }
+  static deriveAssetDataSeed(assetAddress: PublicKey) {
     return new Uint8Array();
   }
-  static deriveAssetRoyaltySeed(assetType: AssetType) {
-    let assetAddress = deriveAddress(new Uint8Array());
-    if (assetType.type === "Alone") {
-      return new Uint8Array();
-    }
+  static deriveAssetRoyaltySeed(assetAddress: PublicKey) {
     return new Uint8Array();
   }
   // GROUP UTILS <--------------------------------------------------------------------->
-  static deriveGroupSeed(seeds: BN) {
+  static deriveGroupSeed(seeds: number, authority: PublicKey) {
     return new Uint8Array();
   }
-  static deriveGroupDataSeed(groupSeed: BN) {
-    let groupAddress = deriveAddress(new Uint8Array());
+  static deriveGroupDataSeed(groupAddress: PublicKey) {
     return new Uint8Array();
   }
   //  <--------------------------------------------------------------------------->
@@ -380,5 +387,11 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
     const inputHashes = input_addrs?.map((addr) => new BN(addr.toBytes()));
     const outputHashes = ouput_addrs?.map((addr) => new BN(addr.toBytes()));
     return await rpc.getValidityProof(inputHashes, outputHashes);
+  }
+  static decodeTypes<T>(typeName: string, data: Buffer) {
+    return FeatherAssetsProgram.getInstance().program.coder.types.decode<T>(
+      typeName,
+      data
+    );
   }
 }
