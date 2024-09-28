@@ -13,7 +13,7 @@ use light_sdk::{
 };
 use processor::*;
 pub use state::*;
-declare_id!("bFAZoSQTAnpQdh4ekcn79Hn958ehWxJ4TsniCRgpYrj");
+declare_id!("HNyzkDmhZayxRG77bk84oxe13Qp3PcRhd5o5NJEF6E5W");
 
 #[program]
 pub mod feather_assets {

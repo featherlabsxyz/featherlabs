@@ -7,7 +7,8 @@ use feather_assets::{
     constants::{GROUP_DATA_SEED, GROUP_SEED},
     instruction::{CreateGroup as CreateGroupIx, CreateMemberAsset as CreateMemberAssetIx},
     state::{CreateGroupArgsV1, GroupMetadataArgsV1},
-    AssetMetadataArgsV1, CreateAssetArgsV1, GroupV1, LightRootParams, RoyaltyArgsV1, RuleSetV1,
+    AssetMetadataArgsV1, CreateAssetArgsV1, GroupDataV1, GroupV1, LightRootParams, RoyaltyArgsV1,
+    RuleSetV1,
 };
 use light_client::indexer::Indexer;
 use light_sdk::{
@@ -123,15 +124,23 @@ async fn create_group() {
         .unwrap();
     test_indexer.add_compressed_accounts_with_token_data(&event.unwrap().0);
     let compressed_accounts = test_indexer.get_compressed_accounts_by_owner(&PROGRAM_ID);
-    assert_eq!(compressed_accounts.len(), 1);
-    let group = &compressed_accounts[0]
+    assert_eq!(compressed_accounts.len(), 2);
+    let group = &compressed_accounts[1]
+        .compressed_account
+        .data
+        .as_ref()
+        .unwrap()
+        .data;
+    let group_data = &compressed_accounts[0]
         .compressed_account
         .data
         .as_ref()
         .unwrap()
         .data;
     let group = GroupV1::deserialize(&mut &group[..]).unwrap();
+    let group_data = GroupDataV1::deserialize(&mut &group_data[..]).unwrap();
     assert_eq!(group.address, Pubkey::new_from_array(group_address));
+    assert_eq!(group_data.name, "Group 1".to_string());
     // let rpc_result = test_indexer.create_proof_for_compressed_accounts(None, None, new_addresses, address_merkle_tree_pubkeys, rpc)
     // let ix_data = CreateMemberAssetIx {
     //     args: CreateAssetArgsV1 {

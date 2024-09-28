@@ -665,41 +665,6 @@
   ],
   "types": [
     {
-      "name": "CompressedProof",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "a",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          },
-          {
-            "name": "b",
-            "type": {
-              "array": [
-                "u8",
-                64
-              ]
-            }
-          },
-          {
-            "name": "c",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
       "name": "LightRootParams",
       "type": {
         "kind": "struct",
@@ -713,7 +678,7 @@
           {
             "name": "proof",
             "type": {
-              "defined": "CompressedProof"
+              "defined": ""
             }
           },
           {
@@ -1111,6 +1076,6 @@
     }
   ],
   "metadata": {
-    "address": "bFAZoSQTAnpQdh4ekcn79Hn958ehWxJ4TsniCRgpYrj"
+    "address": "HNyzkDmhZayxRG77bk84oxe13Qp3PcRhd5o5NJEF6E5W"
   }
 }
