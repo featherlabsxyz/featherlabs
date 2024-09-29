@@ -1,10 +1,18 @@
 import { PublicKey } from "@solana/web3.js";
+import { AttributeV1 } from ".";
 export interface GroupV1 {
+  owner: PublicKey;
   derivationKey: PublicKey;
   maxSize: number;
   size: number;
-  owner: PublicKey;
   hasMetadata: boolean;
+}
+export interface GroupDataV1 {
+  name: string;
+  uri: string;
+  mutable: boolean;
+  groupKey: PublicKey;
+  attributes: AttributeV1[];
 }
 export interface GroupMembership {
   groupKey: PublicKey;
@@ -50,8 +58,8 @@ export type AssetAuthorityVariantV1 =
       };
     };
 export interface AssetV1 {
-  derivationKey: PublicKey;
   owner: PublicKey;
+  derivationKey: PublicKey;
   assetAuthorityState: AssetAuthorityVariantV1;
   assetState: AssetStateV1;
   groupMembership: GroupMembership | null;

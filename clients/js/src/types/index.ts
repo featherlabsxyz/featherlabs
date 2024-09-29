@@ -63,9 +63,7 @@ export enum FeatherErrorCode {
 }
 
 export const SEED: Uint8Array = Buffer.from("feather_assets");
-export const GROUP_SEED: Uint8Array = Buffer.from("group");
 export const GROUP_DATA_SEED: Uint8Array = Buffer.from("group_data");
-export const ASSET_SEED: Uint8Array = Buffer.from("asset");
 export const ASSET_DATA_SEED: Uint8Array = Buffer.from("asset_data");
 export const ASSET_ROYALTY_SEED: Uint8Array = Buffer.from("asset_royalty");
 
