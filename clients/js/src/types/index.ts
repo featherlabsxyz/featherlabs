@@ -1,10 +1,10 @@
 import { PublicKey } from "@solana/web3.js";
 export * from "./schema";
+
 export interface CreateGroupArgsV1 {
   maxSize: number;
   metadata: GroupMetadataArgsV1 | null;
 }
-
 export interface GroupMetadataArgsV1 {
   name: string;
   uri: string;
@@ -19,13 +19,6 @@ export interface CreateAssetArgsV1 {
   royalty: RoyaltyArgsV1 | null;
 }
 
-export type AssetType =
-  | { type: "Alone"; assetId: number; authority: PublicKey }
-  | {
-      type: "Member";
-      groupAddress: PublicKey;
-      memberNumber: number;
-    };
 export interface RoyaltyArgsV1 {
   basisPoints: number;
   creators: CreatorArgsV1[];

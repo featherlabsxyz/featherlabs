@@ -16,12 +16,7 @@ import {
   toAccountMetas,
 } from "@lightprotocol/stateless.js";
 import { FeatherAssets, IDL } from "./idl";
-import {
-  AssetType,
-  CreateAssetArgsV1,
-  CreateGroupArgsV1,
-  GroupV1,
-} from "./types";
+import { CreateAssetArgsV1, CreateGroupArgsV1, GroupV1 } from "./types";
 import { FeatherAssetsConstants } from "./constants";
 
 export class FeatherAssetsProgram extends FeatherAssetsConstants {
@@ -66,13 +61,12 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
   static async createGroupIx(
     rpc: Rpc,
     authority: PublicKey,
-    groupId: number,
     params: CreateGroupArgsV1,
     payer: PublicKey
   ) {
     const { maxSize, metadata } = params;
-
-    const groupSeed = this.deriveGroupSeed(groupId, authority);
+    const derivationKey = new Keypair().publicKey;
+    const groupSeed = this.deriveGroupSeed(derivationKey);
     const groupAddress: PublicKey = await deriveAddress(groupSeed);
     const groupDataSeed = metadata && this.deriveGroupDataSeed(groupAddress);
     const groupDataAddress: PublicKey | null =
@@ -114,14 +108,14 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
           merkleTreeRootIndex: 0,
           proof: proof.compressedProof,
         },
-        groupId,
+        derivationKey,
         {
           maxSize: maxSize,
           metadata,
         }
       )
       .accounts({
-        signer: payer,
+        payer: payer,
         authority: authority,
         ...this.lightAccounts(),
       })
@@ -132,16 +126,12 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
   static async createAssetIx(
     rpc: Rpc,
     authority: PublicKey,
-    assetId: number,
     payer: PublicKey,
     params: CreateAssetArgsV1
   ) {
     const { rentable, transferrable, metadata, royalty } = params;
-    const assetSeed = this.deriveAssetSeed({
-      type: "Alone",
-      assetId,
-      authority,
-    });
+    const derivationKey = new Keypair().publicKey;
+    const assetSeed = this.deriveAssetSeed(derivationKey);
     const assetAddress = await deriveAddress(assetSeed);
     const assetDataSeed = metadata && this.deriveAssetDataSeed(assetAddress);
     const assetDataAddress =
@@ -193,9 +183,9 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
           inputs: [],
           merkleContext,
           merkleTreeRootIndex: 0,
-          proof,
+          proof: proof.compressedProof,
         },
-        assetId,
+        derivationKey,
         {
           metadata,
           rentable,
@@ -205,7 +195,7 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       )
       .accounts({
         authority,
-        signer: payer,
+        payer: payer,
         ...this.lightAccounts(),
       })
       .remainingAccounts(toAccountMetas(remainingAccounts))
@@ -216,13 +206,11 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
     rpc: Rpc,
     groupAuthority: PublicKey,
     authority: PublicKey,
-    groupId: number,
+    groupAddress: PublicKey,
     payer: PublicKey,
     params: CreateAssetArgsV1
   ) {
     const { rentable, transferrable, metadata, royalty } = params;
-    const groupAddressSeed = this.deriveGroupSeed(groupId, groupAuthority);
-    const groupAddress = await deriveAddress(groupAddressSeed);
     const groupAccount = await rpc.getCompressedAccount(
       new BN(groupAddress.toBytes())
     );
@@ -230,13 +218,12 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       throw new Error("Group Account Does Not Exist or Invalid Group Id");
     }
     const group = this.decodeTypes<GroupV1>("GroupV1", groupAccount.data.data);
+    if (groupAuthority != group.owner) {
+      throw new Error("Invalid Group Authority Public Key");
+    }
     const inputCompressedAccounts = [groupAccount];
-    const memberNumber = group.size + 1;
-    const assetSeed = this.deriveAssetSeed({
-      type: "Member",
-      groupAddress,
-      memberNumber,
-    });
+    const assetDerivationKey = new Keypair().publicKey;
+    const assetSeed = this.deriveAssetSeed(assetDerivationKey);
     const assetAddress = await deriveAddress(assetSeed);
     const assetDataSeed = metadata && this.deriveAssetDataSeed(assetAddress);
     const assetDataAddress =
@@ -300,9 +287,10 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
           inputs: [],
           merkleContext,
           merkleTreeRootIndex: 0,
-          proof,
+          proof: proof.compressedProof,
         },
-        groupId,
+        group.derivationKey,
+        assetDerivationKey,
         {
           metadata,
           rentable,
@@ -312,7 +300,7 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       )
       .accounts({
         authority,
-        signer: payer,
+        payer: payer,
         ...this.lightAccounts(),
       })
       .remainingAccounts(toAccountMetas(remainingAccounts))
@@ -320,10 +308,7 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
     return ix;
   }
   // ASSET UTILS <--------------------------------------------------------------------->
-  static deriveAssetSeed(assetType: AssetType) {
-    if (assetType.type === "Alone") {
-      return new Uint8Array();
-    }
+  static deriveAssetSeed(derivationKey: PublicKey) {
     return new Uint8Array();
   }
   static deriveAssetDataSeed(assetAddress: PublicKey) {
@@ -333,7 +318,7 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
     return new Uint8Array();
   }
   // GROUP UTILS <--------------------------------------------------------------------->
-  static deriveGroupSeed(seeds: number, authority: PublicKey) {
+  static deriveGroupSeed(derivationKey: PublicKey) {
     return new Uint8Array();
   }
   static deriveGroupDataSeed(groupAddress: PublicKey) {
