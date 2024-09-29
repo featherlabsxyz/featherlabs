@@ -8,7 +8,6 @@ import { GroupMetadataArgsV1, GroupV1 } from "../types";
  *
  * @param rpc RPC to use
  * @param maxSize Initial Max Size of Group
- * @param groupId GroupId or seed to create multiple groups
  * @param authority Authority of the group
  * @param payerPublicKey Transaction Payer
  * @returns
@@ -16,7 +15,6 @@ import { GroupMetadataArgsV1, GroupV1 } from "../types";
 export async function createGroupTx(
   rpc: Rpc,
   maxSize: number,
-  groupId: number,
   authority: PublicKey,
   payerPublicKey: PublicKey,
   metadata?: GroupMetadataArgsV1
@@ -24,7 +22,6 @@ export async function createGroupTx(
   const ix = await FeatherAssetsProgram.createGroupIx(
     rpc,
     authority,
-    groupId,
     { maxSize, metadata: metadata ? metadata : null },
     payerPublicKey
   );

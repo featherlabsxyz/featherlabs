@@ -7,7 +7,6 @@ import { AssetMetadataArgsV1, AssetV1, RoyaltyArgsV1 } from "../types";
 /**
  *
  * @param rpc RPC to use
- * @param assetId Unique Asset Id Or Asset Number Per authority
  * @param authority Owner Of Asset
  * @param payerPublicKey Transaction Payer
  * @param metadata Metadata for Asset
@@ -18,7 +17,6 @@ import { AssetMetadataArgsV1, AssetV1, RoyaltyArgsV1 } from "../types";
  */
 export async function createAssetTx(
   rpc: Rpc,
-  assetId: number,
   authority: PublicKey,
   payerPublicKey: PublicKey,
   metadata?: AssetMetadataArgsV1,
@@ -29,7 +27,6 @@ export async function createAssetTx(
   const ix = await FeatherAssetsProgram.createAssetIx(
     rpc,
     authority,
-    assetId,
     payerPublicKey,
     {
       metadata: metadata ? metadata : null,
@@ -46,7 +43,6 @@ export async function createAssetTx(
 /**
  * Need both payer and groupAuthority to sign the transaction.
  * @param rpc RPC to use
- * @param groupId The Group ID associated with the parent group to which this asset will belong.
  * @param groupAuthority Owner Of Asset
  * @param authority Owner Of Asset
  * @param payerPublicKey Transaction Payer
@@ -58,9 +54,9 @@ export async function createAssetTx(
  */
 export async function createMemberAssetTx(
   rpc: Rpc,
-  groupId: number,
   groupAuthority: PublicKey,
   authority: PublicKey,
+  groupAddress: PublicKey,
   payerPublicKey: PublicKey,
   metadata?: AssetMetadataArgsV1,
   royalty?: RoyaltyArgsV1,
@@ -71,7 +67,7 @@ export async function createMemberAssetTx(
     rpc,
     groupAuthority,
     authority,
-    groupId,
+    groupAddress,
     payerPublicKey,
     {
       metadata: metadata ? metadata : null,
