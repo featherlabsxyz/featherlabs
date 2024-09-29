@@ -3,11 +3,21 @@ use crate::*;
 pub fn handler<'info>(
     ctx: Context<'_, '_, '_, 'info, CreateMemberAsset<'info>>,
     lrp: LightRootParams,
-    group_id: u32,
+    group_derivation_key: Pubkey,
+    asset_derivation_key: Pubkey,
     args: CreateAssetArgsV1,
 ) -> Result<()> {
     let remaining_accounts = ctx.remaining_accounts;
     let authority = ctx.accounts.authority.key();
+    let address_merkle_context =
+        unpack_address_merkle_context(lrp.address_merkle_context, ctx.remaining_accounts);
+    let address_seed = derive_address_seed(
+        &[group_derivation_key.to_bytes().as_ref()],
+        &crate::ID,
+        &address_merkle_context,
+    );
+    let group_address =
+        Pubkey::new_from_array(derive_address(&address_seed, &address_merkle_context));
     let mut ctx: LightContext<CreateMemberAsset, LightCreateMemberAsset> = LightContext::new(
         ctx,
         lrp.inputs,
@@ -16,7 +26,11 @@ pub fn handler<'info>(
         lrp.address_merkle_context,
         lrp.address_merkle_tree_root_index,
     )?;
-    let inputs = &ParamsCreateMemberAsset { group_id };
+    let inputs = &ParamsCreateMemberAsset {
+        group_derivation_key,
+        group_address,
+        asset_derivation_key,
+    };
     ctx.check_constraints(inputs)?;
     ctx.derive_address_seeds(lrp.address_merkle_context, inputs);
     let group = &mut ctx.light_accounts.group;
@@ -40,13 +54,13 @@ pub fn handler<'info>(
             .output_compressed_account(&crate::ID, remaining_accounts)?
             .ok_or(FeatherErrorCode::CustomError)?,
     );
-    asset.address = asset_address;
     asset.owner = authority;
+    asset.derivation_key = asset_derivation_key;
     asset.has_multisig = false;
     asset.asset_authority_state = AssetAuthorityVariantV1::Owner;
     asset.asset_state = AssetStateV1::Unlocked;
     asset.group_membership = Some(GroupMembership {
-        group_key: group.address,
+        group_key: group_address,
         member_number: new_size,
     });
     asset.rentable = args.rentable;
@@ -128,11 +142,11 @@ pub fn handler<'info>(
     Ok(())
 }
 #[light_accounts]
-#[instruction(group_id: u32)]
+#[instruction(group_derivation_key: Pubkey, group_address: Pubkey, asset_derivation_key: Pubkey)]
 pub struct CreateMemberAsset<'info> {
     #[account(mut)]
     #[fee_payer]
-    pub signer: Signer<'info>,
+    pub payer: Signer<'info>,
     pub group_authority: Signer<'info>,
     /// CHECK: this is safe
     pub authority: UncheckedAccount<'info>,
@@ -141,14 +155,16 @@ pub struct CreateMemberAsset<'info> {
     /// CHECK: Checked in light-system-program.
     #[authority]
     pub cpi_signer: AccountInfo<'info>,
-    #[light_account(mut, seeds = [GROUP_SEED, group_authority.key().as_ref(), group_id.to_le_bytes().as_ref()],
+    #[light_account(mut, seeds = [group_derivation_key.to_bytes().as_ref()],
         constraint = group_authority.key() == group.owner @ FeatherErrorCode::InvalidGroupSigner
     )]
     pub group: LightAccount<GroupV1>,
-    #[light_account(init, seeds = [ASSET_SEED, group.address.as_ref(), (group.size + 1).to_le_bytes().as_ref()])]
+    #[light_account(init, seeds = [asset_derivation_key.to_bytes().as_ref()])]
     pub asset: LightAccount<AssetV1>,
 }
 
 struct ParamsCreateMemberAsset {
-    pub group_id: u32,
+    pub group_derivation_key: Pubkey,
+    pub group_address: Pubkey,
+    pub asset_derivation_key: Pubkey,
 }

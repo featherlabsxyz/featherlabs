@@ -4,10 +4,12 @@ use light_sdk::{light_account, LightDiscriminator, LightHasher};
 #[light_account]
 #[derive(Clone, Debug, Default)]
 pub struct AssetV1 {
+    #[truncate]
     pub owner: Pubkey,
+    #[truncate]
+    pub derivation_key: Pubkey,
     pub asset_authority_state: AssetAuthorityVariantV1,
     pub asset_state: AssetStateV1,
-    pub address: Pubkey,
     pub group_membership: Option<GroupMembership>,
 
     pub transferable: bool,
@@ -25,6 +27,7 @@ pub struct AssetV1 {
     Clone, Debug, Default, LightDiscriminator, LightHasher, AnchorSerialize, AnchorDeserialize,
 )]
 pub struct GroupMembership {
+    #[truncate]
     pub group_key: Pubkey,
     pub member_number: u32,
 }

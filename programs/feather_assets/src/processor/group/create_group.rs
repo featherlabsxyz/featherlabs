@@ -2,7 +2,7 @@ use crate::*;
 pub fn handler<'info>(
     ctx: Context<'_, '_, '_, 'info, CreateGroup<'info>>,
     lrp: LightRootParams,
-    group_id: u32,
+    derivation_key: Pubkey,
     args: CreateGroupArgsV1,
 ) -> Result<()> {
     let remaining_accounts = ctx.remaining_accounts;
@@ -15,7 +15,7 @@ pub fn handler<'info>(
         lrp.address_merkle_context,
         lrp.address_merkle_tree_root_index,
     )?;
-    let inputs = ParamsCreateGroup { group_id };
+    let inputs = ParamsCreateGroup { derivation_key };
     ctx.check_constraints(&inputs)?;
     ctx.derive_address_seeds(lrp.address_merkle_context, &inputs);
     let group = &mut ctx.light_accounts.group;
@@ -27,10 +27,10 @@ pub fn handler<'info>(
         &address_merkle_context,
     ));
     msg!("{:?}", group_address);
+    group.derivation_key = derivation_key;
     group.max_size = args.max_size;
     group.owner = ctx.anchor_context.accounts.authority.key();
     group.size = 0;
-    group.address = group_address;
     let mut new_address_params = vec![group_address_params];
     let mut output_compressed_accounts = vec![];
     match args.metadata {
@@ -82,11 +82,11 @@ pub fn handler<'info>(
     Ok(())
 }
 #[light_accounts]
-#[instruction(group_id: u32)]
+#[instruction(derivation_key: Pubkey)]
 pub struct CreateGroup<'info> {
     #[account(mut)]
     #[fee_payer]
-    pub signer: Signer<'info>,
+    pub payer: Signer<'info>,
     /// CHECK: this is safe
     pub authority: UncheckedAccount<'info>,
     #[self_program]
@@ -94,10 +94,10 @@ pub struct CreateGroup<'info> {
     /// CHECK: Checked in light-system-program.
     #[authority]
     pub cpi_signer: AccountInfo<'info>,
-    #[light_account(init, seeds = [GROUP_SEED, authority.key().as_ref(), group_id.to_le_bytes().as_ref()])]
+    #[light_account(init, seeds = [derivation_key.to_bytes().as_ref()])]
     pub group: LightAccount<GroupV1>,
 }
 
 pub struct ParamsCreateGroup {
-    pub group_id: u32,
+    pub derivation_key: Pubkey,
 }

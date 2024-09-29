@@ -1,4 +1,3 @@
-use anchor_lang::prelude::{AccountInfo, AccountMeta};
 use light_client::{
     indexer::{test_indexer::TestIndexer, AddressMerkleTreeAccounts, StateMerkleTreeAccounts},
     rpc::test_rpc::ProgramTestRpcConnection,

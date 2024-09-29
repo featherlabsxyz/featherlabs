@@ -3,12 +3,20 @@ use crate::*;
 pub fn handler<'info>(
     ctx: Context<'_, '_, '_, 'info, UpdateGroupMetadata<'info>>,
     lrp: LightRootParams,
-    group_id: u32,
+    derivation_key: Pubkey,
     args: UpdateGroupMetadataArgsV1,
 ) -> Result<()> {
     if args.attributes.is_none() && args.name.is_none() && args.uri.is_none() {
         return Err(FeatherErrorCode::ArgumentsNotFound.into());
     }
+    let address_merkle_context =
+        unpack_address_merkle_context(lrp.address_merkle_context, ctx.remaining_accounts);
+    let address_seed = derive_address_seed(
+        &[derivation_key.to_bytes().as_ref()],
+        &crate::ID,
+        &address_merkle_context,
+    );
+    let group_address = derive_address(&address_seed, &address_merkle_context);
     let mut ctx: LightContext<UpdateGroupMetadata, LightUpdateGroupMetadata> = LightContext::new(
         ctx,
         lrp.inputs,
@@ -17,7 +25,10 @@ pub fn handler<'info>(
         lrp.address_merkle_context,
         lrp.address_merkle_tree_root_index,
     )?;
-    let inputs = ParamsUpdateGroupMetadata { group_id };
+    let inputs = ParamsUpdateGroupMetadata {
+        derivation_key,
+        group_address,
+    };
     ctx.check_constraints(&inputs)?;
     ctx.derive_address_seeds(lrp.address_merkle_context, &inputs);
     let group_data = &mut ctx.light_accounts.group_data;
@@ -34,7 +45,7 @@ pub fn handler<'info>(
     Ok(())
 }
 #[light_accounts]
-#[instruction(group_id: u32)]
+#[instruction(derivation_key: Pubkey, group_address: [u8;32])]
 pub struct UpdateGroupMetadata<'info> {
     #[account(mut)]
     #[fee_payer]
@@ -46,16 +57,15 @@ pub struct UpdateGroupMetadata<'info> {
     pub cpi_signer: AccountInfo<'info>,
     #[light_account(
         mut,
-        seeds = [GROUP_SEED,
-        authority.key().as_ref(),
-        group_id.to_le_bytes().as_ref()]
+        seeds = [derivation_key.to_bytes().as_ref()]
         constraint = authority.key() == group.owner @ FeatherErrorCode::InvalidGroupSigner
     )]
     pub group: LightAccount<GroupV1>,
-    #[light_account(mut, seeds = [GROUP_DATA_SEED, group.address.as_ref()])]
+    #[light_account(mut, seeds = [GROUP_DATA_SEED, group_address])]
     pub group_data: LightAccount<GroupDataV1>,
 }
 
 pub struct ParamsUpdateGroupMetadata {
-    group_id: u32,
+    derivation_key: Pubkey,
+    group_address: [u8; 32],
 }

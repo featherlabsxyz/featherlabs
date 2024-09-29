@@ -2,10 +2,19 @@ use crate::*;
 pub fn handler<'info>(
     ctx: Context<'_, '_, '_, 'info, AddMetadataToAsset<'info>>,
     lrp: LightRootParams,
-    asset_type: AssetType,
+    asset_derivation_key: Pubkey,
     args: AssetMetadataArgsV1,
 ) -> Result<()> {
-    let asset_seed = asset_type.generate_asset_seed(&lrp)?;
+    let address_merkle_context =
+        unpack_address_merkle_context(lrp.address_merkle_context, ctx.remaining_accounts);
+
+    let asset_seed_address = derive_address_seed(
+        &[asset_derivation_key.to_bytes().as_ref()],
+        &crate::ID,
+        &address_merkle_context,
+    );
+    let asset_address =
+        Pubkey::new_from_array(derive_address(&asset_seed_address, &address_merkle_context));
     let mut ctx: LightContext<AddMetadataToAsset, LightAddMetadataToAsset> = LightContext::new(
         ctx,
         lrp.inputs,
@@ -14,18 +23,20 @@ pub fn handler<'info>(
         lrp.address_merkle_context,
         lrp.address_merkle_tree_root_index,
     )?;
-    let inputs = ParamsAddMetadataToAsset { asset_seed };
+    let inputs = ParamsAddMetadataToAsset {
+        asset_derivation_key,
+        asset_address,
+    };
     ctx.check_constraints(&inputs)?;
     ctx.derive_address_seeds(lrp.address_merkle_context, &inputs);
     let asset_data = &mut ctx.light_accounts.asset_data;
     let asset = &mut ctx.light_accounts.asset;
-    asset_type.validate_asset(&asset)?;
 
     if asset.has_metadata {
         return Err(FeatherErrorCode::MetadataAccountExistAlready.into());
     }
     asset.has_metadata = true;
-    asset_data.asset_key = asset.address;
+    asset_data.asset_key = asset_address;
     asset_data.attributes = args.attributes;
     asset_data.mutable = args.mutable;
     asset_data.name = args.name;
@@ -36,7 +47,7 @@ pub fn handler<'info>(
     Ok(())
 }
 #[light_accounts]
-#[instruction(asset_seed: Vec<Vec<u8>>)]
+#[instruction(asset_derivation_key: Pubkey, asset_address: Pubkey)]
 pub struct AddMetadataToAsset<'info> {
     #[account(mut)]
     #[fee_payer]
@@ -46,17 +57,18 @@ pub struct AddMetadataToAsset<'info> {
     /// CHECK: Checked in light-system-program.
     #[authority]
     pub cpi_signer: AccountInfo<'info>,
-    #[light_account(mut, seeds = [&asset_seed.concat()]
+    #[light_account(mut, seeds = [asset_derivation_key.to_bytes().as_ref()]
         constraint = asset.owner == authority.key() @ FeatherErrorCode::InvalidAssetSigner
     )]
     pub asset: LightAccount<AssetV1>,
     #[light_account(
         init,
-        seeds = [ASSET_DATA_SEED ,asset.address.as_ref()],
+        seeds = [ASSET_DATA_SEED, asset_address.to_bytes().as_ref()],
     )]
     pub asset_data: LightAccount<AssetDataV1>,
 }
 
 pub struct ParamsAddMetadataToAsset {
-    pub asset_seed: Vec<Vec<u8>>,
+    pub asset_derivation_key: Pubkey,
+    pub asset_address: Pubkey,
 }

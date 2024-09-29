@@ -2,10 +2,18 @@ use crate::*;
 pub fn handler<'info>(
     ctx: Context<'_, '_, '_, 'info, AddRoyaltiesToAsset<'info>>,
     lrp: LightRootParams,
-    asset_type: AssetType,
+    asset_derivation_key: Pubkey,
     args: RoyaltyArgsV1,
 ) -> Result<()> {
-    let asset_seed = asset_type.generate_asset_seed(&lrp)?;
+    let address_merkle_context =
+        unpack_address_merkle_context(lrp.address_merkle_context, ctx.remaining_accounts);
+    let asset_address_seed = derive_address_seed(
+        &[asset_derivation_key.to_bytes().as_ref()],
+        &crate::ID,
+        &address_merkle_context,
+    );
+    let asset_address =
+        Pubkey::new_from_array(derive_address(&asset_address_seed, &address_merkle_context));
     let mut ctx: LightContext<AddRoyaltiesToAsset, LightAddRoyaltiesToAsset> = LightContext::new(
         ctx,
         lrp.inputs,
@@ -14,17 +22,19 @@ pub fn handler<'info>(
         lrp.address_merkle_context,
         lrp.address_merkle_tree_root_index,
     )?;
-    let inputs = ParamsAddRoyaltiesToAsset { asset_seed };
+    let inputs = ParamsAddRoyaltiesToAsset {
+        asset_derivation_key,
+        asset_address,
+    };
     ctx.check_constraints(&inputs)?;
     ctx.derive_address_seeds(lrp.address_merkle_context, &inputs);
     let asset = &mut ctx.light_accounts.asset;
-    asset_type.validate_asset(&asset)?;
     let asset_royalty = &mut ctx.light_accounts.asset_royalty;
     if asset.has_royalties {
         return Err(FeatherErrorCode::MetadataAccountExistAlready.into());
     }
     asset.has_royalties = true;
-    asset_royalty.asset_key = asset.address;
+    asset_royalty.asset_key = asset_address;
     asset_royalty.basis_points = args.basis_points;
     asset_royalty.creators = args.creators;
     asset_royalty.ruleset = args.ruleset;
@@ -33,7 +43,7 @@ pub fn handler<'info>(
     Ok(())
 }
 #[light_accounts]
-#[instruction(asset_seed: Vec<Vec<u8>>)]
+#[instruction(asset_derivation_key: Pubkey, asset_address: Pubkey)]
 pub struct AddRoyaltiesToAsset<'info> {
     #[account(mut)]
     #[fee_payer]
@@ -43,17 +53,18 @@ pub struct AddRoyaltiesToAsset<'info> {
     /// CHECK: Checked in light-system-program.
     #[authority]
     pub cpi_signer: AccountInfo<'info>,
-    #[light_account(mut, seeds = [&asset_seed.concat()]
+    #[light_account(mut, seeds = [asset_derivation_key.to_bytes().as_ref()]
         constraint = asset.owner == authority.key() @ FeatherErrorCode::InvalidAssetSigner
     )]
     pub asset: LightAccount<AssetV1>,
     #[light_account(
         init,
-        seeds = [ASSET_ROYALTY_SEED, asset.address.as_ref()],
+        seeds = [ASSET_ROYALTY_SEED, asset_address.to_bytes().as_ref()],
     )]
     pub asset_royalty: LightAccount<AssetRoyaltiesV1>,
 }
 
 pub struct ParamsAddRoyaltiesToAsset {
-    pub asset_seed: Vec<Vec<u8>>,
+    pub asset_derivation_key: Pubkey,
+    pub asset_address: Pubkey,
 }

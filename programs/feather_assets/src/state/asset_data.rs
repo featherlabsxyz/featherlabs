@@ -6,8 +6,6 @@ use light_sdk::light_account;
 pub struct AssetDataV1 {
     pub name: String,
     pub uri: String,
-    /// If false, all fields are irreversible after initialization, including transfering of update_authority
-    /// For NFTs it suits to be false
     pub mutable: bool,
     pub asset_key: Pubkey,
     pub attributes: Vec<super::AttributeV1>,

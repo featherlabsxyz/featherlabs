@@ -63,17 +63,6 @@ pub struct CreateAssetArgsV1 {
     pub royalty: Option<RoyaltyArgsV1>,
 }
 #[derive(Clone, Debug, AnchorSerialize, AnchorDeserialize)]
-pub enum AssetType {
-    Alone {
-        asset_id: u32,
-        authority: Pubkey,
-    },
-    Member {
-        group_address: Pubkey,
-        member_number: u32,
-    },
-}
-#[derive(Clone, Debug, AnchorSerialize, AnchorDeserialize)]
 pub struct RoyaltyArgsV1 {
     pub basis_points: u8,
     pub creators: Vec<CreatorArgsV1>,
@@ -97,77 +86,4 @@ pub struct UpdateAssetMetadataArgsV1 {
     pub name: Option<String>,
     pub uri: Option<String>,
     pub attributes: Option<Vec<AttributeV1>>,
-}
-
-impl AssetType {
-    pub fn generate_asset_seed(&self, lrp: &LightRootParams) -> Result<Vec<Vec<u8>>> {
-        let asset_seed: Vec<Vec<u8>> = match self {
-            AssetType::Alone {
-                asset_id,
-                authority,
-            } => {
-                vec![
-                    ASSET_SEED.to_vec(),
-                    authority.try_to_vec()?,
-                    asset_id.to_le_bytes().to_vec(),
-                ]
-            }
-            AssetType::Member {
-                group_address,
-                member_number,
-            } => {
-                let group: Result<LightMutAccount<GroupV1>> = LightMutAccount::try_from_slice(
-                    lrp.inputs[lrp.inputs.len() - 1].as_slice(), // send group account at last so it does not get deserialized by macros
-                    &lrp.merkle_context,
-                    lrp.merkle_tree_root_index,
-                    &lrp.address_merkle_context,
-                );
-                let group = group.map_err(|_| FeatherErrorCode::GroupAccountNotFound)?;
-
-                require_eq!(group_address, &group.address, FeatherErrorCode::CustomError);
-                vec![
-                    ASSET_SEED.to_vec(),
-                    group_address.to_bytes().to_vec(),
-                    member_number.to_le_bytes().to_vec(),
-                ]
-            }
-        };
-        Ok(asset_seed)
-    }
-    pub fn validate_asset(&self, asset: &LightAccount<AssetV1>) -> Result<()> {
-        match self {
-            AssetType::Alone {
-                asset_id,
-                authority,
-            } => {
-                require_eq!(
-                    asset.group_membership.is_none(),
-                    true,
-                    FeatherErrorCode::CustomError
-                );
-                require_eq!(&asset.owner, authority, FeatherErrorCode::CustomError);
-            }
-            AssetType::Member {
-                group_address,
-                member_number,
-            } => {
-                require_eq!(
-                    asset.group_membership.is_some(),
-                    true,
-                    FeatherErrorCode::CustomError
-                );
-                require_eq!(
-                    asset.group_membership.as_ref().unwrap().group_key,
-                    *group_address,
-                    FeatherErrorCode::CustomError
-                );
-                require_eq!(
-                    asset.group_membership.as_ref().unwrap().member_number,
-                    *member_number,
-                    FeatherErrorCode::CustomError
-                )
-            }
-        }
-        Ok(())
-    }
 }

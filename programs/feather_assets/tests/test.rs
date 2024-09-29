@@ -3,12 +3,11 @@
 mod setup;
 use anchor_lang::{AnchorDeserialize, InstructionData, ToAccountMetas};
 use feather_assets::{
-    accounts::{CreateGroup as CreateGroupAcc, CreateMemberAsset as CreateMemberAssetAcc},
-    constants::{GROUP_DATA_SEED, GROUP_SEED},
-    instruction::{CreateGroup as CreateGroupIx, CreateMemberAsset as CreateMemberAssetIx},
+    accounts::CreateGroup as CreateGroupAcc,
+    constants::GROUP_DATA_SEED,
+    instruction::CreateGroup as CreateGroupIx,
     state::{CreateGroupArgsV1, GroupMetadataArgsV1},
-    AssetMetadataArgsV1, CreateAssetArgsV1, GroupDataV1, GroupV1, LightRootParams, RoyaltyArgsV1,
-    RuleSetV1,
+    GroupDataV1, GroupV1, LightRootParams,
 };
 use light_client::indexer::Indexer;
 use light_sdk::{
@@ -39,13 +38,9 @@ async fn create_group() {
     let packed_merkle_context = pack_merkle_context(merkle_context, &mut remaining_accounts);
     let packed_address_merkle_context =
         pack_address_merkle_context(address_merkle_context, &mut remaining_accounts);
-    let group_id: u32 = 2109141;
+    let derivation_key: Pubkey = Pubkey::new_unique();
     let group_address_seed = derive_address_seed(
-        &[
-            GROUP_SEED,
-            payer.pubkey().as_ref(),
-            group_id.to_le_bytes().as_ref(),
-        ],
+        &[derivation_key.to_bytes().as_ref()],
         &PROGRAM_ID,
         &address_merkle_context,
     );
@@ -88,7 +83,7 @@ async fn create_group() {
             merkle_context: packed_merkle_context,
             proof: rpc_result.proof,
         },
-        group_id,
+        derivation_key,
     };
     let accounts = CreateGroupAcc {
         authority: payer.pubkey(),
@@ -99,7 +94,7 @@ async fn create_group() {
         noop_program: NOOP_PROGRAM_ID,
         registered_program_pda,
         self_program: PROGRAM_ID,
-        signer: payer.pubkey(),
+        payer: payer.pubkey(),
         system_program: SYSTEM_PROGRAM,
     };
 
@@ -139,7 +134,7 @@ async fn create_group() {
         .data;
     let group = GroupV1::deserialize(&mut &group[..]).unwrap();
     let group_data = GroupDataV1::deserialize(&mut &group_data[..]).unwrap();
-    assert_eq!(group.address, Pubkey::new_from_array(group_address));
+    assert_eq!(group.derivation_key, derivation_key);
     assert_eq!(group_data.name, "Group 1".to_string());
     // let rpc_result = test_indexer.create_proof_for_compressed_accounts(None, None, new_addresses, address_merkle_tree_pubkeys, rpc)
     // let ix_data = CreateMemberAssetIx {

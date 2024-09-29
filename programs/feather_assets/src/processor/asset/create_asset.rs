@@ -3,7 +3,7 @@ use crate::*;
 pub fn handler<'info>(
     ctx: Context<'_, '_, '_, 'info, CreateAsset<'info>>,
     lrp: LightRootParams,
-    asset_id: u32,
+    derivation_key: Pubkey,
     args: CreateAssetArgsV1,
 ) -> Result<()> {
     let remaining_accounts = ctx.remaining_accounts;
@@ -16,7 +16,7 @@ pub fn handler<'info>(
         lrp.address_merkle_context,
         lrp.address_merkle_tree_root_index,
     )?;
-    let inputs = &ParamsCreateAsset { asset_id };
+    let inputs = &ParamsCreateAsset { derivation_key };
     ctx.check_constraints(inputs)?;
     ctx.derive_address_seeds(lrp.address_merkle_context, inputs);
     let asset = &mut ctx.light_accounts.asset;
@@ -29,8 +29,8 @@ pub fn handler<'info>(
         &asset_address_param.seed,
         &address_merkle_context,
     ));
-    asset.address = asset_address;
     asset.owner = authority;
+    asset.derivation_key = derivation_key;
     asset.has_multisig = false;
     asset.asset_authority_state = AssetAuthorityVariantV1::Owner;
     asset.asset_state = AssetStateV1::Unlocked;
@@ -112,11 +112,11 @@ pub fn handler<'info>(
     Ok(())
 }
 #[light_accounts]
-#[instruction(asset_id: u32)]
+#[instruction(derivation_key: Pubkey)]
 pub struct CreateAsset<'info> {
     #[account(mut)]
     #[fee_payer]
-    pub signer: Signer<'info>,
+    pub payer: Signer<'info>,
     /// CHECK: this is safe
     pub authority: UncheckedAccount<'info>,
     #[self_program]
@@ -124,10 +124,10 @@ pub struct CreateAsset<'info> {
     /// CHECK: Checked in light-system-program.
     #[authority]
     pub cpi_signer: AccountInfo<'info>,
-    #[light_account(init, seeds = [ASSET_SEED, authority.key().as_ref(), asset_id.to_le_bytes().as_ref()])]
+    #[light_account(init, seeds = [derivation_key.to_bytes().as_ref()])]
     pub asset: LightAccount<AssetV1>,
 }
 
 struct ParamsCreateAsset {
-    pub asset_id: u32,
+    pub derivation_key: Pubkey,
 }

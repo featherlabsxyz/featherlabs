@@ -1,3 +1,4 @@
+#![warn(ambiguous_glob_reexports)]
 pub mod constants;
 pub mod error;
 pub mod processor;
@@ -23,45 +24,45 @@ pub mod feather_assets {
     pub fn create_group<'info>(
         ctx: Context<'_, '_, '_, 'info, CreateGroup<'info>>,
         lrp: LightRootParams,
-        group_id: u32,
+        derivation_key: Pubkey,
         args: CreateGroupArgsV1,
     ) -> Result<()> {
-        processor::create_group::handler(ctx, lrp, group_id, args)?;
+        processor::create_group::handler(ctx, lrp, derivation_key, args)?;
         Ok(())
     }
     pub fn update_group_max_size<'info>(
         ctx: Context<'_, '_, '_, 'info, UpdateGroupMaxSize<'info>>,
         lrp: LightRootParams,
-        group_id: u32,
+        derivation_key: Pubkey,
         max_size: u32,
     ) -> Result<()> {
-        processor::update_group_max_size::handler(ctx, lrp, group_id, max_size)?;
+        processor::update_group_max_size::handler(ctx, lrp, derivation_key, max_size)?;
         Ok(())
     }
     pub fn add_metadata_to_group<'info>(
         ctx: Context<'_, '_, '_, 'info, AddMetadataToGroup<'info>>,
         lrp: LightRootParams,
-        group_id: u32,
+        derivation_key: Pubkey,
         args: GroupMetadataArgsV1,
     ) -> Result<()> {
-        processor::add_metadata_group::handler(ctx, lrp, group_id, args)?;
+        processor::add_metadata_group::handler(ctx, lrp, derivation_key, args)?;
         Ok(())
     }
     pub fn update_group_metadata<'info>(
         ctx: Context<'_, '_, '_, 'info, UpdateGroupMetadata<'info>>,
         lrp: LightRootParams,
-        group_id: u32,
+        derivation_key: Pubkey,
         args: UpdateGroupMetadataArgsV1,
     ) -> Result<()> {
-        processor::update_group_metadata::handler(ctx, lrp, group_id, args)?;
+        processor::update_group_metadata::handler(ctx, lrp, derivation_key, args)?;
         Ok(())
     }
     pub fn transfer_group_authority<'info>(
         ctx: Context<'_, '_, '_, 'info, TransferGroupAuthority<'info>>,
         lrp: LightRootParams,
-        group_id: u32,
+        derivation_key: Pubkey,
     ) -> Result<()> {
-        processor::transfer_group_authority::handler(ctx, lrp, group_id)?;
+        processor::transfer_group_authority::handler(ctx, lrp, derivation_key)?;
         Ok(())
     }
 
@@ -70,20 +71,27 @@ pub mod feather_assets {
     pub fn create_asset<'info>(
         ctx: Context<'_, '_, '_, 'info, CreateAsset<'info>>,
         lrp: LightRootParams,
-        asset_id: u32,
+        derivation_key: Pubkey,
         args: CreateAssetArgsV1,
     ) -> Result<()> {
-        processor::create_asset::handler(ctx, lrp, asset_id, args)?;
+        processor::create_asset::handler(ctx, lrp, derivation_key, args)?;
         Ok(())
     }
     // // needs to send group light account
     pub fn create_member_asset<'info>(
         ctx: Context<'_, '_, '_, 'info, CreateMemberAsset<'info>>,
         lrp: LightRootParams,
-        group_id: u32,
+        group_derivation_key: Pubkey,
+        asset_derivation_key: Pubkey,
         args: CreateAssetArgsV1,
     ) -> Result<()> {
-        processor::create_member_asset::handler(ctx, lrp, group_id, args)?;
+        processor::create_member_asset::handler(
+            ctx,
+            lrp,
+            group_derivation_key,
+            asset_derivation_key,
+            args,
+        )?;
         Ok(())
     }
 
@@ -112,19 +120,19 @@ pub mod feather_assets {
     pub fn add_metadata_to_asset<'info>(
         ctx: Context<'_, '_, '_, 'info, AddMetadataToAsset<'info>>,
         lrp: LightRootParams,
-        asset_type: AssetType,
+        asset_derivation_key: Pubkey,
         args: AssetMetadataArgsV1,
     ) -> Result<()> {
-        processor::add_metadata_asset::handler(ctx, lrp, asset_type, args)?;
+        processor::add_metadata_asset::handler(ctx, lrp, asset_derivation_key, args)?;
         Ok(())
     }
     pub fn add_royalties_to_asset<'info>(
         ctx: Context<'_, '_, '_, 'info, AddRoyaltiesToAsset<'info>>,
         lrp: LightRootParams,
-        asset_type: AssetType,
+        asset_derivation_key: Pubkey,
         args: RoyaltyArgsV1,
     ) -> Result<()> {
-        processor::add_royalties_asset::handler(ctx, lrp, asset_type, args)?;
+        processor::add_royalties_asset::handler(ctx, lrp, asset_derivation_key, args)?;
         Ok(())
     }
     // pub fn update_asset_royalties<'info>(
