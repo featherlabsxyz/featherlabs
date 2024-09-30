@@ -1,5 +1,8 @@
 import { PublicKey } from "@solana/web3.js";
 import { AttributeV1 } from ".";
+import { AssetAuthorityVariantV1, AssetStateV1, RuleSetV1 } from "./variants";
+
+// Groupinterfaces
 export interface GroupV1 {
   owner: PublicKey;
   derivationKey: PublicKey;
@@ -7,6 +10,7 @@ export interface GroupV1 {
   size: number;
   hasMetadata: boolean;
 }
+
 export interface GroupDataV1 {
   name: string;
   uri: string;
@@ -14,49 +18,8 @@ export interface GroupDataV1 {
   groupKey: PublicKey;
   attributes: AttributeV1[];
 }
-export interface GroupMembership {
-  groupKey: PublicKey;
-  memberNumber: number;
-}
-export type AssetStateV1 =
-  | { unlocked: {} }
-  | { lockedByDelegate: {} }
-  | { lockedByOwner: {} };
 
-export type AssetPrivilege =
-  | { none: {} }
-  | { all: {} }
-  | { transfer: {} }
-  | { burn: {} }
-  | { freeze: {} }
-  | { freezeAndTransfer: {} }
-  | { tbf: {} }
-  | { assetMetadataPrivilegeAttributes: {} }
-  | { allExceptBurn: {} };
-export type AssetAuthorityVariantV1 =
-  | {
-      owner: {};
-    }
-  | {
-      renter: {
-        rentTime: number;
-        fallbackOwner: PublicKey;
-        priviledge: AssetPrivilege;
-      };
-    }
-  | {
-      ownerDelegate: {
-        timeLock: number | null;
-        delegate: PublicKey;
-        privilege: AssetPrivilege;
-      };
-    }
-  | {
-      ownerPermanentDelegate: {
-        delegate: PublicKey;
-        privilege: AssetPrivilege;
-      };
-    };
+// Asset interfaces
 export interface AssetV1 {
   owner: PublicKey;
   derivationKey: PublicKey;
@@ -68,4 +31,31 @@ export interface AssetV1 {
   hasRoyalties: boolean;
   hasMetadata: boolean;
   hasMultisig: boolean;
+}
+
+export interface GroupMembership {
+  groupKey: PublicKey;
+  memberNumber: number;
+}
+
+export interface AssetDataV1 {
+  name: string;
+  uri: string;
+  mutable: boolean;
+  assetKey: PublicKey;
+  attributes: AttributeV1[];
+  privilegeAttributes: AttributeV1[];
+}
+
+// Asset Royalty interfaces
+export interface RoyaltyV1 {
+  basisPoints: number;
+  creators: CreatorArgsV1[];
+  ruleset: RuleSetV1;
+  assetKey: PublicKey;
+}
+
+export interface CreatorArgsV1 {
+  address: PublicKey;
+  percentage: number;
 }

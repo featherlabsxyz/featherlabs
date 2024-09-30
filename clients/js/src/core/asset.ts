@@ -1,8 +1,13 @@
-import { buildTx, Rpc } from "@lightprotocol/stateless.js";
+import { buildTx, deriveAddress, Rpc } from "@lightprotocol/stateless.js";
 import { PublicKey } from "@solana/web3.js";
 import BN from "bn.js";
 import { FeatherAssetsProgram } from "../program";
-import { AssetMetadataArgsV1, AssetV1, RoyaltyArgsV1 } from "../types";
+import {
+  AssetDataV1,
+  AssetMetadataArgsV1,
+  AssetV1,
+  RoyaltyArgsV1,
+} from "../types";
 
 /**
  *
@@ -47,9 +52,9 @@ export async function createAssetTx(
  * @param authority Owner Of Asset
  * @param payerPublicKey Transaction Payer
  * @param metadata Metadata for Asset
- * @param royalty Enforce Royalties On Asset Transfers
  * @param rentable Is Asset Time Based Rentable
  * @param transferrable Is Asset Transferreable or soulbound
+ * @param royalty Enforce Royalties On Asset Transfers
  * @returns
  */
 export async function createMemberAssetTx(
@@ -59,9 +64,9 @@ export async function createMemberAssetTx(
   groupAddress: PublicKey,
   payerPublicKey: PublicKey,
   metadata?: AssetMetadataArgsV1,
-  royalty?: RoyaltyArgsV1,
   rentable?: boolean,
-  transferrable?: boolean
+  transferrable?: boolean,
+  royalty?: RoyaltyArgsV1
 ) {
   const ix = await FeatherAssetsProgram.createMemberAssetIx(
     rpc,
@@ -115,4 +120,58 @@ export async function getAssets(rpc: Rpc, assetAddresses: PublicKey[]) {
       account.data.data
     );
   });
+}
+
+export async function getAssetWithMetadata(
+  rpc: Rpc,
+  assetAddress: PublicKey
+): Promise<{ asset: AssetV1; assetMetadata: AssetDataV1 }> {
+  const response = await getMultipleAssetWithMetadata(rpc, [assetAddress]);
+  return response[0];
+}
+export async function getMultipleAssetWithMetadata(
+  rpc: Rpc,
+  assetAddresses: PublicKey[]
+): Promise<Array<{ asset: AssetV1; assetMetadata: AssetDataV1 }>> {
+  const assetDataAddresses = await Promise.all(
+    assetAddresses.map((address) =>
+      deriveAddress(FeatherAssetsProgram.deriveAssetDataSeed(address))
+    )
+  );
+  const accounts = await rpc.getMultipleCompressedAccounts([
+    ...assetAddresses.map((addr) => new BN(addr.toBytes())),
+    ...assetDataAddresses.map((addr) => new BN(addr.toBytes())),
+  ]);
+  const result: Array<{ asset: AssetV1; assetMetadata: AssetDataV1 }> = [];
+  for (let i = 0; i < assetAddresses.length; i++) {
+    const assetAccount = accounts[i];
+    const assetDataAccount = accounts[i + assetAddresses.length];
+
+    if (!assetAccount || !assetAccount.data) {
+      throw new Error(
+        `Asset Account Does Not Exist or Invalid Asset Id for address ${assetAddresses[
+          i
+        ].toBase58()}`
+      );
+    }
+    if (!assetDataAccount || !assetDataAccount.data) {
+      throw new Error(
+        `Asset Metadata Account Does Not Exist for address ${assetAddresses[
+          i
+        ].toBase58()}`
+      );
+    }
+
+    result.push({
+      asset: FeatherAssetsProgram.decodeTypes<AssetV1>(
+        "AssetV1",
+        assetAccount.data.data
+      ),
+      assetMetadata: FeatherAssetsProgram.decodeTypes<AssetDataV1>(
+        "AssetDataV1",
+        assetDataAccount.data.data
+      ),
+    });
+  }
+  return result;
 }

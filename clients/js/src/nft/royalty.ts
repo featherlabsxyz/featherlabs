@@ -1,0 +1,1 @@
+export { getRoyalty } from "../core";

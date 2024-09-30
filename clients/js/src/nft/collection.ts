@@ -6,7 +6,12 @@ import {
   getGroupWithMetadata,
   getMultipleGroupsWithMetadata,
 } from "../core/group";
-import { AttributeV1, GroupMetadataArgsV1 } from "../types";
+import {
+  AttributeV1,
+  GroupDataV1,
+  GroupMetadataArgsV1,
+  GroupV1,
+} from "../types";
 
 /**
  *
@@ -48,6 +53,7 @@ export async function createCollectionTx(
   );
   return transaction;
 }
+
 export async function fetchCollection(
   rpc: Rpc,
   collectionAddress: PublicKey
@@ -56,7 +62,27 @@ export async function fetchCollection(
     rpc,
     collectionAddress
   );
-  const collection: Collection = {
+  return convertGroupToCollection(group, groupMetadata);
+}
+
+export async function fetchCollections(
+  rpc: Rpc,
+  collectionAddresses: PublicKey[]
+): Promise<Collection[]> {
+  const groupsWithMetadata = await getMultipleGroupsWithMetadata(
+    rpc,
+    collectionAddresses
+  );
+  return groupsWithMetadata.map(({ group, groupMetadata }) =>
+    convertGroupToCollection(group, groupMetadata)
+  );
+}
+
+function convertGroupToCollection(
+  group: GroupV1,
+  groupMetadata: GroupDataV1
+): Collection {
+  return {
     name: groupMetadata.name,
     imageUri: groupMetadata.uri,
     maxSize: group.maxSize,
@@ -73,37 +99,4 @@ export async function fetchCollection(
       ),
     },
   };
-  return collection;
-}
-
-export async function fetchCollections(
-  rpc: Rpc,
-  collectionAddresses: PublicKey[]
-): Promise<Collection[]> {
-  const groupsWithMetadata = await getMultipleGroupsWithMetadata(
-    rpc,
-    collectionAddresses
-  );
-  const collections: Collection[] = groupsWithMetadata.map(
-    ({ group, groupMetadata }) => ({
-      name: groupMetadata.name,
-      imageUri: groupMetadata.uri,
-      maxSize: group.maxSize,
-      currentSize: group.size,
-      mutable: groupMetadata.mutable,
-      owner: group.owner,
-      attributes: {
-        symbol: groupMetadata.attributes[0].value,
-        description: groupMetadata.attributes[1].value,
-        website: groupMetadata.attributes[2].value,
-        animationUrl: groupMetadata.attributes[3].value,
-        ...Object.fromEntries(
-          groupMetadata.attributes
-            .slice(4)
-            .map((attr) => [attr.key, attr.value])
-        ),
-      },
-    })
-  );
-  return collections;
 }
