@@ -41,11 +41,8 @@ pub fn handler<'info>(
                 &lrp.address_merkle_context,
                 lrp.address_merkle_tree_root_index,
             );
-            let associated_group_data_seed = derive_address_seed(
-                &[GROUP_DATA_SEED, group_address.as_ref()],
-                &crate::ID,
-                &address_merkle_context,
-            );
+            let associated_group_data_seed =
+                derive_address_seed(&[GROUP_DATA_SEED, group_address.as_ref()], &crate::ID);
             group_data.set_address_seed(associated_group_data_seed);
             new_address_params.push(group_data.new_address_params());
             group_data.attributes = metadata_args.attributes;

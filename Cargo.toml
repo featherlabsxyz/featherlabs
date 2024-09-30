@@ -12,14 +12,16 @@ codegen-units = 1
 
 [workspace.dependencies]
 anchor-lang = { version = "0.29.0", features = ["event-cpi"] }
-light-hasher = { version = "1.1.0", features = ["solana"] }
-light-sdk = { version = "0.10.0" }
-light-utils = { version = "1.1.0" }
+light-hasher = { git = "https://github.com/Lightprotocol/light-protocol", branch = "derive-address", features = [
+    "solana",
+] }
+light-sdk = { git = "https://github.com/Lightprotocol/light-protocol", branch = "derive-address" }
+light-utils = { git = "https://github.com/Lightprotocol/light-protocol", branch = "derive-address" }
 spl-noop = { version = "0.2.0", features = ["no-entrypoint"] }
 solana-sdk = "=1.18.22"
 
-light-client = { version = "0.9.1" }
-light-test-utils = { version = "1.2.1" }
+light-client = { git = "https://github.com/Lightprotocol/light-protocol", branch = "derive-address" }
+light-test-utils = { git = "https://github.com/Lightprotocol/light-protocol", branch = "derive-address" }
 solana-program-test = "=1.18.22"
 tokio = "1.36.0"
 

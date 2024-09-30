@@ -39,17 +39,11 @@ async fn create_group() {
     let packed_address_merkle_context =
         pack_address_merkle_context(address_merkle_context, &mut remaining_accounts);
     let derivation_key: Pubkey = Pubkey::new_unique();
-    let group_address_seed = derive_address_seed(
-        &[derivation_key.to_bytes().as_ref()],
-        &PROGRAM_ID,
-        &address_merkle_context,
-    );
+    let group_address_seed =
+        derive_address_seed(&[derivation_key.to_bytes().as_ref()], &PROGRAM_ID);
     let group_address = derive_address(&group_address_seed, &address_merkle_context);
-    let group_data_address_seed = derive_address_seed(
-        &[GROUP_DATA_SEED, group_address.as_ref()],
-        &PROGRAM_ID,
-        &address_merkle_context,
-    );
+    let group_data_address_seed =
+        derive_address_seed(&[GROUP_DATA_SEED, group_address.as_ref()], &PROGRAM_ID);
     let group_data_address = derive_address(&group_data_address_seed, &address_merkle_context);
     let group_address_vec = vec![group_address, group_data_address];
 

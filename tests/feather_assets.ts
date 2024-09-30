@@ -1,12 +1,13 @@
 import * as anchor from "@coral-xyz/anchor";
-import { PublicKey } from "@solana/web3.js";
+import { BN } from "@coral-xyz/anchor";
+
+import { PublicKey, Keypair } from "@solana/web3.js";
 import {
   createRpc,
   defaultStaticAccountsStruct,
   LightSystemProgram,
   Rpc,
   packNewAddressParams,
-  deriveAddress,
   bn,
   defaultTestStateTreeAccounts,
   packCompressedAccounts,
@@ -14,12 +15,12 @@ import {
   getIndexOrAdd,
   buildAndSignTx,
   sendAndConfirmTx,
-  hashToBn254FieldSizeBe,
+  deriveAddress,
+  toAccountMetas,
 } from "@lightprotocol/stateless.js";
 import { Program } from "@coral-xyz/anchor";
 import { FeatherAssets } from "../target/types/feather_assets";
-import { sha256 } from "@noble/hashes/sha256";
-
+import { keccak_256 } from "@noble/hashes/sha3";
 // These tests don't work, run rust tests'
 describe("feather_assets", () => {
   // Configure the client to use the local cluster.
@@ -44,37 +45,34 @@ describe("feather_assets", () => {
     nullifierQueue,
   } = defaultTestStateTreeAccounts();
   it("Is initialized!", async () => {
-    let seeds = bn(1201030102121211);
-    let group_address = await deriveAddressSeed(
-      new Uint8Array([
-        ...anchor.utils.bytes.utf8.encode("group"),
-        ...wallet.publicKey.toBytes(),
-        ...seeds.toArray("le", 8),
-      ]),
-      program.programId,
+    const derivingKey = new Keypair().publicKey;
+    const groupAddressSeed = deriveAddressSeed(
+      [derivingKey.toBytes()],
+      program.programId
+    );
+    console.log(new PublicKey(groupAddressSeed));
+    const groupAddress = await deriveAddress(groupAddressSeed, addressTree);
+    const groupDataAddressSeed = deriveAddressSeed(
+      [anchor.utils.bytes.utf8.encode("group_data"), groupAddress.toBytes()],
+      program.programId
+    );
+    const groupDataAddress = await deriveAddress(
+      groupDataAddressSeed,
       addressTree
     );
-    let group_data_address = await deriveAddressSeed(
-      new Uint8Array([
-        ...anchor.utils.bytes.utf8.encode("group_data"),
-        ...group_address.toBytes(),
-      ]),
-      program.programId,
-      addressTree
-    );
-    console.log("group address: ", group_address);
+    console.log("group address: ", groupAddress);
     const proof = await rpc.getValidityProof(undefined, [
-      bn(group_address.toBytes()),
-      bn(group_data_address.toBytes()),
+      bn(groupAddress.toBytes()),
+      bn(groupDataAddress.toBytes()),
     ]);
     const group_compressed_output =
       LightSystemProgram.createNewAddressOutputState(
-        Array.from(group_address.toBytes()),
+        Array.from(groupAddress.toBytes()),
         program.programId
       );
     const group_data_compressed_output =
       LightSystemProgram.createNewAddressOutputState(
-        Array.from(group_data_address.toBytes()),
+        Array.from(groupDataAddress.toBytes()),
         program.programId
       );
     const output_compressed_accounts = [
@@ -82,7 +80,15 @@ describe("feather_assets", () => {
       ...group_data_compressed_output,
     ];
     const groupAddressParams: NewAddressParams = {
-      seed: group_address.toBytes(),
+      seed: groupAddressSeed,
+      addressMerkleTreeRootIndex:
+        proof.rootIndices[proof.rootIndices.length - 1],
+      addressMerkleTreePubkey: proof.merkleTrees[proof.merkleTrees.length - 1],
+      addressQueuePubkey:
+        proof.nullifierQueues[proof.nullifierQueues.length - 1],
+    };
+    const groupDataAddressParams: NewAddressParams = {
+      seed: groupDataAddressSeed,
       addressMerkleTreeRootIndex:
         proof.rootIndices[proof.rootIndices.length - 1],
       addressMerkleTreePubkey: proof.merkleTrees[proof.merkleTrees.length - 1],
@@ -96,7 +102,7 @@ describe("feather_assets", () => {
       output_compressed_accounts
     );
     const { newAddressParamsPacked, remainingAccounts } = packNewAddressParams(
-      [groupAddressParams],
+      [groupAddressParams, groupDataAddressParams],
       ra
     );
     const ix = await program.methods
@@ -123,7 +129,7 @@ describe("feather_assets", () => {
           merkleTreeRootIndex: 0,
           proof: proof.compressedProof,
         },
-        seeds,
+        derivingKey,
         {
           maxSize: 10,
           metadata: {
@@ -135,7 +141,7 @@ describe("feather_assets", () => {
         }
       )
       .accounts({
-        signer: wallet.publicKey,
+        payer: wallet.publicKey,
         authority: wallet.publicKey,
         cpiSigner: PublicKey.findProgramAddressSync(
           [Buffer.from("cpi_authority")],
@@ -149,13 +155,7 @@ describe("feather_assets", () => {
         accountCompressionProgram,
         systemProgram: anchor.web3.SystemProgram.programId,
       })
-      .remainingAccounts(
-        remainingAccounts.map((acc) => ({
-          isSigner: false,
-          isWritable: false,
-          pubkey: acc,
-        }))
-      )
+      .remainingAccounts(toAccountMetas(remainingAccounts))
       .instruction();
     const setComputeUnitIx =
       anchor.web3.ComputeBudgetProgram.setComputeUnitLimit({
@@ -182,17 +182,20 @@ describe("feather_assets", () => {
   });
 });
 
-async function deriveAddressSeed(
-  seeds: Uint8Array,
-  programId: PublicKey,
-  address_merkle_tree: PublicKey
-): Promise<PublicKey> {
-  let inputs = Buffer.from([
-    ...programId.toBytes(),
-    ...address_merkle_tree.toBytes(),
-    ...seeds,
-  ]);
-
-  const address = await hashToBn254FieldSizeBe(inputs);
-  return new PublicKey(address[0]);
+export function deriveAddressSeed(
+  seeds: Uint8Array[],
+  programId: PublicKey
+): Uint8Array {
+  const combinedSeeds: Uint8Array[] = [programId.toBytes(), ...seeds];
+  const hash = hashvToBn254FieldSizeBe(combinedSeeds);
+  return hash;
+}
+export function hashvToBn254FieldSizeBe(bytes: Uint8Array[]): Uint8Array {
+  const hasher = keccak_256.create();
+  for (const input of bytes) {
+    hasher.update(input);
+  }
+  const hash = hasher.digest();
+  hash[0] = 0;
+  return hash;
 }

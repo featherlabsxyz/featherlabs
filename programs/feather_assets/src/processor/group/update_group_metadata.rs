@@ -11,11 +11,7 @@ pub fn handler<'info>(
     }
     let address_merkle_context =
         unpack_address_merkle_context(lrp.address_merkle_context, ctx.remaining_accounts);
-    let address_seed = derive_address_seed(
-        &[derivation_key.to_bytes().as_ref()],
-        &crate::ID,
-        &address_merkle_context,
-    );
+    let address_seed = derive_address_seed(&[derivation_key.to_bytes().as_ref()], &crate::ID);
     let group_address = derive_address(&address_seed, &address_merkle_context);
     let mut ctx: LightContext<UpdateGroupMetadata, LightUpdateGroupMetadata> = LightContext::new(
         ctx,

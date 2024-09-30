@@ -15,8 +15,7 @@ dependencies = [
 [[package]]
 name = "account-compression"
 version = "1.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c4940c0b00efce5f1fe29c3083878a44d130b5cb9a5711fa29bacd9ed14626d"
+source = "git+https://github.com/Lightprotocol/light-protocol?branch=derive-address#6d8bdbdfc5de6961524c09d7239794932266a280"
 dependencies = [
  "aligned-sized",
  "anchor-lang",
@@ -25,7 +24,7 @@ dependencies = [
  "light-concurrent-merkle-tree",
  "light-hash-set",
  "light-hasher",
- "light-heap",
+ "light-heap 1.1.0 (git+https://github.com/Lightprotocol/light-protocol?branch=derive-address)",
  "light-indexed-merkle-tree",
  "light-utils",
  "num-bigint 0.4.6",
@@ -133,8 +132,7 @@ checksum = "250f629c0161ad8107cf89319e990051fae62832fd343083bea452d93e2205fd"
 [[package]]
 name = "aligned-sized"
 version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "48a526ec4434d531d488af59fe866f36b310fe8906691c75dffa664450a3800a"
+source = "git+https://github.com/Lightprotocol/light-protocol?branch=derive-address#6d8bdbdfc5de6961524c09d7239794932266a280"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1776,7 +1774,7 @@ dependencies = [
  "anchor-lang",
  "light-client",
  "light-hasher",
- "light-heap",
+ "light-heap 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "light-sdk",
  "light-test-utils",
  "light-utils",
@@ -1847,8 +1845,7 @@ checksum = "00b0228411908ca8685dba7fc2cdd70ec9990a6e753e89b6ac91a84c40fbaf4b"
 [[package]]
 name = "forester-utils"
 version = "1.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57469df858044e0bb8911538097e4354f2999ec11da46eee2fbe16aa0b649ea1"
+source = "git+https://github.com/Lightprotocol/light-protocol?branch=derive-address#6d8bdbdfc5de6961524c09d7239794932266a280"
 dependencies = [
  "account-compression",
  "anchor-lang",
@@ -2558,8 +2555,7 @@ dependencies = [
 [[package]]
 name = "light-bounded-vec"
 version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "47ced86d6f1b163a04d5d0be44f8bbeedb11d32f73af27812bbd144e0f1f1a42"
+source = "git+https://github.com/Lightprotocol/light-protocol?branch=derive-address#6d8bdbdfc5de6961524c09d7239794932266a280"
 dependencies = [
  "bytemuck",
  "memoffset 0.9.1",
@@ -2570,8 +2566,7 @@ dependencies = [
 [[package]]
 name = "light-client"
 version = "0.9.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e99913b31571d870184f3d19e6486a0749a93997a191597a648ef1b768a99398"
+source = "git+https://github.com/Lightprotocol/light-protocol?branch=derive-address#6d8bdbdfc5de6961524c09d7239794932266a280"
 dependencies = [
  "async-trait",
  "bb8",
@@ -2599,15 +2594,14 @@ dependencies = [
 [[package]]
 name = "light-compressed-token"
 version = "1.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "128b842dbd697cb4298c065f938d3c57dd5908e83717ba0372e272afd5a51125"
+source = "git+https://github.com/Lightprotocol/light-protocol?branch=derive-address#6d8bdbdfc5de6961524c09d7239794932266a280"
 dependencies = [
  "account-compression",
  "aligned-sized",
  "anchor-lang",
  "anchor-spl",
  "light-hasher",
- "light-heap",
+ "light-heap 1.1.0 (git+https://github.com/Lightprotocol/light-protocol?branch=derive-address)",
  "light-system-program",
  "light-utils",
  "solana-sdk",
@@ -2618,8 +2612,7 @@ dependencies = [
 [[package]]
 name = "light-concurrent-merkle-tree"
 version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "44d84ffa991f38260b12f9fb60e7087aeb2d696513936eaee249e6f3e739651a"
+source = "git+https://github.com/Lightprotocol/light-protocol?branch=derive-address#6d8bdbdfc5de6961524c09d7239794932266a280"
 dependencies = [
  "borsh 0.10.4",
  "bytemuck",
@@ -2634,11 +2627,10 @@ dependencies = [
 [[package]]
 name = "light-hash-set"
 version = "1.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f7cd392ed4df05a545dfb8a58ef72639fbba9dee7a0605b81c3370d02161932b"
+source = "git+https://github.com/Lightprotocol/light-protocol?branch=derive-address#6d8bdbdfc5de6961524c09d7239794932266a280"
 dependencies = [
  "light-bounded-vec",
- "light-heap",
+ "light-heap 1.1.0 (git+https://github.com/Lightprotocol/light-protocol?branch=derive-address)",
  "light-utils",
  "memoffset 0.9.1",
  "num-bigint 0.4.6",
@@ -2650,8 +2642,7 @@ dependencies = [
 [[package]]
 name = "light-hasher"
 version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e932ed98282fa564ff4518416de688593a0f425c81d68cfa70e98da21a17a36f"
+source = "git+https://github.com/Lightprotocol/light-protocol?branch=derive-address#6d8bdbdfc5de6961524c09d7239794932266a280"
 dependencies = [
  "ark-bn254",
  "light-poseidon",
@@ -2671,10 +2662,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "light-heap"
+version = "1.1.0"
+source = "git+https://github.com/Lightprotocol/light-protocol?branch=derive-address#6d8bdbdfc5de6961524c09d7239794932266a280"
+dependencies = [
+ "anchor-lang",
+]
+
+[[package]]
 name = "light-indexed-merkle-tree"
 version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a3df875b906d10c2146c66906eef3b40b42d8f9c14b539b4ed5860c6347a3bb1"
+source = "git+https://github.com/Lightprotocol/light-protocol?branch=derive-address#6d8bdbdfc5de6961524c09d7239794932266a280"
 dependencies = [
  "borsh 0.10.4",
  "light-bounded-vec",
@@ -2692,8 +2690,7 @@ dependencies = [
 [[package]]
 name = "light-macros"
 version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0bed4a94c8fe3f5bb30d537dbf7148018229a2aa7191a8be41905cf39c7e24a6"
+source = "git+https://github.com/Lightprotocol/light-protocol?branch=derive-address#6d8bdbdfc5de6961524c09d7239794932266a280"
 dependencies = [
  "bs58 0.4.0",
  "light-hasher",
@@ -2705,8 +2702,7 @@ dependencies = [
 [[package]]
 name = "light-merkle-tree-reference"
 version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eb9153fd97f1bdba3ec1de6f4c4f20134c6e5e1285676bcb9ef5ebe493f41afa"
+source = "git+https://github.com/Lightprotocol/light-protocol?branch=derive-address#6d8bdbdfc5de6961524c09d7239794932266a280"
 dependencies = [
  "light-bounded-vec",
  "light-hasher",
@@ -2729,8 +2725,7 @@ dependencies = [
 [[package]]
 name = "light-prover-client"
 version = "1.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2e109ed16bfc5faaa7aed6989f2717a76e68cd771430580b910c4a1cf3d04a20"
+source = "git+https://github.com/Lightprotocol/light-protocol?branch=derive-address#6d8bdbdfc5de6961524c09d7239794932266a280"
 dependencies = [
  "ark-bn254",
  "ark-crypto-primitives",
@@ -2740,7 +2735,7 @@ dependencies = [
  "ark-relations",
  "ark-serialize",
  "ark-std",
- "borsh 0.10.4",
+ "borsh 0.9.3",
  "bytemuck",
  "color-eyre",
  "env_logger 0.11.5",
@@ -2766,8 +2761,7 @@ dependencies = [
 [[package]]
 name = "light-registry"
 version = "1.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9f81d948d1c2a6d945668aa62acd63104bc206c58259061484d412faa503e1f7"
+source = "git+https://github.com/Lightprotocol/light-protocol?branch=derive-address#6d8bdbdfc5de6961524c09d7239794932266a280"
 dependencies = [
  "account-compression",
  "aligned-sized",
@@ -2775,7 +2769,7 @@ dependencies = [
  "anchor-spl",
  "bytemuck",
  "light-hasher",
- "light-heap",
+ "light-heap 1.1.0 (git+https://github.com/Lightprotocol/light-protocol?branch=derive-address)",
  "light-system-program",
  "light-utils",
  "num-bigint 0.4.6",
@@ -2787,8 +2781,7 @@ dependencies = [
 [[package]]
 name = "light-sdk"
 version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c6c8085cb040a2f6ae36da2c58b9f8795b788a9bdd92787d1e61bda974b3685"
+source = "git+https://github.com/Lightprotocol/light-protocol?branch=derive-address#6d8bdbdfc5de6961524c09d7239794932266a280"
 dependencies = [
  "aligned-sized",
  "anchor-lang",
@@ -2797,7 +2790,7 @@ dependencies = [
  "groth16-solana",
  "light-concurrent-merkle-tree",
  "light-hasher",
- "light-heap",
+ "light-heap 1.1.0 (git+https://github.com/Lightprotocol/light-protocol?branch=derive-address)",
  "light-indexed-merkle-tree",
  "light-macros",
  "light-sdk-macros",
@@ -2811,8 +2804,7 @@ dependencies = [
 [[package]]
 name = "light-sdk-macros"
 version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f38c8f908e4fe074fdf6eb6c7b2702e0575435ce6f22dcb3ffea62283b2d7911"
+source = "git+https://github.com/Lightprotocol/light-protocol?branch=derive-address#6d8bdbdfc5de6961524c09d7239794932266a280"
 dependencies = [
  "bs58 0.4.0",
  "light-hasher",
@@ -2824,8 +2816,7 @@ dependencies = [
 [[package]]
 name = "light-system-program"
 version = "1.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b21cd0e5841f96ed7a2bb5827d169b8718630d22a5099ec99ff3114ee7190cbe"
+source = "git+https://github.com/Lightprotocol/light-protocol?branch=derive-address#6d8bdbdfc5de6961524c09d7239794932266a280"
 dependencies = [
  "account-compression",
  "aligned-sized",
@@ -2833,7 +2824,7 @@ dependencies = [
  "groth16-solana",
  "light-concurrent-merkle-tree",
  "light-hasher",
- "light-heap",
+ "light-heap 1.1.0 (git+https://github.com/Lightprotocol/light-protocol?branch=derive-address)",
  "light-indexed-merkle-tree",
  "light-macros",
  "light-utils",
@@ -2845,8 +2836,7 @@ dependencies = [
 [[package]]
 name = "light-test-utils"
 version = "1.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "567afcc003201bdab4b4ae2ffcd2c440b05d8f4f8141d6883b462b85278a510b"
+source = "git+https://github.com/Lightprotocol/light-protocol?branch=derive-address#6d8bdbdfc5de6961524c09d7239794932266a280"
 dependencies = [
  "account-compression",
  "anchor-lang",
@@ -2888,8 +2878,7 @@ dependencies = [
 [[package]]
 name = "light-utils"
 version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "19e2b5a4959cb0456b483a20b4f3930920949137c00e76b5d0f9bf8d701a3c6a"
+source = "git+https://github.com/Lightprotocol/light-protocol?branch=derive-address#6d8bdbdfc5de6961524c09d7239794932266a280"
 dependencies = [
  "anyhow",
  "ark-bn254",
@@ -2904,8 +2893,7 @@ dependencies = [
 [[package]]
 name = "light-verifier"
 version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ebbf2f91b484ba90724a72915ffa4faa7e039b369096df90724e78305d615fd0"
+source = "git+https://github.com/Lightprotocol/light-protocol?branch=derive-address#6d8bdbdfc5de6961524c09d7239794932266a280"
 dependencies = [
  "borsh 0.10.4",
  "groth16-solana",
@@ -3539,8 +3527,7 @@ dependencies = [
 [[package]]
 name = "photon-api"
 version = "0.45.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "128905398aa6dcc60039de734790f1cac0c7c7d307bd7f4075ea75722d4c9cd4"
+source = "git+https://github.com/Lightprotocol/light-protocol?branch=derive-address#6d8bdbdfc5de6961524c09d7239794932266a280"
 dependencies = [
  "reqwest",
  "serde",

@@ -8,11 +8,8 @@ pub fn handler<'info>(
     let address_merkle_context =
         unpack_address_merkle_context(lrp.address_merkle_context, ctx.remaining_accounts);
 
-    let asset_seed_address = derive_address_seed(
-        &[asset_derivation_key.to_bytes().as_ref()],
-        &crate::ID,
-        &address_merkle_context,
-    );
+    let asset_seed_address =
+        derive_address_seed(&[asset_derivation_key.to_bytes().as_ref()], &crate::ID);
     let asset_address =
         Pubkey::new_from_array(derive_address(&asset_seed_address, &address_merkle_context));
     let mut ctx: LightContext<AddMetadataToAsset, LightAddMetadataToAsset> = LightContext::new(

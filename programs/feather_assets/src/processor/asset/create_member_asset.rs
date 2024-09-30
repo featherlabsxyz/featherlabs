@@ -11,11 +11,7 @@ pub fn handler<'info>(
     let authority = ctx.accounts.authority.key();
     let address_merkle_context =
         unpack_address_merkle_context(lrp.address_merkle_context, ctx.remaining_accounts);
-    let address_seed = derive_address_seed(
-        &[group_derivation_key.to_bytes().as_ref()],
-        &crate::ID,
-        &address_merkle_context,
-    );
+    let address_seed = derive_address_seed(&[group_derivation_key.to_bytes().as_ref()], &crate::ID);
     let group_address =
         Pubkey::new_from_array(derive_address(&address_seed, &address_merkle_context));
     let mut ctx: LightContext<CreateMemberAsset, LightCreateMemberAsset> = LightContext::new(
@@ -73,11 +69,8 @@ pub fn handler<'info>(
                 &lrp.address_merkle_context,
                 lrp.address_merkle_tree_root_index,
             );
-            let address_seed = derive_address_seed(
-                &[ASSET_DATA_SEED, asset_address.as_ref()],
-                &crate::ID,
-                &address_merkle_context,
-            );
+            let address_seed =
+                derive_address_seed(&[ASSET_DATA_SEED, asset_address.as_ref()], &crate::ID);
             acc.set_address_seed(address_seed);
             new_address_params.push(acc.new_address_params());
             acc.asset_key = asset_address;
@@ -99,11 +92,8 @@ pub fn handler<'info>(
                 &lrp.address_merkle_context,
                 lrp.address_merkle_tree_root_index,
             );
-            let address_seed = derive_address_seed(
-                &[ASSET_ROYALTY_SEED, asset_address.as_ref()],
-                &crate::ID,
-                &address_merkle_context,
-            );
+            let address_seed =
+                derive_address_seed(&[ASSET_ROYALTY_SEED, asset_address.as_ref()], &crate::ID);
             acc.set_address_seed(address_seed);
             new_address_params.push(acc.new_address_params());
             acc.asset_key = asset_address;

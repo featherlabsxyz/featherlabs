@@ -45,11 +45,8 @@ pub fn handler<'info>(
                 &lrp.address_merkle_context,
                 lrp.address_merkle_tree_root_index,
             );
-            let address_seed = derive_address_seed(
-                &[ASSET_DATA_SEED, asset_address.as_ref()],
-                &crate::ID,
-                &address_merkle_context,
-            );
+            let address_seed =
+                derive_address_seed(&[ASSET_DATA_SEED, asset_address.as_ref()], &crate::ID);
             acc.set_address_seed(address_seed);
             new_address_params.push(acc.new_address_params());
             acc.asset_key = asset_address;
@@ -71,11 +68,8 @@ pub fn handler<'info>(
                 &lrp.address_merkle_context,
                 lrp.address_merkle_tree_root_index,
             );
-            let address_seed = derive_address_seed(
-                &[ASSET_ROYALTY_SEED, asset_address.as_ref()],
-                &crate::ID,
-                &address_merkle_context,
-            );
+            let address_seed =
+                derive_address_seed(&[ASSET_ROYALTY_SEED, asset_address.as_ref()], &crate::ID);
             acc.set_address_seed(address_seed);
             new_address_params.push(acc.new_address_params());
             acc.asset_key = asset_address;
