@@ -660,41 +660,6 @@ export type FeatherAssets = {
   ],
   "types": [
     {
-      "name": "CompressedProof",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "a",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          },
-          {
-            "name": "b",
-            "type": {
-              "array": [
-                "u8",
-                64
-              ]
-            }
-          },
-          {
-            "name": "c",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
       "name": "LightRootParams",
       "type": {
         "kind": "struct",
@@ -1023,6 +988,41 @@ export type FeatherAssets = {
               "Index of compressed account hash in queue."
             ],
             "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CompressedProof",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "a",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "b",
+            "type": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          },
+          {
+            "name": "c",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
           }
         ]
       }
@@ -1743,41 +1743,6 @@ export const IDL: FeatherAssets = {
   ],
   "types": [
     {
-      "name": "CompressedProof",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "a",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          },
-          {
-            "name": "b",
-            "type": {
-              "array": [
-                "u8",
-                64
-              ]
-            }
-          },
-          {
-            "name": "c",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
       "name": "LightRootParams",
       "type": {
         "kind": "struct",
@@ -2106,6 +2071,41 @@ export const IDL: FeatherAssets = {
               "Index of compressed account hash in queue."
             ],
             "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CompressedProof",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "a",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "b",
+            "type": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          },
+          {
+            "name": "c",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
           }
         ]
       }

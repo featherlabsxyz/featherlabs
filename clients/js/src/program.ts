@@ -17,7 +17,12 @@ import {
 } from "@lightprotocol/stateless.js";
 import { FeatherAssets, IDL } from "./idl";
 import { CreateAssetArgsV1, CreateGroupArgsV1, GroupV1 } from "./types";
-import { FeatherAssetsConstants } from "./constants";
+import {
+  ASSET_DATA_SEED,
+  ASSET_ROYALTY_SEED,
+  FeatherAssetsConstants,
+  GROUP_DATA_SEED,
+} from "./constants";
 
 export class FeatherAssetsProgram extends FeatherAssetsConstants {
   private static instance: FeatherAssetsProgram;
@@ -308,21 +313,21 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
     return ix;
   }
   // ASSET UTILS <--------------------------------------------------------------------->
-  static deriveAssetSeed(derivationKey: PublicKey) {
-    return new Uint8Array();
+  static deriveAssetSeed(derivationKey: PublicKey): Uint8Array {
+    return this.deriveSeed([derivationKey.toBytes()]);
   }
-  static deriveAssetDataSeed(assetAddress: PublicKey) {
-    return new Uint8Array();
+  static deriveAssetDataSeed(assetAddress: PublicKey): Uint8Array {
+    return this.deriveSeed([ASSET_DATA_SEED, assetAddress.toBytes()]);
   }
-  static deriveAssetRoyaltySeed(assetAddress: PublicKey) {
-    return new Uint8Array();
+  static deriveAssetRoyaltySeed(assetAddress: PublicKey): Uint8Array {
+    return this.deriveSeed([ASSET_ROYALTY_SEED, assetAddress.toBytes()]);
   }
   // GROUP UTILS <--------------------------------------------------------------------->
-  static deriveGroupSeed(derivationKey: PublicKey) {
-    return new Uint8Array();
+  static deriveGroupSeed(derivationKey: PublicKey): Uint8Array {
+    return this.deriveSeed([derivationKey.toBytes()]);
   }
-  static deriveGroupDataSeed(groupAddress: PublicKey) {
-    return new Uint8Array();
+  static deriveGroupDataSeed(groupAddress: PublicKey): Uint8Array {
+    return this.deriveSeed([GROUP_DATA_SEED, groupAddress.toBytes()]);
   }
   //  <--------------------------------------------------------------------------->
   private static pack(
