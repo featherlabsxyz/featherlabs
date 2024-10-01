@@ -10,6 +10,7 @@ pub fn handler<'info>(
     let address_seed = derive_address_seed(&[derivation_key.to_bytes().as_ref()], &crate::ID);
     let group_address =
         Pubkey::new_from_array(derive_address(&address_seed, &address_merkle_context));
+    msg!("Group Compressed Account: {:?}", group_address);
     let mut ctx: LightContext<AddMetadataToGroup, LightAddMetadataToGroup> = LightContext::new(
         ctx,
         lrp.inputs,
@@ -35,7 +36,11 @@ pub fn handler<'info>(
     group_data.name = args.name;
     group_data.uri = args.uri;
     group.has_metadata = true;
-
+    let group_data_address = Pubkey::new_from_array(derive_address(
+        &group_data.new_address_params().unwrap().seed,
+        &address_merkle_context,
+    ));
+    msg!("Group Data Compressed Account: {:?}", group_data_address);
     ctx.verify(lrp.proof)?;
     Ok(())
 }

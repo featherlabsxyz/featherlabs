@@ -11,6 +11,7 @@ pub fn handler<'info>(
         derive_address_seed(&[asset_derivation_key.to_bytes().as_ref()], &crate::ID);
     let asset_address =
         Pubkey::new_from_array(derive_address(&asset_address_seed, &address_merkle_context));
+    msg!("Asset Compressed Account: {:?}", asset_address);
     let mut ctx: LightContext<AddRoyaltiesToAsset, LightAddRoyaltiesToAsset> = LightContext::new(
         ctx,
         lrp.inputs,
@@ -35,7 +36,11 @@ pub fn handler<'info>(
     asset_royalty.basis_points = args.basis_points;
     asset_royalty.creators = args.creators;
     asset_royalty.ruleset = args.ruleset;
-
+    let address = Pubkey::new_from_array(derive_address(
+        &asset_royalty.new_address_params().unwrap().seed,
+        &address_merkle_context,
+    ));
+    msg!("Asset Royalty Compressed Account: {:?}", address);
     ctx.verify(lrp.proof)?;
     Ok(())
 }

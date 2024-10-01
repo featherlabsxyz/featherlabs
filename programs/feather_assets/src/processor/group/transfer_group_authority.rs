@@ -5,6 +5,8 @@ pub fn handler<'info>(
     lrp: LightRootParams,
     derivation_key: Pubkey,
 ) -> Result<()> {
+    let address_merkle_context =
+        unpack_address_merkle_context(lrp.address_merkle_context, ctx.remaining_accounts);
     let mut ctx: LightContext<TransferGroupAuthority, LightTransferGroupAuthority> =
         LightContext::new(
             ctx,
@@ -18,6 +20,11 @@ pub fn handler<'info>(
     ctx.check_constraints(&inputs)?;
     ctx.derive_address_seeds(lrp.address_merkle_context, &inputs);
     ctx.light_accounts.group.owner = ctx.anchor_context.accounts.new_authority.key();
+    let group_address = Pubkey::new_from_array(derive_address(
+        &ctx.light_accounts.group.new_address_params().unwrap().seed,
+        &address_merkle_context,
+    ));
+    msg!("Group Compressed Account: {:?}", group_address);
     ctx.verify(lrp.proof)?;
     Ok(())
 }

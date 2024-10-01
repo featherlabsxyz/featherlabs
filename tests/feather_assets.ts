@@ -1,6 +1,5 @@
 import * as anchor from "@coral-xyz/anchor";
 import { BN } from "@coral-xyz/anchor";
-
 import { PublicKey, Keypair } from "@solana/web3.js";
 import {
   createRpc,
@@ -21,6 +20,7 @@ import {
 import { Program } from "@coral-xyz/anchor";
 import { FeatherAssets } from "../target/types/feather_assets";
 import { keccak_256 } from "@noble/hashes/sha3";
+import { createGroupTx } from "@featherlabs/feather-assets/src/core";
 // These tests don't work, run rust tests'
 describe("feather_assets", () => {
   // Configure the client to use the local cluster.
@@ -30,21 +30,35 @@ describe("feather_assets", () => {
   const rpc: Rpc = createRpc(undefined, undefined, undefined, {
     commitment: "confirmed",
   });
-  const program = anchor.workspace.FeatherAssets as Program<FeatherAssets>;
+
   const {
     accountCompressionAuthority,
     noopProgram,
     registeredProgramPda,
     accountCompressionProgram,
   } = defaultStaticAccountsStruct();
-  const {
-    addressQueue,
-    addressTree,
-    merkleTree,
-    merkleTreeHeight,
-    nullifierQueue,
-  } = defaultTestStateTreeAccounts();
+  const { addressTree, merkleTree, nullifierQueue } =
+    defaultTestStateTreeAccounts();
   it("Is initialized!", async () => {
+    const tx1 = await createGroupTx(
+      rpc,
+      100,
+      wallet.publicKey,
+      wallet.publicKey,
+      { attributes: [], mutable: true, name: "a", uri: "a" }
+    );
+    tx1.sign([wallet.payer]);
+    const sig = await sendAndConfirmTx(rpc, tx1, {
+      skipPreflight: true,
+    });
+    let log = await rpc.getTransaction(sig, {
+      commitment: "confirmed",
+      maxSupportedTransactionVersion: 0,
+    });
+    console.log("Your transaction signature", sig);
+    console.log(log.meta.logMessages);
+    return;
+    const program = anchor.workspace.FeatherAssets as Program<FeatherAssets>;
     const derivingKey = new Keypair().publicKey;
     const groupAddressSeed = deriveAddressSeed(
       [derivingKey.toBytes()],

@@ -12,6 +12,7 @@ pub fn handler<'info>(
         derive_address_seed(&[asset_derivation_key.to_bytes().as_ref()], &crate::ID);
     let asset_address =
         Pubkey::new_from_array(derive_address(&asset_seed_address, &address_merkle_context));
+    msg!("Asset Compressed Account: {:?}", asset_address);
     let mut ctx: LightContext<AddMetadataToAsset, LightAddMetadataToAsset> = LightContext::new(
         ctx,
         lrp.inputs,
@@ -39,7 +40,11 @@ pub fn handler<'info>(
     asset_data.name = args.name;
     asset_data.uri = args.uri;
     asset_data.privilege_attributes = Vec::new();
-
+    let address = Pubkey::new_from_array(derive_address(
+        &asset_data.new_address_params().unwrap().seed,
+        &address_merkle_context,
+    ));
+    msg!("Asset Metadata Compressed Account: {:?}", address);
     ctx.verify(lrp.proof)?;
     Ok(())
 }

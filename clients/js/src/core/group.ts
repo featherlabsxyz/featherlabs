@@ -1,4 +1,4 @@
-import { buildTx, deriveAddress, Rpc } from "@lightprotocol/stateless.js";
+import { deriveAddress, Rpc } from "@lightprotocol/stateless.js";
 import { PublicKey, VersionedTransaction } from "@solana/web3.js";
 import BN from "bn.js";
 import { FeatherAssetsProgram } from "../program";
@@ -25,8 +25,11 @@ export async function createGroupTx(
     { maxSize, metadata: metadata ? metadata : null },
     payerPublicKey
   );
-  const { blockhash } = await rpc.getLatestBlockhash();
-  const transaction = buildTx([ix], payerPublicKey, blockhash);
+  const transaction = await FeatherAssetsProgram.buildTxWithComputeBudget(
+    rpc,
+    [ix],
+    payerPublicKey
+  );
   return transaction;
 }
 

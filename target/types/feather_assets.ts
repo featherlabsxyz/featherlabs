@@ -1076,7 +1076,13 @@ export type FeatherAssets = {
     },
     {
       "code": 6009,
-      "name": "CustomFailedToDeriveAssetSeed"
+      "name": "EmptyValueError",
+      "msg": "Sent Empty Values"
+    },
+    {
+      "code": 6010,
+      "name": "CustomFailedToDeriveAssetSeed",
+      "msg": "Failed To Derive Asset Seed Custom"
     }
   ]
 };
@@ -2159,7 +2165,13 @@ export const IDL: FeatherAssets = {
     },
     {
       "code": 6009,
-      "name": "CustomFailedToDeriveAssetSeed"
+      "name": "EmptyValueError",
+      "msg": "Sent Empty Values"
+    },
+    {
+      "code": 6010,
+      "name": "CustomFailedToDeriveAssetSeed",
+      "msg": "Failed To Derive Asset Seed Custom"
     }
   ]
 };

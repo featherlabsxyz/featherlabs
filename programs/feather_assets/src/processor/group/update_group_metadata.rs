@@ -13,6 +13,7 @@ pub fn handler<'info>(
         unpack_address_merkle_context(lrp.address_merkle_context, ctx.remaining_accounts);
     let address_seed = derive_address_seed(&[derivation_key.to_bytes().as_ref()], &crate::ID);
     let group_address = derive_address(&address_seed, &address_merkle_context);
+    msg!("Group Compressed Account: {:?}", group_address);
     let mut ctx: LightContext<UpdateGroupMetadata, LightUpdateGroupMetadata> = LightContext::new(
         ctx,
         lrp.inputs,
@@ -28,6 +29,11 @@ pub fn handler<'info>(
     ctx.check_constraints(&inputs)?;
     ctx.derive_address_seeds(lrp.address_merkle_context, &inputs);
     let group_data = &mut ctx.light_accounts.group_data;
+    let group_data_address = Pubkey::new_from_array(derive_address(
+        &group_data.new_address_params().unwrap().seed,
+        &address_merkle_context,
+    ));
+    msg!("Group Data Compressed Account: {:?}", group_data_address);
     if let Some(val) = args.attributes {
         group_data.attributes = val
     }

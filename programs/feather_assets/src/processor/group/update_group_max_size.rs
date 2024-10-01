@@ -5,6 +5,8 @@ pub fn handler<'info>(
     derivation_key: Pubkey,
     max_size: u32,
 ) -> Result<()> {
+    let address_merkle_context =
+        unpack_address_merkle_context(lrp.address_merkle_context, ctx.remaining_accounts);
     let mut ctx: LightContext<UpdateGroupMaxSize, LightUpdateGroupMaxSize> = LightContext::new(
         ctx,
         lrp.inputs,
@@ -17,6 +19,11 @@ pub fn handler<'info>(
     ctx.check_constraints(&inputs)?;
     ctx.derive_address_seeds(lrp.address_merkle_context, &inputs);
     let current_size = ctx.light_accounts.group.size;
+    let group_address = Pubkey::new_from_array(derive_address(
+        &ctx.light_accounts.group.new_address_params().unwrap().seed,
+        &address_merkle_context,
+    ));
+    msg!("Group Compressed Account: {:?}", group_address);
     require_gt!(max_size, current_size, FeatherErrorCode::InvalidMaxSize);
     ctx.light_accounts.group.max_size = max_size;
     ctx.verify(lrp.proof)?;

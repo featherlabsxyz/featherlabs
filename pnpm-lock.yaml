@@ -21,6 +21,9 @@ importers:
         specifier: ^1.95.3
         version: 1.95.3(bufferutil@4.0.8)(utf-8-validate@5.0.10)
     devDependencies:
+      '@featherlabs/feather-assets':
+        specifier: workspace:*
+        version: link:clients/js
       '@types/bn.js':
         specifier: ^5.1.0
         version: 5.1.6

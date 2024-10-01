@@ -1,6 +1,6 @@
 import { Rpc } from "@lightprotocol/stateless.js";
-import { PublicKey } from "@solana/web3.js";
-import { Collection, Nft, NftAttributes } from ".";
+import { PublicKey, VersionedTransaction } from "@solana/web3.js";
+import { Nft, NftAttributes } from ".";
 import {
   createAssetTx,
   createMemberAssetTx,
@@ -27,7 +27,7 @@ export async function createNftTx(
   nftAttributes: NftAttributes,
   collection?: PublicKey,
   enforceRoyalties?: RoyaltyArgsV1
-) {
+): Promise<VersionedTransaction> {
   const attributesArray = Object.entries(nftAttributes).map(([key, value]) => ({
     key,
     value,

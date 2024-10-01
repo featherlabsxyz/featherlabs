@@ -5,6 +5,7 @@ import {
   LightSystemProgram,
   NewAddressParams,
 } from "@lightprotocol/stateless.js";
+import { utils } from "@coral-xyz/anchor";
 import { PublicKey, SystemProgram } from "@solana/web3.js";
 import { keccak_256 } from "@noble/hashes/sha3";
 export class FeatherAssetsConstants {

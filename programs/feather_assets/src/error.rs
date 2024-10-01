@@ -20,5 +20,8 @@ pub enum FeatherErrorCode {
     RoyaltyAccountExistAlready,
     #[msg("Group Account Not Found")]
     GroupAccountNotFound,
+    #[msg("Sent Empty Values")]
+    EmptyValueError,
+    #[msg("Failed To Derive Asset Seed Custom")]
     CustomFailedToDeriveAssetSeed,
 }

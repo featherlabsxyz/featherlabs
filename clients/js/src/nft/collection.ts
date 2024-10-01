@@ -1,17 +1,12 @@
 import { Rpc } from "@lightprotocol/stateless.js";
-import { PublicKey } from "@solana/web3.js";
+import { PublicKey, VersionedTransaction } from "@solana/web3.js";
 import { Collection, NftAttributes } from ".";
 import {
   createGroupTx,
   getGroupWithMetadata,
   getMultipleGroupsWithMetadata,
 } from "../core/group";
-import {
-  AttributeV1,
-  GroupDataV1,
-  GroupMetadataArgsV1,
-  GroupV1,
-} from "../types";
+import { GroupDataV1, GroupMetadataArgsV1, GroupV1 } from "../types";
 
 /**
  *
@@ -32,7 +27,7 @@ export async function createCollectionTx(
   imageUri: string,
   mutable: boolean,
   nftAttributes: NftAttributes
-) {
+): Promise<VersionedTransaction> {
   const attributesArray = Object.entries(nftAttributes).map(([key, value]) => ({
     key,
     value,

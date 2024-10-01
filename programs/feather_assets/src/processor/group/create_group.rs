@@ -26,7 +26,7 @@ pub fn handler<'info>(
         &group_address_params.seed,
         &address_merkle_context,
     ));
-    msg!("{:?}", group_address);
+    msg!("Group Compressed Account: {:?}", group_address);
     group.derivation_key = derivation_key;
     group.max_size = args.max_size;
     group.owner = ctx.anchor_context.accounts.authority.key();
@@ -44,7 +44,14 @@ pub fn handler<'info>(
             let associated_group_data_seed =
                 derive_address_seed(&[GROUP_DATA_SEED, group_address.as_ref()], &crate::ID);
             group_data.set_address_seed(associated_group_data_seed);
+            let group_data_address = Pubkey::new_from_array(derive_address(
+                &associated_group_data_seed,
+                &address_merkle_context,
+            ));
             new_address_params.push(group_data.new_address_params());
+            if metadata_args.name.len() == 0 || metadata_args.uri.len() == 0 {
+                return Err(FeatherErrorCode::EmptyValueError.into());
+            }
             group_data.attributes = metadata_args.attributes;
             group_data.name = metadata_args.name;
             group_data.mutable = metadata_args.mutable;
@@ -52,6 +59,10 @@ pub fn handler<'info>(
             group_data.uri = metadata_args.uri;
             output_compressed_accounts
                 .push(group_data.output_compressed_account(&crate::ID, remaining_accounts)?);
+            msg!(
+                "Group Metadata Compressed Account: {:?}",
+                group_data_address
+            );
         }
         None => {
             group.has_metadata = false;

@@ -29,6 +29,7 @@ pub fn handler<'info>(
         &asset_address_param.seed,
         &address_merkle_context,
     ));
+    msg!("Asset Compressed Account: {:?}", asset_address);
     asset.owner = authority;
     asset.derivation_key = derivation_key;
     asset.has_multisig = false;
@@ -49,6 +50,11 @@ pub fn handler<'info>(
                 derive_address_seed(&[ASSET_DATA_SEED, asset_address.as_ref()], &crate::ID);
             acc.set_address_seed(address_seed);
             new_address_params.push(acc.new_address_params());
+            let address =
+                Pubkey::new_from_array(derive_address(&address_seed, &address_merkle_context));
+            if metadata.name.len() == 0 || metadata.uri.len() == 0 {
+                return Err(FeatherErrorCode::EmptyValueError.into());
+            }
             acc.asset_key = asset_address;
             acc.attributes = metadata.attributes;
             acc.mutable = metadata.mutable;
@@ -57,6 +63,7 @@ pub fn handler<'info>(
             acc.privilege_attributes = Vec::new();
             let compressed = acc.output_compressed_account(&crate::ID, remaining_accounts)?;
             output_compressed_accounts.push(compressed);
+            msg!("Asset Metadata Compressed Account: {:?}", address);
         }
         None => asset.has_metadata = false,
     }
@@ -72,19 +79,23 @@ pub fn handler<'info>(
                 derive_address_seed(&[ASSET_ROYALTY_SEED, asset_address.as_ref()], &crate::ID);
             acc.set_address_seed(address_seed);
             new_address_params.push(acc.new_address_params());
+            let address =
+                Pubkey::new_from_array(derive_address(&address_seed, &address_merkle_context));
             acc.asset_key = asset_address;
             acc.basis_points = royalty.basis_points;
             acc.creators = royalty.creators;
             acc.ruleset = royalty.ruleset;
             let compressed = acc.output_compressed_account(&crate::ID, remaining_accounts)?;
             output_compressed_accounts.push(compressed);
+            msg!("Asset Royalty Compressed Account: {:?}", address);
         }
         None => asset.has_royalties = false,
     }
-    output_compressed_accounts.push(
+    output_compressed_accounts.insert(
+        0,
         asset
             .output_compressed_account(&crate::ID, remaining_accounts)?
-            .ok_or(FeatherErrorCode::CustomError)?,
+            .unwrap(),
     );
     let bump = Pubkey::find_program_address(
         &[CPI_AUTHORITY_PDA_SEED],
