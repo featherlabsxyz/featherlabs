@@ -46,6 +46,39 @@ importers:
         specifier: ^4.3.5
         version: 4.9.5
 
+  clients/js:
+    devDependencies:
+      '@coral-xyz/anchor':
+        specifier: ^0.29.0
+        version: 0.29.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@lightprotocol/stateless.js':
+        specifier: ^0.13.0
+        version: 0.13.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@noble/hashes':
+        specifier: ^1.5.0
+        version: 1.5.0
+      '@solana/web3.js':
+        specifier: ^1.95.3
+        version: 1.95.3(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      '@types/bn.js':
+        specifier: ^5.1.0
+        version: 5.1.6
+      '@types/chai':
+        specifier: ^4.3.0
+        version: 4.3.19
+      '@types/mocha':
+        specifier: ^9.0.0
+        version: 9.1.1
+      chai:
+        specifier: ^4.3.4
+        version: 4.5.0
+      mocha:
+        specifier: ^9.0.3
+        version: 9.2.2
+      ts-mocha:
+        specifier: ^10.0.0
+        version: 10.0.0(mocha@9.2.2)
+
 packages:
 
   '@babel/runtime@7.25.6':
