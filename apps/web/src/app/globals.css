@@ -1,76 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,77.7,100..900;1,77.7,100..900&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-    --background: #3A3043;
-    --foreground: #3A3043;
-}
-
-body {
-    color: var(--foreground);
-    background: var(--background);
+  --background: #ffffff;
+  --foreground: #171717;
 }
 
 @media (prefers-color-scheme: dark) {
-    :root {
-        --background: #3A3043;
-        --foreground: #ffffff;
-    }
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
 }
 
-.archivo-heading {
-    font-family: "Archivo", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 700;
-    font-style: normal;
-    font-variation-settings: "wdth" 95;
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
 }
-
-.archivo-label {
-    font-family: "Archivo", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 300;
-    font-style: normal;
-    font-variation-settings: "wdth" 95;
-}
-
-.archivo-input {
-    font-family: "Archivo", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 500;
-    font-style: normal;
-    font-variation-settings: "wdth" 95;
-}
-
-.wave-container {
-    position: relative;
-    background: #ffffff; /* Background color for the div */
-    padding: 50px 0; /* Adjust padding as needed */
-}
-
-.wave-svg {
-    position: absolute;
-    top: 0;
-    left: 50%; /* Center the SVG horizontally */
-    transform: translateX(-50%); /* Offset the SVG to align it center */
-    width: 100%; /* Full width for the SVG */
-    height: 50px; /* Adjust the height of the wave */
-    z-index: 1; /* Ensures the wave is on top */
-}
-
-.content {
-    position: relative;
-    z-index: 2; /* Content is above the wave */
-    text-align: center;
-}
-
-
 
 @layer utilities {
-    .text-balance {
-        text-wrap: balance;
-    }
+  .text-balance {
+    text-wrap: balance;
+  }
 }
