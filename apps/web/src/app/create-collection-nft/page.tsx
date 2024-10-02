@@ -1,24 +1,25 @@
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
-import NFTCard from "../../components/NFTCard";
 import {Textarea} from "@/components/ui/textarea";
-import {Checkbox} from "@/components/ui/checkbox";
 import Link from "next/link";
+import NFTCard from "../../../components/NFTCard";
 
 
-export default function CreateNFT() {
+export default function CreateCollectionNFT() {
     return (
         <div className="container mx-auto px-40 mb-20">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-20">
                 <div
                     className="col-span-1 md:col-span-2 h-full pb-10 mx-4 drop-shadow-2xl bg-[#5A5465] font-new-black rounded-2xl text-5xl">
                     <div className="border-b-[0.5px] py-4 border-[#888888] flex justify-between items-center">
-                        <div className="mx-8 text-[25px] font-archivo font-[900] archivo-heading">Create NFT</div>
+                        <div className="mx-8 text-[25px] font-archivo font-[900] archivo-heading">Create Collection
+                            NFT
+                        </div>
                         <div className="mr-10 flex justify-center">
-                            <Link href="/create-collection-nft" className="flex justify-center">
+                            <Link href="/" className="flex justify-center">
                                 <button
                                     className={`cursor-pointer border-[0.5px] border-[#888888] rounded-xl bg-[#6D6477] text-[17px] font-new-black px-4 py-2 text-white
-                            transition-colors hover:bg-[#4F455A] active:bg-[#463C51]`}>Collection NFT
+                            transition-colors hover:bg-[#4F455A] active:bg-[#463C51]`}>NFT
                                 </button>
                             </Link>
                         </div>
@@ -30,20 +31,6 @@ export default function CreateNFT() {
                             Name
                         </Label>
                         <Input id="name" type="text" className="archivo-label"/>
-
-
-                        <div className="flex items-center mt-4 space-x-2 archivo-label">
-                            <Checkbox id="terms"/>
-                            <label
-                                htmlFor="terms"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                                Enforce Royalties
-                            </label>
-                        </div>
-                        <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE] mx-6">Enable to create royalty
-                            enforced pNFTs.</p>
-
 
 
                         <Label htmlFor="image" className="text-[20px] archivo-label">
@@ -161,21 +148,6 @@ export default function CreateNFT() {
                         <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">A link to a website owned by the
                             project.</p>
 
-                        <Label htmlFor="website" className="text-[20px] archivo-label">
-                            Sell Fee Basis Points
-                        </Label>
-                        <Input id="website" type="text" className="archivo-label"/>
-                        <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">The percentage of the sale price
-                            that the original receives. Each percent is represented by 100 points. 10% = 1000
-                            points.</p>
-
-                        <Label htmlFor="website" className="text-[20px] archivo-label">
-                            Collection
-                        </Label>
-                        <Input id="website" type="text" className="archivo-label"/>
-                        <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">The collection address that your
-                            NFT will be added to. If you haven&apos;t created a collection NFT yet it would be recommended to
-                            create one first by selecting collection as the NFT type as the first question.</p>
                     </div>
                 </div>
                 <div className="hidden md:block col-span-1">
