@@ -16,8 +16,8 @@ pub enum FeatherErrorCode {
     MemberAssetOverflow,
     #[msg("Metadata Account Already Exist")]
     MetadataAccountExistAlready,
-    #[msg("Royalty Account Already Exist")]
-    RoyaltyAccountExistAlready,
+    #[msg("Royalty Already Initialized Or Disabled")]
+    RoyaltyAlreadyInitializedOrDisabled,
     #[msg("Group Account Not Found")]
     GroupAccountNotFound,
     #[msg("Sent Empty Values")]

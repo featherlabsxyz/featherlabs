@@ -18,7 +18,7 @@ export interface CreateAssetArgsV1 {
   transferrable: boolean;
   rentable: boolean;
   metadata: AssetMetadataArgsV1 | null;
-  royalty: RoyaltyArgsV1 | null;
+  royaltiesInitializable: boolean;
 }
 
 export interface RoyaltyArgsV1 {

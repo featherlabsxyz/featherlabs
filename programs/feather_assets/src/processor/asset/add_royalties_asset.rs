@@ -28,10 +28,10 @@ pub fn handler<'info>(
     ctx.derive_address_seeds(lrp.address_merkle_context, &inputs);
     let asset = &mut ctx.light_accounts.asset;
     let asset_royalty = &mut ctx.light_accounts.asset_royalty;
-    if asset.has_royalties {
-        return Err(FeatherErrorCode::MetadataAccountExistAlready.into());
+    if asset.royalty_state != RoyalyState::Unintialized {
+        return Err(FeatherErrorCode::RoyaltyAlreadyInitializedOrDisabled.into());
     }
-    asset.has_royalties = true;
+    asset.royalty_state = RoyalyState::Initialized;
     asset_royalty.asset_key = asset_address;
     asset_royalty.basis_points = args.basis_points;
     asset_royalty.creators = args.creators;

@@ -67,29 +67,9 @@ pub fn handler<'info>(
         }
         None => asset.has_metadata = false,
     }
-    match args.royalty {
-        Some(royalty) => {
-            asset.has_royalties = true;
-            let mut acc: LightInitAccount<AssetRoyaltiesV1> = LightInitAccount::new(
-                &lrp.merkle_context,
-                &lrp.address_merkle_context,
-                lrp.address_merkle_tree_root_index,
-            );
-            let address_seed =
-                derive_address_seed(&[ASSET_ROYALTY_SEED, asset_address.as_ref()], &crate::ID);
-            acc.set_address_seed(address_seed);
-            new_address_params.push(acc.new_address_params());
-            let address =
-                Pubkey::new_from_array(derive_address(&address_seed, &address_merkle_context));
-            acc.asset_key = asset_address;
-            acc.basis_points = royalty.basis_points;
-            acc.creators = royalty.creators;
-            acc.ruleset = royalty.ruleset;
-            let compressed = acc.output_compressed_account(&crate::ID, remaining_accounts)?;
-            output_compressed_accounts.push(compressed);
-            msg!("Asset Royalty Compressed Account: {:?}", address);
-        }
-        None => asset.has_royalties = false,
+    match args.royalties_initializable {
+        true => asset.royalty_state = RoyalyState::Unintialized,
+        false => asset.royalty_state = RoyalyState::Disabled,
     }
     output_compressed_accounts.insert(
         0,

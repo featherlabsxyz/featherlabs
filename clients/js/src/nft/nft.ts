@@ -21,12 +21,12 @@ export async function createNftTx(
   authority: PublicKey,
   name: string,
   imageUri: string,
-  mutable: boolean,
-  transferrable: boolean,
-  rentable: boolean,
   nftAttributes: NftAttributes,
   collection?: PublicKey,
-  enforceRoyalties?: RoyaltyArgsV1
+  mutable: boolean = true,
+  rentable?: boolean,
+  transferrable?: boolean,
+  royaltiesInitializable?: boolean
 ): Promise<VersionedTransaction> {
   const attributesArray = Object.entries(nftAttributes).map(([key, value]) => ({
     key,
@@ -50,7 +50,7 @@ export async function createNftTx(
       metadata,
       rentable,
       transferrable,
-      enforceRoyalties
+      royaltiesInitializable
     );
   }
   transaction = await createAssetTx(
@@ -60,7 +60,7 @@ export async function createNftTx(
     metadata,
     rentable,
     transferrable,
-    enforceRoyalties
+    royaltiesInitializable
   );
   return transaction;
 }

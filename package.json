@@ -4,8 +4,9 @@
     "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
     "lightv": "light test-validator",
     "depl": "anchor deploy --provider.cluster http://localhost:8899",
+    "depd": "anchor deploy --provider.cluster https://api.devnet.solana.com",
     "testl": "anchor test --provider.cluster http://localhost:8899 --skip-deploy --skip-local-validator --skip-build",
-    "gen": "ts-node migrations/generate-client.ts"
+    "testd": "anchor test --provider.cluster https://api.devnet.solana.com --skip-deploy --skip-local-validator --skip-build"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.29.0",

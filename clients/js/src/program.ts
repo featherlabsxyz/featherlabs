@@ -6,7 +6,6 @@ import {
   VersionedTransaction,
   TransactionInstruction,
   ComputeBudgetProgram,
-  Signer,
 } from "@solana/web3.js";
 import {
   useWallet,
@@ -23,8 +22,6 @@ import {
   PackedMerkleContext,
   toAccountMetas,
   bn,
-  sendAndConfirmTx,
-  buildAndSignTx,
   buildTx,
 } from "@lightprotocol/stateless.js";
 import { FeatherAssets, IDL } from "./idl";
@@ -93,11 +90,15 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
     const groupDataAddress: PublicKey | null =
       groupDataSeed && (await deriveAddress(groupDataSeed, this.addressTree));
 
-    const outputAddresses: PublicKey[] = [];
-    outputAddresses.push(groupAddress);
-    groupDataAddress && outputAddresses.push(groupDataAddress);
-    console.log(outputAddresses);
-    const proof = await this.getValidityProof(rpc, undefined, outputAddresses);
+    const newUniqueAddresses: PublicKey[] = [];
+    newUniqueAddresses.push(groupAddress);
+    groupDataAddress && newUniqueAddresses.push(groupDataAddress);
+    console.log(newUniqueAddresses);
+    const proof = await this.getValidityProof(
+      rpc,
+      undefined,
+      newUniqueAddresses
+    );
 
     const newAddressesParams: NewAddressParams[] = [];
     newAddressesParams.push(this.getNewAddressParams(groupSeed, proof));
@@ -113,7 +114,7 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
         ...this.createNewAddressOutputState(groupDataAddress)
       );
     console.log(
-      outputAddresses.length,
+      newUniqueAddresses.length,
       outputCompressedAccounts.length,
       newAddressesParams.length
     );
@@ -122,7 +123,7 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       addressMerkleTreeRootIndex,
       merkleContext,
       remainingAccounts,
-    } = this.pack([], outputCompressedAccounts, newAddressesParams, proof);
+    } = this.packNew(outputCompressedAccounts, newAddressesParams, proof);
     const ix = await FeatherAssetsProgram.getInstance()
       .program.methods.createGroup(
         {
@@ -146,7 +147,11 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       })
       .remainingAccounts(toAccountMetas(remainingAccounts))
       .instruction();
-    return ix;
+    return {
+      instruction: ix,
+      groupAddress,
+      groupDataAddress,
+    };
   }
   static async createAssetIx(
     rpc: Rpc,
@@ -154,34 +159,29 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
     payer: PublicKey,
     params: CreateAssetArgsV1
   ) {
-    const { rentable, transferrable, metadata, royalty } = params;
+    const { rentable, transferrable, metadata, royaltiesInitializable } =
+      params;
     const derivationKey = new Keypair().publicKey;
     const assetSeed = this.deriveAssetSeed(derivationKey);
     const assetAddress = await deriveAddress(assetSeed, this.addressTree);
+    console.log(assetAddress);
     const assetDataSeed = metadata && this.deriveAssetDataSeed(assetAddress);
     const assetDataAddress =
       assetDataSeed && (await deriveAddress(assetDataSeed, this.addressTree));
-    const assetRoyaltySeed =
-      royalty && this.deriveAssetRoyaltySeed(assetAddress);
-    const assetRoyaltyAddress =
-      assetRoyaltySeed &&
-      (await deriveAddress(assetRoyaltySeed, this.addressTree));
+    const newUniqueAddresses = [];
+    newUniqueAddresses.push(assetAddress);
+    assetDataAddress && newUniqueAddresses.push(assetDataAddress);
 
-    const outputAddresses = [];
-    outputAddresses.push(assetAddress);
-    assetDataAddress && outputAddresses.push(assetDataAddress);
-    assetRoyaltyAddress && outputAddresses.push(assetRoyaltyAddress);
-
-    const proof = await this.getValidityProof(rpc, undefined, outputAddresses);
+    const proof = await this.getValidityProof(
+      rpc,
+      undefined,
+      newUniqueAddresses
+    );
 
     const newAddressesParams = [];
     newAddressesParams.push(this.getNewAddressParams(assetSeed, proof));
     assetDataSeed &&
       newAddressesParams.push(this.getNewAddressParams(assetDataSeed, proof));
-    assetRoyaltySeed &&
-      newAddressesParams.push(
-        this.getNewAddressParams(assetRoyaltySeed, proof)
-      );
 
     const outputCompressedAccounts = [];
     outputCompressedAccounts.push(
@@ -191,16 +191,12 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       outputCompressedAccounts.push(
         ...this.createNewAddressOutputState(assetDataAddress)
       );
-    assetRoyaltyAddress &&
-      outputCompressedAccounts.push(
-        ...this.createNewAddressOutputState(assetRoyaltyAddress)
-      );
     const {
       addressMerkleContext,
       addressMerkleTreeRootIndex,
       merkleContext,
       remainingAccounts,
-    } = this.pack([], outputCompressedAccounts, newAddressesParams, proof);
+    } = this.packNew(outputCompressedAccounts, newAddressesParams, proof);
     const ix = FeatherAssetsProgram.getInstance()
       .program.methods.createAsset(
         {
@@ -215,8 +211,8 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
         {
           metadata,
           rentable,
-          royalty,
           transferrable,
+          royaltiesInitializable,
         }
       )
       .accounts({
@@ -236,7 +232,8 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
     payer: PublicKey,
     params: CreateAssetArgsV1
   ) {
-    const { rentable, transferrable, metadata, royalty } = params;
+    const { rentable, transferrable, metadata, royaltiesInitializable } =
+      params;
     const groupAccount = await rpc.getCompressedAccount(
       new BN(groupAddress.toBytes())
     );
@@ -244,7 +241,7 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       throw new Error("Group Account Does Not Exist or Invalid Group Id");
     }
     const group = this.decodeTypes<GroupV1>("GroupV1", groupAccount.data.data);
-    if (groupAuthority != group.owner) {
+    if (groupAuthority.toBase58() != group.owner.toBase58()) {
       throw new Error("Invalid Group Authority Public Key");
     }
     const inputCompressedAccounts = [groupAccount];
@@ -254,36 +251,22 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
     const assetDataSeed = metadata && this.deriveAssetDataSeed(assetAddress);
     const assetDataAddress =
       assetDataSeed && (await deriveAddress(assetDataSeed, this.addressTree));
-    const assetRoyaltySeed =
-      royalty && this.deriveAssetRoyaltySeed(assetAddress);
-    const assetRoyaltyAddress =
-      assetRoyaltySeed &&
-      (await deriveAddress(assetRoyaltySeed, this.addressTree));
 
-    const outputAddresses = [];
-    outputAddresses.push(groupAddress);
-    outputAddresses.push(assetAddress);
-    assetDataAddress && outputAddresses.push(assetDataAddress);
-    assetRoyaltyAddress && outputAddresses.push(assetRoyaltyAddress);
-    const inputAddresses = [groupAddress];
+    const newUniqueAddresses = [];
+    newUniqueAddresses.push(assetAddress);
+    assetDataAddress && newUniqueAddresses.push(assetDataAddress);
+    const inputleafhashes = [bn(groupAccount.hash)];
     const proof = await this.getValidityProof(
       rpc,
-      inputAddresses,
-      outputAddresses
+      inputleafhashes,
+      newUniqueAddresses
     );
 
     const newAddressesParams = [];
     newAddressesParams.push(this.getNewAddressParams(assetSeed, proof));
     assetDataSeed &&
       newAddressesParams.push(this.getNewAddressParams(assetDataSeed, proof));
-    assetRoyaltySeed &&
-      newAddressesParams.push(
-        this.getNewAddressParams(assetRoyaltySeed, proof)
-      );
     const outputCompressedAccounts = [];
-    outputCompressedAccounts.push(
-      ...this.createNewAddressOutputState(groupAddress)
-    );
     outputCompressedAccounts.push(
       ...this.createNewAddressOutputState(assetAddress)
     );
@@ -291,16 +274,13 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       outputCompressedAccounts.push(
         ...this.createNewAddressOutputState(assetDataAddress)
       );
-    assetRoyaltyAddress &&
-      outputCompressedAccounts.push(
-        ...this.createNewAddressOutputState(assetRoyaltyAddress)
-      );
     const {
       addressMerkleContext,
       addressMerkleTreeRootIndex,
       merkleContext,
+      rootIndex,
       remainingAccounts,
-    } = this.pack(
+    } = this.packWithInput(
       inputCompressedAccounts,
       outputCompressedAccounts,
       newAddressesParams,
@@ -311,9 +291,9 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
         {
           addressMerkleContext,
           addressMerkleTreeRootIndex,
-          inputs: [],
+          inputs: [groupAccount.data.data],
           merkleContext,
-          merkleTreeRootIndex: 0,
+          merkleTreeRootIndex: rootIndex,
           proof: proof.compressedProof,
         },
         group.derivationKey,
@@ -321,12 +301,13 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
         {
           metadata,
           rentable,
-          royalty,
+          royaltiesInitializable,
           transferrable,
         }
       )
       .accounts({
         authority,
+        groupAuthority: authority,
         payer: payer,
         ...this.lightAccounts(),
       })
@@ -352,14 +333,49 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
     return this.deriveSeed([GROUP_DATA_SEED, groupAddress.toBytes()]);
   }
   //  <--------------------------------------------------------------------------->
-  private static pack(
+  private static packWithInput(
     inputCompressedAccounts: CompressedAccountWithMerkleContext[],
     outputCompressedAccounts: CompressedAccount[],
     newAddressesParams: NewAddressParams[],
     proof: CompressedProofWithContext
   ) {
-    const { remainingAccounts: _remainingAccounts } = packCompressedAccounts(
+    const {
+      packedInputCompressedAccounts,
+      remainingAccounts: _remainingAccounts,
+    } = packCompressedAccounts(
       inputCompressedAccounts,
+      proof.rootIndices,
+      outputCompressedAccounts
+    );
+    const { newAddressParamsPacked, remainingAccounts } = packNewAddressParams(
+      newAddressesParams,
+      _remainingAccounts
+    );
+    let {
+      addressMerkleTreeAccountIndex,
+      addressMerkleTreeRootIndex,
+      addressQueueAccountIndex,
+    } = newAddressParamsPacked[0];
+    let { rootIndex, merkleContext } = packedInputCompressedAccounts[0];
+
+    return {
+      addressMerkleContext: {
+        addressMerkleTreePubkeyIndex: addressMerkleTreeAccountIndex,
+        addressQueuePubkeyIndex: addressQueueAccountIndex,
+      },
+      addressMerkleTreeRootIndex,
+      merkleContext,
+      rootIndex,
+      remainingAccounts,
+    };
+  }
+  private static packNew(
+    outputCompressedAccounts: CompressedAccount[],
+    newAddressesParams: NewAddressParams[],
+    proof: CompressedProofWithContext
+  ) {
+    const { remainingAccounts: _remainingAccounts } = packCompressedAccounts(
+      [],
       proof.rootIndices,
       outputCompressedAccounts
     );
@@ -393,11 +409,10 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
   }
   protected static async getValidityProof(
     rpc: Rpc,
-    input_addrs?: PublicKey[],
-    ouput_addrs?: PublicKey[]
+    inputHashes?: BN[],
+    newUniqueAddresses?: PublicKey[]
   ) {
-    const inputHashes = input_addrs?.map((addr) => bn(addr.toBytes()));
-    const outputHashes = ouput_addrs?.map((addr) => bn(addr.toBytes()));
+    const outputHashes = newUniqueAddresses?.map((addr) => bn(addr.toBytes()));
     return await rpc.getValidityProof(inputHashes, outputHashes);
   }
   static decodeTypes<T>(typeName: string, data: Buffer) {

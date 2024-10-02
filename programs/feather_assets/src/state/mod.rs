@@ -60,7 +60,7 @@ pub struct CreateAssetArgsV1 {
     pub transferrable: bool,
     pub rentable: bool,
     pub metadata: Option<AssetMetadataArgsV1>,
-    pub royalty: Option<RoyaltyArgsV1>,
+    pub royalties_initializable: bool,
 }
 #[derive(Clone, Debug, AnchorSerialize, AnchorDeserialize)]
 pub struct RoyaltyArgsV1 {

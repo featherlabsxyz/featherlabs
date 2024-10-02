@@ -25,9 +25,9 @@ export async function createAssetTx(
   authority: PublicKey,
   payerPublicKey: PublicKey,
   metadata?: AssetMetadataArgsV1,
-  rentable?: boolean,
-  transferrable?: boolean,
-  royalty?: RoyaltyArgsV1
+  rentable: boolean = true,
+  transferrable: boolean = true,
+  royaltiesInitializable: boolean = true
 ) {
   const ix = await FeatherAssetsProgram.createAssetIx(
     rpc,
@@ -35,9 +35,9 @@ export async function createAssetTx(
     payerPublicKey,
     {
       metadata: metadata ? metadata : null,
-      royalty: royalty ? royalty : null,
-      rentable: rentable !== undefined ? rentable : true,
-      transferrable: transferrable !== undefined ? transferrable : true,
+      royaltiesInitializable,
+      rentable,
+      transferrable,
     }
   );
   const transaction = await FeatherAssetsProgram.buildTxWithComputeBudget(
@@ -67,9 +67,9 @@ export async function createMemberAssetTx(
   groupAddress: PublicKey,
   payerPublicKey: PublicKey,
   metadata?: AssetMetadataArgsV1,
-  rentable?: boolean,
-  transferrable?: boolean,
-  royalty?: RoyaltyArgsV1
+  rentable: boolean = true,
+  transferrable: boolean = true,
+  royaltiesInitializable: boolean = true
 ) {
   const ix = await FeatherAssetsProgram.createMemberAssetIx(
     rpc,
@@ -79,9 +79,9 @@ export async function createMemberAssetTx(
     payerPublicKey,
     {
       metadata: metadata ? metadata : null,
-      royalty: royalty ? royalty : null,
-      rentable: rentable !== undefined ? rentable : true,
-      transferrable: transferrable !== undefined ? transferrable : true,
+      royaltiesInitializable,
+      rentable,
+      transferrable,
     }
   );
   const transaction = await FeatherAssetsProgram.buildTxWithComputeBudget(

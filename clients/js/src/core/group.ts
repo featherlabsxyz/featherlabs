@@ -18,8 +18,16 @@ export async function createGroupTx(
   authority: PublicKey,
   payerPublicKey: PublicKey,
   metadata?: GroupMetadataArgsV1
-): Promise<VersionedTransaction> {
-  const ix = await FeatherAssetsProgram.createGroupIx(
+): Promise<{
+  transaction: VersionedTransaction;
+  groupAddress: PublicKey;
+  groupDataAddress: PublicKey | null;
+}> {
+  const {
+    groupAddress,
+    groupDataAddress,
+    instruction: ix,
+  } = await FeatherAssetsProgram.createGroupIx(
     rpc,
     authority,
     { maxSize, metadata: metadata ? metadata : null },
@@ -30,7 +38,7 @@ export async function createGroupTx(
     [ix],
     payerPublicKey
   );
-  return transaction;
+  return { transaction, groupAddress, groupDataAddress };
 }
 
 /**

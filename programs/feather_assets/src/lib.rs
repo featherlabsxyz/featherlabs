@@ -317,8 +317,22 @@ pub mod feather_assets {
     // ) -> Result<()> {
     //     Ok(())
     // }
+    //
+    pub fn idltypecreatornooperation(ctx: Context<Initialize>, state: State) -> Result<()> {
+        Ok(())
+    }
 }
-
+#[derive(Accounts)]
+pub struct Initialize {}
+#[derive(AnchorSerialize, AnchorDeserialize)]
+pub struct State {
+    a: GroupV1,
+    b: GroupDataV1,
+    c: AssetV1,
+    d: AssetDataV1,
+    e: AssetRoyaltiesV1,
+    f: AssetMultisig,
+}
 #[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct LightRootParams {
     pub inputs: Vec<Vec<u8>>,

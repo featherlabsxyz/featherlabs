@@ -8,21 +8,37 @@ pub struct AssetV1 {
     pub owner: Pubkey,
     #[truncate]
     pub derivation_key: Pubkey,
-    pub asset_authority_state: AssetAuthorityVariantV1,
-    pub asset_state: AssetStateV1,
-    pub group_membership: Option<GroupMembership>,
 
+    // Irreversible after initialization
+    pub group_membership: Option<GroupMembership>,
     pub transferable: bool,
     pub rentable: bool,
 
-    /// If true, there's an associated royalties compressed account created
-    pub has_royalties: bool,
-    /// If true, there's an associated metadata compressed account created
+    pub royalty_state: RoyalyState,
+    // Irreversible after setting it to true
     pub has_metadata: bool,
-    /// If true, there's an associated multisig compressed account created
     pub has_multisig: bool,
+
+    pub asset_authority_state: AssetAuthorityVariantV1,
+    pub asset_state: AssetStateV1,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, AnchorSerialize, AnchorDeserialize, Default)]
+pub enum RoyalyState {
+    Unintialized,
+    Initialized,
+    #[default]
+    Disabled,
+}
+impl RoyalyState {
+    fn as_byte_vec(&self) -> Vec<Vec<u8>> {
+        match self {
+            RoyalyState::Unintialized => vec![vec![0]],
+            RoyalyState::Initialized => vec![vec![1]],
+            RoyalyState::Disabled => vec![vec![2]],
+        }
+    }
+}
 #[derive(
     Clone, Debug, Default, LightDiscriminator, LightHasher, AnchorSerialize, AnchorDeserialize,
 )]

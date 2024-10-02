@@ -1,6 +1,6 @@
 import * as anchor from "@coral-xyz/anchor";
 import { BN } from "@coral-xyz/anchor";
-import { PublicKey, Keypair } from "@solana/web3.js";
+import { PublicKey, Keypair, SendTransactionError } from "@solana/web3.js";
 import {
   createRpc,
   defaultStaticAccountsStruct,
@@ -20,10 +20,15 @@ import {
 import { Program } from "@coral-xyz/anchor";
 import { FeatherAssets } from "../target/types/feather_assets";
 import { keccak_256 } from "@noble/hashes/sha3";
-import { createGroupTx } from "@featherlabs/feather-assets/src/core";
+import {
+  createAssetTx,
+  createGroupTx,
+  createMemberAssetTx,
+} from "@featherlabs/feather-assets/src/core";
 // These tests don't work, run rust tests'
 describe("feather_assets", () => {
   // Configure the client to use the local cluster.
+
   const provider = anchor.AnchorProvider.env();
   const wallet = provider.wallet as anchor.Wallet;
   anchor.setProvider(provider);
@@ -39,17 +44,22 @@ describe("feather_assets", () => {
   } = defaultStaticAccountsStruct();
   const { addressTree, merkleTree, nullifierQueue } =
     defaultTestStateTreeAccounts();
-  it("Is initialized!", async () => {
-    const tx1 = await createGroupTx(
-      rpc,
-      100,
-      wallet.publicKey,
-      wallet.publicKey,
-      { attributes: [], mutable: true, name: "a", uri: "a" }
-    );
+  let ga: PublicKey;
+  it("group", async () => {
+    const {
+      groupAddress,
+      groupDataAddress,
+      transaction: tx1,
+    } = await createGroupTx(rpc, 100, wallet.publicKey, wallet.publicKey, {
+      attributes: [],
+      mutable: true,
+      name: "a",
+      uri: "a",
+    });
     tx1.sign([wallet.payer]);
     const sig = await sendAndConfirmTx(rpc, tx1, {
       skipPreflight: true,
+      commitment: "confirmed",
     });
     let log = await rpc.getTransaction(sig, {
       commitment: "confirmed",
@@ -57,6 +67,43 @@ describe("feather_assets", () => {
     });
     console.log("Your transaction signature", sig);
     console.log(log.meta.logMessages);
+    ga = groupAddress;
+  });
+  it("Is initialized!", async () => {
+    console.log(ga.toBase58());
+    try {
+      const tx1 = await createMemberAssetTx(
+        rpc,
+        wallet.publicKey,
+        wallet.publicKey,
+        ga,
+        wallet.publicKey,
+        {
+          attributes: [],
+          mutable: true,
+          name: "a",
+          uri: "a",
+        }
+      );
+      tx1.sign([wallet.payer, wallet.payer]);
+      const sig = await sendAndConfirmTx(rpc, tx1, {
+        commitment: "confirmed",
+      });
+      console.log("a");
+      let log = await rpc.getTransaction(sig, {
+        commitment: "confirmed",
+        maxSupportedTransactionVersion: 0,
+      });
+      console.log("Your transaction signature", sig);
+      console.log(log.meta.logMessages);
+    } catch (error) {
+      if (error instanceof SendTransactionError) {
+        const logs = await error.getLogs(provider.connection);
+        console.error("Transaction failed. Logs:", logs);
+      } else {
+        console.error("An unexpected error occurred:", error);
+      }
+    }
     return;
     const program = anchor.workspace.FeatherAssets as Program<FeatherAssets>;
     const derivingKey = new Keypair().publicKey;
