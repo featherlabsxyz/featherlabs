@@ -9,3 +9,4 @@ target/*
 !target/idl
 !target/types
 programs/feather_assets/src/expanded*
+.idea
