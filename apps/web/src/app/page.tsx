@@ -29,15 +29,16 @@ export default function CreateNFT() {
             const reader = new FileReader();
 
             reader.onload = (e) => {
-                if (e.target) {
+                if (e.target && typeof e.target.result === 'string') {
                     // @ts-ignore
-                    setUploadedImage(e.target.result as string);
+                    setUploadedImage(e.target.result);
                 }
             };
 
             reader.readAsDataURL(file);
         }
     };
+
     const addInputs = () => {
         setInputs([...inputs, {id: Date.now()}]);
     };
@@ -391,7 +392,12 @@ export default function CreateNFT() {
                     </motion.div>
                 </div>
                 <div className="hidden md:block col-span-1">
-                    <NFTCard image={uploadedImage} description={description} name={name} website={website}/>
+                    <NFTCard
+                        image={uploadedImage}
+                        name={name}
+                        description={description}
+                        website={website}
+                    />
                 </div>
             </div>
         </motion.div>
