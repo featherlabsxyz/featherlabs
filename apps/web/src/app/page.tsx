@@ -15,14 +15,12 @@ export default function CreateNFT() {
     const [uploadedImage, setUploadedImage] = useState(null);
     const [imageName, setImageName] = useState("");
     const [inputs, setInputs] = useState([{id: 1}]);
+    const [name, setName] = useState("");
+    const [description, setDescription] = useState(
+        ""
+    );
+    const [website, setWebsite] = useState("");
 
-    const addInputs = () => {
-        setInputs([...inputs, {id: Date.now()}]);
-    };
-
-    const removeInputs = (indexToRemove: number) => {
-        setInputs((prevInputs) => prevInputs.filter((_, index) => index !== indexToRemove));
-    };
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
         if (files && files.length > 0) {
@@ -33,20 +31,33 @@ export default function CreateNFT() {
             reader.onload = (e) => {
                 if (e.target) {
                     // @ts-ignore
-                    setUploadedImage(e.target.result);
+                    setUploadedImage(e.target.result as string);
                 }
             };
 
             reader.readAsDataURL(file);
         }
     };
+    const addInputs = () => {
+        setInputs([...inputs, {id: Date.now()}]);
+    };
 
+    const removeInputs = (indexToRemove: number) => {
+        setInputs((prevInputs) => prevInputs.filter((_, index) => index !== indexToRemove));
+    };
     // @ts-ignore
     return (
-        <div className="container mx-auto px-40 mb-20">
+        <motion.div  initial={{opacity: 0, filter: "blur(10px)"}}
+                     animate={{opacity: 1, filter: "blur(0)"}}
+                     exit={{
+                         opacity: 0,
+                         filter: "blur(10px)",
+                         transition: {duration: 0.5},
+                     }}
+                     className="container mx-auto px-40 mb-20">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-20">
                 <div
-                    className="col-span-1 md:col-span-2 h-full pb-10 mx-4 drop-shadow-2xl bg-[#5A5465] font-new-black rounded-2xl text-5xl">
+                    className="col-span-1 md:col-span-2 h-full pb-10 mx-4 drop-shadow-2xl mt-8 bg-[#5A5465] font-new-black rounded-2xl text-5xl">
                     <motion.div initial={{opacity: 0, filter: "blur(10px)"}}
                                 animate={{opacity: 1, filter: "blur(0)"}}
                                 exit={{
@@ -73,12 +84,18 @@ export default function CreateNFT() {
                             filter: "blur(10px)",
                             transition: {duration: 0.5},
                         }}
-                        className="mx-10">
-
+                        className="mx-10"
+                    >
                         <Label htmlFor="name" className="text-[20px] archivo-label">
                             Name
                         </Label>
-                        <Input id="name" type="text" className="archivo-label"/>
+                        <Input
+                            id="name"
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className="archivo-label"
+                        />
 
 
                         <div className="flex items-center mt-4 space-x-2 archivo-label">
@@ -124,7 +141,8 @@ export default function CreateNFT() {
                                     </Label>
                                     <Input id="collection" type="text" className="archivo-label"/>
                                     <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">
-                                        The collection address that your NFT will be added to. If you haven't created a
+                                        The collection address that your NFT will be added to. If you haven't
+                                        created a
                                         collection NFT yet it would be recommended to create one first by selecting
                                         collection as the NFT type as the first question.
                                     </p>
@@ -180,7 +198,8 @@ export default function CreateNFT() {
 
 
                         <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">
-                            This is your image/placeholder of your NFT. If you are creating an NFT type other than image
+                            This is your image/placeholder of your NFT. If you are creating an NFT type other than
+                            image
                             then this will act as the placeholder image in wallets.
                         </p>
 
@@ -236,29 +255,44 @@ export default function CreateNFT() {
                             Symbol
                         </Label>
                         <Input id="symbol" type="text" className="archivo-label"/>
-                        <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">A shorthand ticker symbol for your
+                        <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">A shorthand ticker symbol for
+                            your
                             NFT.</p>
 
 
-                        <Label htmlFor="description" className="text-[20px] archivo-label">
+                        <Label htmlFor="description" className="text-[20px] archivo-label mt-4">
                             Description
                         </Label>
-                        <Textarea placeholder="" className="archivo-label"/>
+                        <Textarea
+                            id="description"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            className="archivo-label"
+                        />
                         <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">The description of your NFT or
                             collection.</p>
 
-                        <Label htmlFor="website" className="text-[20px] archivo-label">
+
+                        <Label htmlFor="website" className="text-[20px] archivo-label mt-4">
                             Website
                         </Label>
-                        <Input id="website" type="text" className="archivo-label"/>
-                        <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">A link to a website owned by the
+                        <Input
+                            id="website"
+                            type="text"
+                            value={website}
+                            onChange={(e) => setWebsite(e.target.value)}
+                            className="archivo-label"
+                        />
+                        <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">A link to a website owned by
+                            the
                             project.</p>
 
                         <Label htmlFor="website" className="text-[20px] archivo-label">
                             Sell Fee Basis Points
                         </Label>
                         <Input id="website" type="text" className="archivo-label"/>
-                        <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">The percentage of the sale price
+                        <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">The percentage of the sale
+                            price
                             that the original receives. Each percent is represented by 100 points. 10% = 1000
                             points.</p>
 
@@ -304,7 +338,8 @@ export default function CreateNFT() {
                                                 className={`cursor-pointer archivo-input border-[0.5px] border-[#888888] rounded-xl bg-[#6D6477] text-[20px] font-new-black px-4 py-[10px] text-white flex items-center justify-center gap-2 transition-colors ${inputs.length === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#4F455A] active:bg-[#463C51]'}`}
                                                 disabled={inputs.length === 1}
                                             >
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14"
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                     viewBox="0 0 14 14"
                                                      height="24" width="24">
                                                     <path fill="#ffffff" fillRule="evenodd"
                                                           d="M1.83645 1.83645C3.06046 0.612432 4.82797 0 7 0s3.9395 0.612432 5.1636 1.83645C13.3876 3.06046 14 4.82797 14 7s-0.6124 3.9395 -1.8364 5.1636C10.9395 13.3876 9.17203 14 7 14s-3.93954 -0.6124 -5.16355 -1.8364C0.612432 10.9395 0 9.17203 0 7s0.612432 -3.93954 1.83645 -5.16355ZM10.5625 7c0 0.34518 -0.2798 0.625 -0.625 0.625h-5.875c-0.34518 0 -0.625 -0.27982 -0.625 -0.625s0.27982 -0.625 0.625 -0.625h5.875c0.3452 0 0.625 0.27982 0.625 0.625Z"
@@ -336,7 +371,8 @@ export default function CreateNFT() {
                             ))}
 
                             <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">
-                                Attributes show on your nft as metadata. This could be anything from the colour of your
+                                Attributes show on your nft as metadata. This could be anything from the colour of
+                                your
                                 nft, to an item of clothing on the item, to camera metadata .
                             </p>
                         </div>
@@ -355,10 +391,10 @@ export default function CreateNFT() {
                     </motion.div>
                 </div>
                 <div className="hidden md:block col-span-1">
-                    <NFTCard image={uploadedImage}/>
+                    <NFTCard image={uploadedImage} description={description} name={name} website={website}/>
                 </div>
             </div>
-        </div>
+        </motion.div>
     )
         ;
 }
