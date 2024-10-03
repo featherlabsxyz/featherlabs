@@ -1,7 +1,9 @@
 export default function ViewNFT() {
     return (
         <>
-        4g
+            <div className="h-screen w-screen flex justify-center items-center">
+
+            </div>
         </>
     )
 }
