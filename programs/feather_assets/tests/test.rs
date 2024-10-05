@@ -3,17 +3,17 @@
 mod setup;
 use anchor_lang::{AnchorDeserialize, InstructionData, ToAccountMetas};
 use feather_assets::{
-    accounts::CreateGroup as CreateGroupAcc,
+    accounts::{CreateGroup as CreateGroupAcc, CreateMemberAsset as CreateMemberAssetAcc},
     constants::GROUP_DATA_SEED,
-    instruction::CreateGroup as CreateGroupIx,
-    state::{CreateGroupArgsV1, GroupMetadataArgsV1},
-    GroupDataV1, GroupV1, LightRootParams,
+    instruction::{CreateGroup as CreateGroupIx, CreateMemberAsset as CreateMemberAssetIx},
+    state::{CreateAssetArgsV1, CreateGroupArgsV1, GroupMetadataArgsV1},
+    AssetMetadataArgsV1, GroupDataV1, GroupV1, LightRootParams, ASSET_DATA_SEED,
 };
 use light_client::indexer::Indexer;
 use light_sdk::{
     address::{derive_address, derive_address_seed},
     event::PublicTransactionEvent,
-    merkle_context::{pack_address_merkle_context, pack_merkle_context},
+    merkle_context::{pack_address_merkle_context, pack_merkle_context, RemainingAccounts},
     verify::find_cpi_signer,
     PROGRAM_ID_ACCOUNT_COMPRESSION, PROGRAM_ID_LIGHT_SYSTEM,
 };
@@ -114,81 +114,109 @@ async fn create_group() {
     test_indexer.add_compressed_accounts_with_token_data(&event.unwrap().0);
     let compressed_accounts = test_indexer.get_compressed_accounts_by_owner(&PROGRAM_ID);
     assert_eq!(compressed_accounts.len(), 2);
-    let group = &compressed_accounts[1]
+    let group_cad = compressed_accounts[1].clone();
+    let group = group_cad
         .compressed_account
         .data
         .as_ref()
         .unwrap()
-        .data;
-    let group_data = &compressed_accounts[0]
+        .data
+        .clone();
+    let group_data_cad = compressed_accounts[0].clone();
+    let group_data = group_data_cad
         .compressed_account
         .data
         .as_ref()
         .unwrap()
-        .data;
-    let group = GroupV1::deserialize(&mut &group[..]).unwrap();
-    let group_data = GroupDataV1::deserialize(&mut &group_data[..]).unwrap();
-    assert_eq!(group.derivation_key, derivation_key);
-    assert_eq!(group_data.name, "Group 1".to_string());
-    // let rpc_result = test_indexer.create_proof_for_compressed_accounts(None, None, new_addresses, address_merkle_tree_pubkeys, rpc)
-    // let ix_data = CreateMemberAssetIx {
-    //     args: CreateAssetArgsV1 {
-    //         metadata: Some(AssetMetadataArgsV1 {
-    //             attributes: Vec::new(),
-    //             mutable: true,
-    //             name: "Asset".to_string(),
-    //             uri: "uri".to_string(),
-    //         }),
-    //         rentable: true,
-    //         transferrable: true,
-    //         royalty: Some(RoyaltyArgsV1 {
-    //             basis_points: 100,
-    //             creators: Vec::new(),
-    //             ruleset: RuleSetV1::ProgramDenyList(Vec::new()),
-    //         }),
-    //     },
-    //     group_seed,
-    //     lrp: LightRootParams {
-    //         inputs: (),
-    //         proof: (),
-    //         merkle_context: (),
-    //         merkle_tree_root_index: (),
-    //         address_merkle_context: (),
-    //         address_merkle_tree_root_index: (),
-    //     },
-    // };
-    // let accounts = CreateMemberAssetAcc {
-    //     authority: payer.pubkey(),
-    //     account_compression_authority,
-    //     account_compression_program: PROGRAM_ID_ACCOUNT_COMPRESSION,
-    //     cpi_signer: find_cpi_signer(&PROGRAM_ID),
-    //     light_system_program: PROGRAM_ID_LIGHT_SYSTEM,
-    //     noop_program: NOOP_PROGRAM_ID,
-    //     registered_program_pda,
-    //     self_program: PROGRAM_ID,
-    //     signer: payer.pubkey(),
-    //     system_program: SYSTEM_PROGRAM,
-    // };
-    // let ix = Instruction {
-    //     accounts: [
-    //         accounts.to_account_metas(Some(true)),
-    //         remaining_accounts.to_account_metas(),
-    //     ]
-    //     .concat(),
-    //     data: ix_data.data(),
-    //     program_id: PROGRAM_ID,
-    // };
+        .data
+        .clone();
+    let g = GroupV1::deserialize(&mut &group[..]).unwrap();
+    let gd = GroupDataV1::deserialize(&mut &group_data[..]).unwrap();
+    assert_eq!(g.derivation_key, derivation_key);
+    assert_eq!(gd.name, "Group 1".to_string());
+    let hash = group_cad.hash().unwrap();
+    let merkle_tree_pubkey = group_cad.merkle_context.merkle_tree_pubkey;
+    let mut remaining_accounts = RemainingAccounts::default();
+    let packed_address_merkle_context =
+        pack_address_merkle_context(address_merkle_context, &mut remaining_accounts);
+    let merkle_context = pack_merkle_context(group_cad.merkle_context, &mut remaining_accounts);
+    let asset_derivation_key: Pubkey = Pubkey::new_unique();
+    let asset_address_seed =
+        derive_address_seed(&[derivation_key.to_bytes().as_ref()], &PROGRAM_ID);
+    let asset_address = derive_address(&asset_address_seed, &address_merkle_context);
+    let asset_data_address_seed =
+        derive_address_seed(&[ASSET_DATA_SEED, asset_address.as_ref()], &PROGRAM_ID);
+    let asset_data_address = derive_address(&asset_data_address_seed, &address_merkle_context);
+    let asset_address_vec = vec![asset_address, asset_data_address];
 
-    // let event = rpc
-    //     .create_and_send_transaction_with_event::<PublicTransactionEvent>(
-    //         &[ix],
-    //         &payer.pubkey(),
-    //         &[&payer],
-    //         None,
-    //     )
-    //     .await;
-    // match event {
-    //     Err(err) => println!("{err}"),
-    //     Ok(event) => println!("Success2"),
-    // }
+    let rpc_result = test_indexer
+        .create_proof_for_compressed_accounts(
+            Some(&[hash]),
+            Some(&[merkle_tree_pubkey]),
+            Some(&asset_address_vec),
+            Some(vec![
+                env.address_merkle_tree_pubkey,
+                env.address_merkle_tree_pubkey,
+            ]),
+            &mut rpc,
+        )
+        .await;
+    let ix_data = CreateMemberAssetIx {
+        args: CreateAssetArgsV1 {
+            metadata: Some(AssetMetadataArgsV1 {
+                attributes: Vec::new(),
+                mutable: true,
+                name: "Asset".to_string(),
+                uri: "uri".to_string(),
+            }),
+            rentable: true,
+            transferrable: true,
+            royalties_initializable: true,
+        },
+        group_derivation_key: derivation_key,
+        asset_derivation_key,
+        lrp: LightRootParams {
+            inputs: vec![group],
+            proof: rpc_result.proof,
+            merkle_context,
+            merkle_tree_root_index: rpc_result.root_indices[0],
+            address_merkle_context: packed_address_merkle_context,
+            address_merkle_tree_root_index: rpc_result.address_root_indices[0],
+        },
+    };
+    let accounts = CreateMemberAssetAcc {
+        authority: payer.pubkey(),
+        account_compression_authority,
+        account_compression_program: PROGRAM_ID_ACCOUNT_COMPRESSION,
+        cpi_signer: find_cpi_signer(&PROGRAM_ID),
+        light_system_program: PROGRAM_ID_LIGHT_SYSTEM,
+        noop_program: NOOP_PROGRAM_ID,
+        registered_program_pda,
+        self_program: PROGRAM_ID,
+        group_authority: payer.pubkey(),
+        payer: payer.pubkey(),
+        system_program: SYSTEM_PROGRAM,
+    };
+    let ix = Instruction {
+        accounts: [
+            accounts.to_account_metas(Some(true)),
+            remaining_accounts.to_account_metas(),
+        ]
+        .concat(),
+        data: ix_data.data(),
+        program_id: PROGRAM_ID,
+    };
+
+    let event = rpc
+        .create_and_send_transaction_with_event::<PublicTransactionEvent>(
+            &[ix],
+            &payer.pubkey(),
+            &[&payer],
+            None,
+        )
+        .await;
+    match event {
+        Err(err) => println!("{err}"),
+        Ok(event) => println!("Success2"),
+    }
 }

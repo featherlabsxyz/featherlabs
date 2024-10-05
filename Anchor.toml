@@ -6,17 +6,19 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-feather_assets = "DD9JdX9UBs7MvfZTX8NrxVYDRXyC2aWymsQmqZc9avTo"
+feather_assets = "HNyzkDmhZayxRG77bk84oxe13Qp3PcRhd5o5NJEF6E5W"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
 cluster = "Localnet"
-wallet = "~/.config/solana/id.json"
+wallet = "/Users/meimfhd/.config/solana/id.json"
 
 [scripts]
 test = "pnpm ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
 
 [test]
+startup_wait = 5000
+shutdown_wait = 2000
 upgradeable = true

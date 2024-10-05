@@ -97,7 +97,7 @@ pub fn handler<'info>(
         false => asset.royalty_state = RoyalyState::Disabled,
     }
     output_compressed_accounts.insert(
-        0,
+        1,
         asset
             .output_compressed_account(&crate::ID, remaining_accounts)?
             .unwrap(),

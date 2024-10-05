@@ -25,7 +25,12 @@ import {
   buildTx,
 } from "@lightprotocol/stateless.js";
 import { FeatherAssets, IDL } from "./idl";
-import { CreateAssetArgsV1, CreateGroupArgsV1, GroupV1 } from "./types";
+import {
+  AssetV1,
+  CreateAssetArgsV1,
+  CreateGroupArgsV1,
+  GroupV1,
+} from "./types";
 import {
   ASSET_DATA_SEED,
   ASSET_ROYALTY_SEED,
@@ -261,7 +266,6 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       inputleafhashes,
       newUniqueAddresses
     );
-
     const newAddressesParams = [];
     newAddressesParams.push(this.getNewAddressParams(assetSeed, proof));
     assetDataSeed &&
@@ -278,7 +282,6 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       addressMerkleContext,
       addressMerkleTreeRootIndex,
       merkleContext,
-      rootIndex,
       remainingAccounts,
     } = this.packWithInput(
       inputCompressedAccounts,
@@ -286,6 +289,10 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       newAddressesParams,
       proof
     );
+    console.log(addressMerkleContext);
+    console.log(addressMerkleTreeRootIndex);
+    console.log(merkleContext);
+    console.log(proof.rootIndices[0]);
     const ix = FeatherAssetsProgram.getInstance()
       .program.methods.createMemberAsset(
         {
@@ -293,7 +300,7 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
           addressMerkleTreeRootIndex,
           inputs: [groupAccount.data.data],
           merkleContext,
-          merkleTreeRootIndex: rootIndex,
+          merkleTreeRootIndex: proof.rootIndices[0],
           proof: proof.compressedProof,
         },
         group.derivationKey,
@@ -314,6 +321,34 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       .remainingAccounts(toAccountMetas(remainingAccounts))
       .instruction();
     return ix;
+  }
+  static async addRoyalties(
+    rpc: Rpc,
+    assetAddress: PublicKey,
+    assetAuthority: PublicKey
+  ) {
+    const assetAccountPromise = rpc.getCompressedAccount(
+      bn(assetAddress.toBytes())
+    );
+    const royaltySeed = this.deriveAssetRoyaltySeed(assetAddress);
+    const royaltyAddress = await deriveAddress(royaltySeed, this.addressTree);
+    const royaltyAccountPromise = rpc.getCompressedAccount(
+      bn(royaltyAddress.toBytes())
+    );
+    const [royaltyAccount, assetAccount] = await Promise.all([
+      royaltyAccountPromise,
+      assetAccountPromise,
+    ]);
+    if (royaltyAccount) {
+      throw new Error("Royalty Account Already Exist");
+    }
+    if (!assetAccount || !assetAccount.data) {
+      throw new Error("Asset Account Does Not Exist or Invalid Asset Address");
+    }
+    const asset = this.decodeTypes<AssetV1>("AssetV1", assetAccount.data.data);
+    if (assetAuthority.toBase58() != asset.owner.toBase58()) {
+      throw new Error("Invalid Asset Authority Public Key");
+    }
   }
   // ASSET UTILS <--------------------------------------------------------------------->
   static deriveAssetSeed(derivationKey: PublicKey): Uint8Array {
@@ -340,8 +375,8 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
     proof: CompressedProofWithContext
   ) {
     const {
-      packedInputCompressedAccounts,
       remainingAccounts: _remainingAccounts,
+      packedInputCompressedAccounts,
     } = packCompressedAccounts(
       inputCompressedAccounts,
       proof.rootIndices,
@@ -356,8 +391,7 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       addressMerkleTreeRootIndex,
       addressQueueAccountIndex,
     } = newAddressParamsPacked[0];
-    let { rootIndex, merkleContext } = packedInputCompressedAccounts[0];
-
+    const merkleContext = packedInputCompressedAccounts[0].merkleContext;
     return {
       addressMerkleContext: {
         addressMerkleTreePubkeyIndex: addressMerkleTreeAccountIndex,
@@ -365,7 +399,6 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       },
       addressMerkleTreeRootIndex,
       merkleContext,
-      rootIndex,
       remainingAccounts,
     };
   }
@@ -383,11 +416,6 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       newAddressesParams,
       _remainingAccounts
     );
-    let {
-      addressMerkleTreeAccountIndex,
-      addressMerkleTreeRootIndex,
-      addressQueueAccountIndex,
-    } = newAddressParamsPacked[0];
     let merkleContext: PackedMerkleContext = {
       leafIndex: 0,
       merkleTreePubkeyIndex: getIndexOrAdd(remainingAccounts, this.merkleTree),
@@ -397,6 +425,11 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       ),
       queueIndex: null,
     };
+    let {
+      addressMerkleTreeAccountIndex,
+      addressMerkleTreeRootIndex,
+      addressQueueAccountIndex,
+    } = newAddressParamsPacked[0];
     return {
       addressMerkleContext: {
         addressMerkleTreePubkeyIndex: addressMerkleTreeAccountIndex,

@@ -1,4 +1,3 @@
-import { PublicKey } from "@solana/web3.js";
 import { AttributeV1, RuleSetV1 } from ".";
 import { CreatorArgsV1 } from "./schema";
 export * from "./schema";

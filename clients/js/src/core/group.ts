@@ -10,6 +10,7 @@ import { GroupDataV1, GroupMetadataArgsV1, GroupV1 } from "../types";
  * @param maxSize Initial Max Size of Group
  * @param authority Authority of the group
  * @param payerPublicKey Transaction Payer
+ * @param metadata optionally add metadata, or add it later
  * @returns
  */
 export async function createGroupTx(
