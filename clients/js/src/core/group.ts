@@ -4,6 +4,11 @@ import BN from "bn.js";
 import { FeatherAssetsProgram } from "../program";
 import { GroupDataV1, GroupMetadataArgsV1, GroupV1 } from "../types";
 
+export interface CreateGroupResult {
+  transaction: VersionedTransaction;
+  groupAddress: PublicKey;
+  groupDataAddress: PublicKey | null;
+}
 /**
  *
  * @param rpc RPC to use
@@ -19,11 +24,7 @@ export async function createGroupTx(
   authority: PublicKey,
   payerPublicKey: PublicKey,
   metadata?: GroupMetadataArgsV1
-): Promise<{
-  transaction: VersionedTransaction;
-  groupAddress: PublicKey;
-  groupDataAddress: PublicKey | null;
-}> {
+): Promise<CreateGroupResult> {
   const {
     groupAddress,
     groupDataAddress,

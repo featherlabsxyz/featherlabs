@@ -1,7 +1,8 @@
 import { Rpc } from "@lightprotocol/stateless.js";
-import { PublicKey, VersionedTransaction } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import { Nft, NftAttributes } from ".";
 import {
+  CreateAssetResult,
   createAssetTx,
   createMemberAssetTx,
   getAssetWithMetadata,
@@ -13,21 +14,31 @@ import {
   AssetV1,
   getAssetAuthorityVariant,
   getAssetState,
-  RoyaltyArgsV1,
 } from "../types";
-
-export async function createNftTx(
+/**
+ * Creates a transaction for a standalone NFT.
+ * @param rpc The RPC client.
+ * @param authority The public key of the authority.
+ * @param name The name of the NFT.
+ * @param imageUri The URI of the NFT image.
+ * @param nftAttributes The attributes of the NFT.
+ * @param mutable Whether the NFT is mutable (default: true).
+ * @param rentable Whether the NFT is rentable.
+ * @param transferrable Whether the NFT is transferrable.
+ * @param royaltiesInitializable Whether royalties can be initialized for the NFT.
+ * @returns A promise that resolves to the `CreateAssetResult`.
+ */
+export async function createNftAloneTx(
   rpc: Rpc,
   authority: PublicKey,
   name: string,
   imageUri: string,
   nftAttributes: NftAttributes,
-  collection?: PublicKey,
   mutable: boolean = true,
   rentable?: boolean,
   transferrable?: boolean,
   royaltiesInitializable?: boolean
-): Promise<VersionedTransaction> {
+): Promise<CreateAssetResult> {
   const attributesArray = Object.entries(nftAttributes).map(([key, value]) => ({
     key,
     value,
@@ -39,21 +50,8 @@ export async function createNftTx(
     mutable,
     attributes: attributesArray,
   };
-  let transaction;
-  if (collection) {
-    transaction = await createMemberAssetTx(
-      rpc,
-      authority,
-      authority,
-      collection,
-      authority,
-      metadata,
-      rentable,
-      transferrable,
-      royaltiesInitializable
-    );
-  }
-  transaction = await createAssetTx(
+
+  return await createAssetTx(
     rpc,
     authority,
     authority,
@@ -62,7 +60,57 @@ export async function createNftTx(
     transferrable,
     royaltiesInitializable
   );
-  return transaction;
+}
+
+/**
+ * Creates a transaction for an NFT that is a member of a collection.
+ * @param rpc The RPC client.
+ * @param authority The public key of the authority.
+ * @param name The name of the NFT.
+ * @param imageUri The URI of the NFT image.
+ * @param nftAttributes The attributes of the NFT.
+ * @param collection The public key of the collection.
+ * @param mutable Whether the NFT is mutable (default: true).
+ * @param rentable Whether the NFT is rentable.
+ * @param transferrable Whether the NFT is transferrable.
+ * @param royaltiesInitializable Whether royalties can be initialized for the NFT.
+ * @returns A promise that resolves to the CreateAssetResult.
+ */
+export async function createNftMemberTx(
+  rpc: Rpc,
+  authority: PublicKey,
+  name: string,
+  imageUri: string,
+  nftAttributes: NftAttributes,
+  collection: PublicKey,
+  mutable: boolean = true,
+  rentable?: boolean,
+  transferrable?: boolean,
+  royaltiesInitializable?: boolean
+): Promise<CreateAssetResult> {
+  const attributesArray = Object.entries(nftAttributes).map(([key, value]) => ({
+    key,
+    value,
+  }));
+
+  const metadata: AssetMetadataArgsV1 = {
+    name,
+    uri: imageUri,
+    mutable,
+    attributes: attributesArray,
+  };
+
+  return await createMemberAssetTx(
+    rpc,
+    authority,
+    authority,
+    collection,
+    authority,
+    metadata,
+    rentable,
+    transferrable,
+    royaltiesInitializable
+  );
 }
 export async function fetchNft(rpc: Rpc, nftAddress: PublicKey): Promise<Nft> {
   const assetWithMetadata = await getAssetWithMetadata(rpc, nftAddress);

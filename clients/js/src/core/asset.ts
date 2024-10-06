@@ -1,14 +1,14 @@
 import { deriveAddress, Rpc } from "@lightprotocol/stateless.js";
-import { PublicKey } from "@solana/web3.js";
+import { PublicKey, VersionedTransaction } from "@solana/web3.js";
 import BN from "bn.js";
 import { FeatherAssetsProgram } from "../program";
-import {
-  AssetDataV1,
-  AssetMetadataArgsV1,
-  AssetV1,
-  RoyaltyArgsV1,
-} from "../types";
+import { AssetDataV1, AssetMetadataArgsV1, AssetV1 } from "../types";
 
+export interface CreateAssetResult {
+  transaction: VersionedTransaction;
+  assetAddress: PublicKey;
+  assetDataAddress: PublicKey | null;
+}
 /**
  *
  * @param rpc RPC to use
@@ -17,7 +17,7 @@ import {
  * @param metadata Metadata for Asset
  * @param rentable Is Asset Time Based Rentable
  * @param transferrable Is Asset Transferreable or soulbound
- * @param royalty Enforce Royalties On Asset Transfers
+ * @param royaltiesInitializable If false royalties can't be initialized
  * @returns
  */
 export async function createAssetTx(
@@ -28,36 +28,39 @@ export async function createAssetTx(
   rentable: boolean = true,
   transferrable: boolean = true,
   royaltiesInitializable: boolean = true
-) {
-  const ix = await FeatherAssetsProgram.createAssetIx(
-    rpc,
-    authority,
-    payerPublicKey,
-    {
-      metadata: metadata ? metadata : null,
-      royaltiesInitializable,
-      rentable,
-      transferrable,
-    }
-  );
+): Promise<CreateAssetResult> {
+  const {
+    assetAddress,
+    assetDataAddress,
+    instruction: ix,
+  } = await FeatherAssetsProgram.createAssetIx(rpc, authority, payerPublicKey, {
+    metadata: metadata ? metadata : null,
+    royaltiesInitializable,
+    rentable,
+    transferrable,
+  });
   const transaction = await FeatherAssetsProgram.buildTxWithComputeBudget(
     rpc,
     [ix],
     payerPublicKey
   );
-  return transaction;
+  return {
+    assetAddress,
+    assetDataAddress,
+    transaction,
+  };
 }
 
 /**
  * Need both payer and groupAuthority to sign the transaction.
  * @param rpc RPC to use
- * @param groupAuthority Owner Of Asset
+ * @param groupAuthority Owner Of Group
  * @param authority Owner Of Asset
  * @param payerPublicKey Transaction Payer
  * @param metadata Metadata for Asset
  * @param rentable Is Asset Time Based Rentable
  * @param transferrable Is Asset Transferreable or soulbound
- * @param royalty Enforce Royalties On Asset Transfers
+ * @param royaltiesInitializable If false royalties can't be initialized
  * @returns
  */
 export async function createMemberAssetTx(
@@ -70,26 +73,31 @@ export async function createMemberAssetTx(
   rentable: boolean = true,
   transferrable: boolean = true,
   royaltiesInitializable: boolean = true
-) {
-  const ix = await FeatherAssetsProgram.createMemberAssetIx(
-    rpc,
-    groupAuthority,
-    authority,
-    groupAddress,
-    payerPublicKey,
-    {
-      metadata: metadata ? metadata : null,
-      royaltiesInitializable,
-      rentable,
-      transferrable,
-    }
-  );
+): Promise<CreateAssetResult> {
+  const { assetAddress, assetDataAddress, instruction } =
+    await FeatherAssetsProgram.createMemberAssetIx(
+      rpc,
+      groupAuthority,
+      authority,
+      groupAddress,
+      payerPublicKey,
+      {
+        metadata: metadata ? metadata : null,
+        royaltiesInitializable,
+        rentable,
+        transferrable,
+      }
+    );
   const transaction = await FeatherAssetsProgram.buildTxWithComputeBudget(
     rpc,
-    [ix],
+    [instruction],
     payerPublicKey
   );
-  return transaction;
+  return {
+    transaction,
+    assetAddress,
+    assetDataAddress,
+  };
 }
 
 export async function getAsset(rpc: Rpc, assetAddress: PublicKey) {

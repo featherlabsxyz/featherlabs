@@ -9,4 +9,9 @@ target/*
 !target/idl
 !target/types
 programs/feather_assets/src/expanded*
+<<<<<<< Updated upstream
 .idea
+=======
+.vscode
+.idea
+>>>>>>> Stashed changes

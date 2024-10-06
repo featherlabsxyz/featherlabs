@@ -118,11 +118,6 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       outputCompressedAccounts.push(
         ...this.createNewAddressOutputState(groupDataAddress)
       );
-    console.log(
-      newUniqueAddresses.length,
-      outputCompressedAccounts.length,
-      newAddressesParams.length
-    );
     const {
       addressMerkleContext,
       addressMerkleTreeRootIndex,
@@ -169,7 +164,6 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
     const derivationKey = new Keypair().publicKey;
     const assetSeed = this.deriveAssetSeed(derivationKey);
     const assetAddress = await deriveAddress(assetSeed, this.addressTree);
-    console.log(assetAddress);
     const assetDataSeed = metadata && this.deriveAssetDataSeed(assetAddress);
     const assetDataAddress =
       assetDataSeed && (await deriveAddress(assetDataSeed, this.addressTree));
@@ -202,7 +196,7 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       merkleContext,
       remainingAccounts,
     } = this.packNew(outputCompressedAccounts, newAddressesParams, proof);
-    const ix = FeatherAssetsProgram.getInstance()
+    const ix = await FeatherAssetsProgram.getInstance()
       .program.methods.createAsset(
         {
           addressMerkleContext,
@@ -227,7 +221,11 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       })
       .remainingAccounts(toAccountMetas(remainingAccounts))
       .instruction();
-    return ix;
+    return {
+      instruction: ix,
+      assetAddress,
+      assetDataAddress,
+    };
   }
   static async createMemberAssetIx(
     rpc: Rpc,
@@ -289,11 +287,7 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       newAddressesParams,
       proof
     );
-    console.log(addressMerkleContext);
-    console.log(addressMerkleTreeRootIndex);
-    console.log(merkleContext);
-    console.log(proof.rootIndices[0]);
-    const ix = FeatherAssetsProgram.getInstance()
+    const ix = await FeatherAssetsProgram.getInstance()
       .program.methods.createMemberAsset(
         {
           addressMerkleContext,
@@ -320,7 +314,11 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       })
       .remainingAccounts(toAccountMetas(remainingAccounts))
       .instruction();
-    return ix;
+    return {
+      instruction: ix,
+      assetAddress,
+      assetDataAddress,
+    };
   }
   static async addRoyalties(
     rpc: Rpc,

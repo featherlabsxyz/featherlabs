@@ -1,7 +1,8 @@
 import { Rpc } from "@lightprotocol/stateless.js";
-import { PublicKey, VersionedTransaction } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import { Collection, NftAttributes } from ".";
 import {
+  CreateGroupResult,
   createGroupTx,
   getGroupWithMetadata,
   getMultipleGroupsWithMetadata,
@@ -17,7 +18,7 @@ import { GroupDataV1, GroupMetadataArgsV1, GroupV1 } from "../types";
  * @param imageUri Collection Image URI
  * @param mutable Setting mutable to false will prevent updating group metadata
  * @param nftAttributes Common with additional attributes
- * @returns transaction Sign the transaction using private key or wallet adapter
+ * @returns A promise that resolves to the `CreateGroupResult`.
  */
 export async function createCollectionTx(
   rpc: Rpc,
@@ -27,7 +28,11 @@ export async function createCollectionTx(
   imageUri: string,
   mutable: boolean,
   nftAttributes: NftAttributes
+<<<<<<< Updated upstream
 ): Promise<{ transaction: VersionedTransaction; groupAddress: PublicKey; groupDataAddress: PublicKey | null }> {
+=======
+): Promise<CreateGroupResult> {
+>>>>>>> Stashed changes
   const attributesArray = Object.entries(nftAttributes).map(([key, value]) => ({
     key,
     value,
@@ -39,14 +44,14 @@ export async function createCollectionTx(
     mutable,
     attributes: attributesArray,
   };
-  const transaction = await createGroupTx(
+  const response = await createGroupTx(
     rpc,
     maxSize,
     authority,
     authority,
     metadata
   );
-  return transaction;
+  return response;
 }
 
 export async function fetchCollection(
