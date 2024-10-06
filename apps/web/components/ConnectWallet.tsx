@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import "@solana/wallet-adapter-react-ui/styles.css";
-
+import { PublicKey } from "@solana/web3.js";
+import { createNft } from "@/utils/nftUtils";
 export function WalletButton() {
   const { publicKey, disconnect, connected } = useWallet();
   const { setVisible } = useWalletModal();
@@ -43,7 +44,53 @@ export function WalletButton() {
       // You might want to add a toast notification here
     }
   };
+  const handleCreateNFT = async () => {
+    if (!publicKey) {
+      console.error("Wallet not connected");
+      // You might want to show a user-friendly message here
+      return;
+    }
 
+    try {
+      const nftAttributes = {
+        symbol: "SYMBOL", // You might want to add a state for this
+        description: "DESCRIPTION",
+        website: "WEBSITE",
+        animationUrl: "", // You might want to add a state for this
+        // Add any additional attributes here
+      };
+
+      const transaction = await createNft(
+        publicKey,
+        name,
+        uploadedImage!, // Make sure uploadedImage is defined earlier
+        nftAttributes,
+        undefined, // collection
+        true, // mutable
+        false, // rentable
+        true, // transferrable
+        enforceRoyalties // royaltiesInitializable
+      );
+
+      console.log("NFT transaction created:", transaction);
+
+      // Sign and send the transaction
+      if (signTransaction) {
+        const signedTransaction = await signTransaction(transaction);
+        // Here you would send the signed transaction to the network
+        // This part depends on how you're handling transaction submission
+        // For example:
+        // const signature = await connection.sendRawTransaction(signedTransaction.serialize());
+        // await connection.confirmTransaction(signature);
+        console.log("Transaction signed:", signedTransaction);
+      } else {
+        console.error("Wallet does not support transaction signing");
+      }
+
+    } catch (error) {
+      console.error("Error creating NFT:", error);
+    }
+  };
   return (
     <div className="relative" ref={dropdownRef}>
       <button

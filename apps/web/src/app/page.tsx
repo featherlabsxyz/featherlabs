@@ -8,19 +8,78 @@ import {Checkbox} from "@/components/ui/checkbox";
 import Link from "next/link";
 import {useState} from "react";
 import {AnimatePresence, motion} from "framer-motion";
+import {Connection, PublicKey} from "@solana/web3.js";
+import {useWallet} from "@solana/wallet-adapter-react";
+import {createNftTx} from "@featherlabs/feather-assets/src/nft";
+import {Rpc} from "@lightprotocol/stateless.js";
 
 export default function CreateNFT() {
+    const {publicKey, signTransaction} = useWallet();
     const [enforceRoyalties, setEnforceRoyalties] = useState(false);
-    const [uploadedImage, setUploadedImage] = useState(null);
+    const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+    const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
+    const [website, setWebsite] = useState("");
     const [imageName, setImageName] = useState("");
     const [inputs, setInputs] = useState([{id: 1}]);
-    const [name, setName] = useState("");
-    const [description, setDescription] = useState(
-        ""
-    );
-    const [website, setWebsite] = useState("");
     const [creators, setCreators] = useState([{id: 1}]);
+    const [uploadedAnimation, setUploadedAnimation] = useState<string | null>(null);
+    const [symbol, setSymbol] = useState("");
+    const [uploadedVideo, setUploadedVideo] = useState<string | null>(null);
+    const [videoName, setVideoName] = useState("");
 
+    const handleCreateNFT = async () => {
+        if (!publicKey || !signTransaction || !uploadedImage) {
+            console.error("Wallet not connected or no image uploaded");
+            return;
+        }
+
+        try {
+            const connection = new Connection("https://api.devnet.solana.com", "confirmed");
+            // @ts-ignore
+            const rpc = new Rpc(connection);
+
+            const nftAttributes = {
+                symbol,
+                description,
+                website,
+                animationUrl: uploadedAnimation || undefined,
+            };
+
+            const transaction = await createNftTx(
+                rpc,
+                publicKey,
+                name,
+                uploadedImage,
+                {
+                    ...nftAttributes,
+                    animationUrl: nftAttributes.animationUrl || '',
+                },
+                undefined,
+                true,
+                false,
+                true,
+                enforceRoyalties // royaltiesInitializable
+            );
+
+            console.log("NFT transaction created:", transaction);
+
+            const signedTransaction = await signTransaction(transaction);
+            console.log("Transaction signed:", signedTransaction);
+
+            // Send the signed transaction to the network
+            const signature = await connection.sendRawTransaction(signedTransaction.serialize());
+            await connection.confirmTransaction(signature);
+            console.log("Transaction confirmed:", signature);
+
+            // You can add a success message or update the UI here
+            alert("NFT created successfully!");
+
+        } catch (error) {
+            console.error("Error creating NFT:", error);
+            alert("Error creating NFT. Please check the console for details.");
+        }
+    };
     const addCreator = () => {
         setCreators([...creators, {id: Date.now()}]);
     };
@@ -37,12 +96,26 @@ export default function CreateNFT() {
 
             reader.onload = (e) => {
                 if (e.target && typeof e.target.result === 'string') {
-                    // @ts-ignore
                     setUploadedImage(e.target.result);
                 }
             };
 
             reader.readAsDataURL(file);
+        }
+    };
+    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = event.target.files;
+        if (files && files.length > 0) {
+            const file = files[0];
+            const fileUrl = URL.createObjectURL(file);
+
+            if (file.type.startsWith('image/')) {
+                setUploadedImage(fileUrl);
+                setUploadedVideo(null);
+            } else if (file.type.startsWith('video/')) {
+                setUploadedVideo(fileUrl);
+                setUploadedImage(null);
+            }
         }
     };
 
@@ -54,44 +127,6 @@ export default function CreateNFT() {
         setInputs((prevInputs) => prevInputs.filter((_, index) => index !== indexToRemove));
     };
 
-    // const handleCreateNFT = async () => {
-    //     const nftData = {
-    //       authority: "",
-    //       name,
-    //       imageUri: uploadedImage,
-    //       mutable: true,
-    //       transferrable: true,
-    //       rentable: false,
-    //       nftAttributes: {
-    //         symbol: "SYMBOL",
-    //         description,
-    //         website,
-    //         animationUrl: "",
-    //       },
-    //       collection: "",
-    //       enforceRoyalties: enforceRoyalties ? {
-    //       } : undefined,
-    //     };
-    //
-    //     try {
-    //       const response = await fetch('/api/create-nft', {
-    //         method: 'POST',
-    //         headers: {
-    //           'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify(nftData),
-    //       });
-    //
-    //       if (!response.ok) {
-    //         throw new Error('Failed to create NFT');
-    //       }
-    //
-    //       const data = await response.json();
-    //       console.log('NFT transaction created:', data.transaction);
-    //     } catch (error) {
-    //       console.error('Error creating NFT:', error);
-    //     }
-    //   };
 
     // @ts-ignore
     return (
@@ -154,59 +189,6 @@ export default function CreateNFT() {
                         />
 
 
-                        <div className="flex items-center mt-4 space-x-2 archivo-label">
-                            <Checkbox
-                                id="terms"
-                                checked={enforceRoyalties}
-                                onCheckedChange={(checked) => {
-                                    // @ts-ignore
-                                    setEnforceRoyalties(checked);
-                                }}
-                            />
-                            <label
-                                htmlFor="terms"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                                Enforce Royalties
-                            </label>
-                        </div>
-                        <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE] mx-6">
-                            Enable to create royalty enforced pNFTs.
-                        </p>
-
-
-                        <AnimatePresence>
-                            {enforceRoyalties && (
-                                <motion.div
-                                    initial={{opacity: 0, height: 0, filter: 'blur(10px)'}}
-                                    animate={{opacity: 1, height: 'auto', filter: 'blur(0px)'}}
-                                    exit={{opacity: 0, height: 0, filter: 'blur(10px)'}}
-                                    transition={{duration: 0.5}}
-                                >
-                                    <Label htmlFor="sellFee" className="text-[20px] archivo-label">
-                                        Sell Fee Basis Points
-                                    </Label>
-                                    <Input id="sellFee" type="text" className="archivo-label"/>
-                                    <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">
-                                        The percentage of the sale price that the original receives. Each percent is
-                                        represented by 100 points. 10% = 1000 points.
-                                    </p>
-
-                                    <Label htmlFor="collection" className="text-[20px] archivo-label">
-                                        Collection
-                                    </Label>
-                                    <Input id="collection" type="text" className="archivo-label"/>
-                                    <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">
-                                        The collection address that your NFT will be added to. If you haven't
-                                        created a
-                                        collection NFT yet it would be recommended to create one first by selecting
-                                        collection as the NFT type as the first question.
-                                    </p>
-
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-
                         <Label htmlFor="image" className="text-[20px] archivo-label">
                             Image
                         </Label>
@@ -216,40 +198,34 @@ export default function CreateNFT() {
                                 type="text"
                                 disabled={true}
                                 value={imageName}
+                                onChange={handleImageUpload}
                                 placeholder="File name, chosen by user"
                                 className="archivo-input flex-[3] text-xl text-[#BEBEBE] underline"
                             />
-                            <div>
-                                <label htmlFor="file-upload" className="cursor-pointer">
-                                    <div
-                                        className="archivo-input border-[0.5px] border-[#888888] rounded-xl bg-[#6D6477] text-[20px] font-new-black px-4 py-[10px] text-white flex items-center justify-center gap-2 transition-colors hover:bg-[#4F455A] active:bg-[#463C51]">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            id="Plus-Math-Symbol-Circle--Streamline-Ultimate"
-                                            height="24"
-                                            width="24"
-                                        >
-                                            <desc>Plus Math Symbol Circle Streamline Icon</desc>
-                                            <path
-                                                fill="#ffffff"
-                                                fillRule="evenodd"
-                                                d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0Zm-0.05 5.6a0.75 0.75 0 0 1 0.75 0.75v4.85h4.85a0.75 0.75 0 0 1 0 1.5H12.7v4.95a0.75 0.75 0 1 1-1.5 0V12.7H6.35a0.75 0.75 0 0 1 0-1.5h4.85V6.35a0.75 0.75 0 0 1 0.75-0.75Z"
-                                                clipRule="evenodd"
-                                                strokeWidth="1"
-                                            ></path>
-                                        </svg>
-                                        Choose File
-                                    </div>
-                                </label>
-                                <input
-                                    id="file-upload"
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleImageUpload}
-                                    className="hidden"
+                            <div className="flex gap-2 mt-1">
+                                <Input
+                                    id="file-input"
+                                    type="text"
+                                    disabled={true}
+                                    value={uploadedImage ? 'Image uploaded'}
+                                    placeholder="File name, chosen by user"
+                                    className="archivo-input flex-[3] text-xl text-[#BEBEBE] underline"
                                 />
+                                <div>
+                                    <label htmlFor="file-upload" className="cursor-pointer">
+                                        <div
+                                            className="archivo-input border-[0.5px] border-[#888888] rounded-xl bg-[#6D6477] text-[20px] font-new-black px-4 py-[10px] text-white flex items-center justify-center gap-2 transition-colors hover:bg-[#4F455A] active:bg-[#463C51]">
+                                            Choose File
+                                        </div>
+                                    </label>
+                                    <input
+                                        id="file-upload"
+                                        type="file"
+                                        onChange={handleFileUpload}
+                                        accept="image/*,video/*"
+                                        className="hidden"
+                                    />
+                                </div>
                             </div>
                         </div>
 
@@ -261,14 +237,15 @@ export default function CreateNFT() {
                         </p>
 
 
-                        <Label htmlFor="image" className="text-[20px] archivo-label">
+                        <Label htmlFor="image-upload" className="text-[20px] archivo-label">
                             Animation File
                         </Label>
                         <div className="flex gap-2 mt-1">
                             <Input
-                                id="image-input"
+                                id="file-input"
                                 type="text"
                                 disabled={true}
+                                value={imageName || 'videoName'}
                                 placeholder="File name, chosen by user"
                                 className="archivo-input flex-[3] text-xl text-[#BEBEBE] underline"
                             />
@@ -299,10 +276,10 @@ export default function CreateNFT() {
                                 <input
                                     id="file-upload"
                                     type="file"
-                                    accept="image/*"
-                                    onChange={handleImageUpload}
+                                    onChange={handleFileUpload}
                                     className="hidden"
                                 />
+
                             </div>
                         </div>
                         <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">
@@ -315,7 +292,8 @@ export default function CreateNFT() {
                         <Label htmlFor="symbol" className="text-[20px] archivo-label">
                             Symbol
                         </Label>
-                        <Input id="symbol" type="text" className="archivo-label"/>
+                        <Input id="symbol" onChange={(e) => setSymbol(e.target.value)}
+                               type="text" className="archivo-label"/>
                         <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">A shorthand ticker symbol for
                             your
                             NFT.</p>
@@ -347,16 +325,6 @@ export default function CreateNFT() {
                         <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">A link to a website owned by
                             the
                             project.</p>
-
-                        <Label htmlFor="website" className="text-[20px] archivo-label">
-                            Sell Fee Basis Points
-                        </Label>
-                        <Input id="website" type="text" className="archivo-label"/>
-                        <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">The percentage of the sale
-                            price
-                            that the original receives. Each percent is represented by 100 points. 10% = 1000
-                            points.</p>
-
 
                         <div>
                             <Label htmlFor="image" className="text-[20px] archivo-label">
@@ -438,85 +406,143 @@ export default function CreateNFT() {
                             </p>
                         </div>
 
+                        <Label htmlFor="collection" className="text-[20px] archivo-label">
+                            Collection
+                        </Label>
+                        <Input id="collection" type="text" className="archivo-label"/>
+                        <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">
+                            The collection address that your NFT will be added to. If you haven't
+                            created a
+                            collection NFT yet it would be recommended to create one first by selecting
+                            collection as the NFT type as the first question.
+                        </p>
 
-                        <div>
-                            <Label htmlFor="creators" className="text-[20px] archivo-label">
-                                Creators
-                            </Label>
-
-                            {creators.map((creator, index) => (
-                                <AnimatePresence key={creator.id}>
-                                    <motion.div
-                                        initial={{opacity: 0, filter: "blur(10px)"}}
-                                        animate={{opacity: 1, filter: "blur(0)"}}
-                                        exit={{
-                                            opacity: 0,
-                                            filter: "blur(10px)",
-                                            transition: {duration: 0.5},
-                                        }}
-                                        className="flex gap-2 mt-1"
-                                    >
-                                        <Input
-                                            id={`creator-address-${index}`}
-                                            type="text"
-                                            placeholder="Address"
-                                            className="archivo-input flex-[3] text-xl text-[#BEBEBE] underline"
-                                        />
-                                        <Input
-                                            id={`creator-share-${index}`}
-                                            type="text"
-                                            placeholder="Share"
-                                            className="archivo-input flex-[3] text-xl text-[#BEBEBE] underline"
-                                        />
-                                        <div className="flex flex-col gap-2">
-                                            <button
-                                                id={`remove-creator-${index}`}
-                                                type="button"
-                                                onClick={() => {
-                                                    if (creators.length > 1) {
-                                                        removeCreator(index);
-                                                    }
-                                                }}
-                                                className={`cursor-pointer archivo-input border-[0.5px] border-[#888888] rounded-xl bg-[#6D6477] text-[20px] font-new-black px-4 py-[10px] text-white flex items-center justify-center gap-2 transition-colors ${creators.length === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#4F455A] active:bg-[#463C51]'}`}
-                                                disabled={creators.length === 1}
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14"
-                                                     height="24" width="24">
-                                                    <path fill="#ffffff" fillRule="evenodd"
-                                                          d="M1.83645 1.83645C3.06046 0.612432 4.82797 0 7 0s3.9395 0.612432 5.1636 1.83645C13.3876 3.06046 14 4.82797 14 7s-0.6124 3.9395 -1.8364 5.1636C10.9395 13.3876 9.17203 14 7 14s-3.93954 -0.6124 -5.16355 -1.8364C0.612432 10.9395 0 9.17203 0 7s0.612432 -3.93954 1.83645 -5.16355ZM10.5625 7c0 0.34518 -0.2798 0.625 -0.625 0.625h-5.875c-0.34518 0 -0.625 -0.27982 -0.625 -0.625s0.27982 -0.625 0.625 -0.625h5.875c0.3452 0 0.625 0.27982 0.625 0.625Z"
-                                                          clipRule="evenodd" strokeWidth="1"></path>
-                                                </svg>
-                                            </button>
-
-                                            {index === creators.length - 1 && (
-                                                <button
-                                                    id="add-creator"
-                                                    type="button"
-                                                    onClick={addCreator}
-                                                    className="cursor-pointer archivo-input border-[0.5px] border-[#888888] rounded-xl bg-[#6D6477] text-[20px] font-new-black px-4 py-[10px] text-white flex items-center justify-center gap-2 transition-colors hover:bg-[#4F455A] active:bg-[#463C51]"
-                                                >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                         viewBox="0 0 24 24" height="24" width="24">
-                                                        <path fill="#ffffff" fillRule="evenodd"
-                                                              d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0Zm-0.05 5.6a0.75 0.75 0 0 1 0.75 0.75v4.85h4.85a0.75 0.75 0 0 1 0 1.5H12.7v4.95a0.75 0.75 0 1 1-1.5 0V12.7H6.35a0.75 0.75 0 0 1 0-1.5h4.85V6.35a0.75 0.75 0 0 1 0.75-0.75Z"
-                                                              clipRule="evenodd" strokeWidth="1"></path>
-                                                    </svg>
-                                                </button>
-                                            )}
-                                        </div>
-                                    </motion.div>
-                                </AnimatePresence>
-                            ))}
-
-                            <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">
-                                The creators fields are used to define who created the NFT and who should recieve
-                                royalties from secondary sales. The share field is a percentage of the sale price that
-                                the creator recieves. The total share of all creators must equal 100% across all
-                                creators.
-                            </p>
+                        <div className="flex items-center mt-4 space-x-2 archivo-label">
+                            <Checkbox
+                                id="terms"
+                                checked={enforceRoyalties}
+                                onCheckedChange={(checked) => {
+                                    // @ts-ignore
+                                    setEnforceRoyalties(checked);
+                                }}
+                            />
+                            <label
+                                htmlFor="terms"
+                                className="text-xl archivo-label leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                                Enforce Royalties
+                            </label>
                         </div>
+                        <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE] mx-6">
+                            Enable to create royalty enforced pNFTs.
+                        </p>
+                        <AnimatePresence>
+                            {enforceRoyalties && (
+                                <motion.div
+                                    initial={{opacity: 0, height: 0, filter: 'blur(10px)'}}
+                                    animate={{opacity: 1, height: 'auto', filter: 'blur(0px)'}}
+                                    exit={{opacity: 0, height: 0, filter: 'blur(10px)'}}
+                                    transition={{duration: 0.5}}
+                                >
+                                    <Label htmlFor="sellFee" className="text-[20px] archivo-label">
+                                        Sell Fee Basis Points
+                                    </Label>
+                                    <Input id="sellFee" type="text" className="archivo-label"/>
+                                    <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">
+                                        The percentage of the sale price that the original receives. Each percent is
+                                        represented by 100 points. 10% = 1000 points.
+                                    </p>
+
+
+                                    <div>
+                                        <Label htmlFor="creators" className="text-[20px] archivo-label">
+                                            Creators
+                                        </Label>
+
+                                        {creators.map((creator, index) => (
+                                            <AnimatePresence key={creator.id}>
+                                                <motion.div
+                                                    initial={{opacity: 0, filter: "blur(10px)"}}
+                                                    animate={{opacity: 1, filter: "blur(0)"}}
+                                                    exit={{
+                                                        opacity: 0,
+                                                        filter: "blur(10px)",
+                                                        transition: {duration: 0.5},
+                                                    }}
+                                                    className="flex gap-2 mt-1"
+                                                >
+                                                    <Input
+                                                        id={`creator-address-${index}`}
+                                                        type="text"
+                                                        placeholder="Address"
+                                                        className="archivo-input flex-[3] text-xl text-[#BEBEBE] underline"
+                                                    />
+                                                    <Input
+                                                        id={`creator-share-${index}`}
+                                                        type="text"
+                                                        placeholder="Share"
+                                                        className="archivo-input flex-[3] text-xl text-[#BEBEBE] underline"
+                                                    />
+                                                    <div className="flex flex-col gap-2">
+                                                        <button
+                                                            id={`remove-creator-${index}`}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                if (creators.length > 1) {
+                                                                    removeCreator(index);
+                                                                }
+                                                            }}
+                                                            className={`cursor-pointer archivo-input border-[0.5px] border-[#888888] rounded-xl bg-[#6D6477] text-[20px] font-new-black px-4 py-[10px] text-white flex items-center justify-center gap-2 transition-colors ${creators.length === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#4F455A] active:bg-[#463C51]'}`}
+                                                            disabled={creators.length === 1}
+                                                        >
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                 viewBox="0 0 14 14"
+                                                                 height="24" width="24">
+                                                                <path fill="#ffffff" fillRule="evenodd"
+                                                                      d="M1.83645 1.83645C3.06046 0.612432 4.82797 0 7 0s3.9395 0.612432 5.1636 1.83645C13.3876 3.06046 14 4.82797 14 7s-0.6124 3.9395 -1.8364 5.1636C10.9395 13.3876 9.17203 14 7 14s-3.93954 -0.6124 -5.16355 -1.8364C0.612432 10.9395 0 9.17203 0 7s0.612432 -3.93954 1.83645 -5.16355ZM10.5625 7c0 0.34518 -0.2798 0.625 -0.625 0.625h-5.875c-0.34518 0 -0.625 -0.27982 -0.625 -0.625s0.27982 -0.625 0.625 -0.625h5.875c0.3452 0 0.625 0.27982 0.625 0.625Z"
+                                                                      clipRule="evenodd" strokeWidth="1"></path>
+                                                            </svg>
+                                                        </button>
+
+                                                        {index === creators.length - 1 && (
+                                                            <button
+                                                                id="add-creator"
+                                                                type="button"
+                                                                onClick={addCreator}
+                                                                className="cursor-pointer archivo-input border-[0.5px] border-[#888888] rounded-xl bg-[#6D6477] text-[20px] font-new-black px-4 py-[10px] text-white flex items-center justify-center gap-2 transition-colors hover:bg-[#4F455A] active:bg-[#463C51]"
+                                                            >
+                                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                     viewBox="0 0 24 24" height="24" width="24">
+                                                                    <path fill="#ffffff" fillRule="evenodd"
+                                                                          d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0Zm-0.05 5.6a0.75 0.75 0 0 1 0.75 0.75v4.85h4.85a0.75 0.75 0 0 1 0 1.5H12.7v4.95a0.75 0.75 0 1 1-1.5 0V12.7H6.35a0.75 0.75 0 0 1 0-1.5h4.85V6.35a0.75 0.75 0 0 1 0.75-0.75Z"
+                                                                          clipRule="evenodd" strokeWidth="1"></path>
+                                                                </svg>
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </motion.div>
+                                            </AnimatePresence>
+                                        ))}
+
+                                        <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">
+                                            The creators fields are used to define who created the NFT and who should
+                                            recieve
+                                            royalties from secondary sales. The share field is a percentage of the sale
+                                            price that
+                                            the creator recieves. The total share of all creators must equal 100% across
+                                            all
+                                            creators.
+                                        </p>
+                                    </div>
+
+
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
 
                     </motion.div>
+
+
                     <motion.div initial={{opacity: 0, filter: "blur(10px)"}}
                                 animate={{opacity: 1, filter: "blur(0)"}}
                                 exit={{
@@ -527,18 +553,25 @@ export default function CreateNFT() {
                                 className="border-t-[0.5px] mt-5 pt-4 border-[#888888] flex justify-between items-center">
                         <div className="mx-8 text-[25px] font-archivo font-[900] archivo-heading"></div>
                         <div className="mr-10 flex justify-center">
-                                <button
-                                    className={`flex items-center gap-2 cursor-pointer border-[0.5px] border-[#888888] rounded-xl bg-[#6D6477] text-[17px] font-new-black px-4 py-2 text-white
-        transition-colors hover:bg-[#4F455A] active:bg-[#463C51]`}>
-                                    Create NFT
-                                </button>
+                            <button
+                                onClick={handleCreateNFT}
+                                className="flex items-center gap-2 cursor-pointer border-[0.5px] border-[#888888] rounded-xl bg-[#6D6477] text-[17px] font-new-black px-4 py-2 text-white transition-colors hover:bg-[#4F455A] active:bg-[#463C51]"
+                            >
+                                Create NFT
+                            </button>
                         </div>
+
+
+
+
+
                     </motion.div>
 
                 </div>
                 <div className="hidden md:block col-span-1">
                     <NFTCard
                         image={uploadedImage}
+                        video={uploadedVideo} // Pass the uploaded video
                         name={name}
                         description={description}
                         website={website}
@@ -546,6 +579,5 @@ export default function CreateNFT() {
                 </div>
             </div>
         </motion.div>
-    )
-        ;
+    );
 }
