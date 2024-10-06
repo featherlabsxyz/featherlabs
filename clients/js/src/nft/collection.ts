@@ -27,7 +27,7 @@ export async function createCollectionTx(
   imageUri: string,
   mutable: boolean,
   nftAttributes: NftAttributes
-): Promise<VersionedTransaction> {
+): Promise<{ transaction: VersionedTransaction; groupAddress: PublicKey; groupDataAddress: PublicKey | null }> {
   const attributesArray = Object.entries(nftAttributes).map(([key, value]) => ({
     key,
     value,
