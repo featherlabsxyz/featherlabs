@@ -1,51 +1,55 @@
 #![cfg(feature = "test-sbf")]
-
-mod setup;
-use anchor_lang::{AnchorDeserialize, InstructionData, ToAccountMetas};
+use anchor_lang::prelude::*;
+use anchor_lang::InstructionData;
 use feather_assets::{
     accounts::{CreateGroup as CreateGroupAcc, CreateMemberAsset as CreateMemberAssetAcc},
-    constants::GROUP_DATA_SEED,
     instruction::{CreateGroup as CreateGroupIx, CreateMemberAsset as CreateMemberAssetIx},
     state::{CreateAssetArgsV1, CreateGroupArgsV1, GroupMetadataArgsV1},
-    AssetMetadataArgsV1, GroupDataV1, GroupV1, LightRootParams, ASSET_DATA_SEED,
+    AssetMetadataArgsV1, GroupDataV1, GroupV1, LightRootParams,
 };
 use light_client::indexer::Indexer;
 use light_sdk::{
-    address::{derive_address, derive_address_seed},
     event::PublicTransactionEvent,
-    merkle_context::{pack_address_merkle_context, pack_merkle_context, RemainingAccounts},
+    merkle_context::{
+        pack_address_merkle_context, pack_merkle_context, MerkleContext, RemainingAccounts,
+    },
     verify::find_cpi_signer,
     PROGRAM_ID_ACCOUNT_COMPRESSION, PROGRAM_ID_LIGHT_SYSTEM,
 };
 use light_test_utils::{test_env::NOOP_PROGRAM_ID, RpcConnection};
+mod setup;
 use setup::*;
 use solana_sdk::{
     instruction::Instruction, pubkey::Pubkey, signer::Signer, system_program::ID as SYSTEM_PROGRAM,
 };
 #[tokio::test]
 async fn create_group() {
-    let (
+    let TestSetup {
         payer,
         mut rpc,
         env,
         mut test_indexer,
-        mut remaining_accounts,
         address_merkle_context,
-        merkle_context,
         account_compression_authority,
         registered_program_pda,
-    ) = setup_rpc_indexer().await;
+    } = setup_rpc_indexer().await;
+    let merkle_context = MerkleContext {
+        merkle_tree_pubkey: env.merkle_tree_pubkey,
+        nullifier_queue_pubkey: env.nullifier_queue_pubkey,
+        leaf_index: 0,
+        queue_index: None,
+    };
+    let mut remaining_accounts = RemainingAccounts::default();
     let packed_merkle_context = pack_merkle_context(merkle_context, &mut remaining_accounts);
     let packed_address_merkle_context =
         pack_address_merkle_context(address_merkle_context, &mut remaining_accounts);
-    let derivation_key: Pubkey = Pubkey::new_unique();
-    let group_address_seed =
-        derive_address_seed(&[derivation_key.to_bytes().as_ref()], &PROGRAM_ID);
-    let group_address = derive_address(&group_address_seed, &address_merkle_context);
-    let group_data_address_seed =
-        derive_address_seed(&[GROUP_DATA_SEED, group_address.as_ref()], &PROGRAM_ID);
-    let group_data_address = derive_address(&group_data_address_seed, &address_merkle_context);
-    let group_address_vec = vec![group_address, group_data_address];
+    let group_derivation_key: Pubkey = Pubkey::new_unique();
+    let GroupAddresses {
+        group_address,
+        group_data_address,
+        ..
+    } = derive_group_addresses(group_derivation_key, &address_merkle_context);
+    let group_address_vec = vec![group_address.to_bytes(), group_data_address.to_bytes()];
 
     let rpc_result = test_indexer
         .create_proof_for_compressed_accounts(
@@ -77,7 +81,7 @@ async fn create_group() {
             merkle_context: packed_merkle_context,
             proof: rpc_result.proof,
         },
-        derivation_key,
+        derivation_key: group_derivation_key,
     };
     let accounts = CreateGroupAcc {
         authority: payer.pubkey(),
@@ -132,7 +136,7 @@ async fn create_group() {
         .clone();
     let g = GroupV1::deserialize(&mut &group[..]).unwrap();
     let gd = GroupDataV1::deserialize(&mut &group_data[..]).unwrap();
-    assert_eq!(g.derivation_key, derivation_key);
+    assert_eq!(g.derivation_key, group_derivation_key);
     assert_eq!(gd.name, "Group 1".to_string());
     let hash = group_cad.hash().unwrap();
     let merkle_tree_pubkey = group_cad.merkle_context.merkle_tree_pubkey;
@@ -141,13 +145,12 @@ async fn create_group() {
         pack_address_merkle_context(address_merkle_context, &mut remaining_accounts);
     let merkle_context = pack_merkle_context(group_cad.merkle_context, &mut remaining_accounts);
     let asset_derivation_key: Pubkey = Pubkey::new_unique();
-    let asset_address_seed =
-        derive_address_seed(&[derivation_key.to_bytes().as_ref()], &PROGRAM_ID);
-    let asset_address = derive_address(&asset_address_seed, &address_merkle_context);
-    let asset_data_address_seed =
-        derive_address_seed(&[ASSET_DATA_SEED, asset_address.as_ref()], &PROGRAM_ID);
-    let asset_data_address = derive_address(&asset_data_address_seed, &address_merkle_context);
-    let asset_address_vec = vec![asset_address, asset_data_address];
+    let AssetAddresses {
+        asset_address,
+        asset_data_address,
+        ..
+    } = derive_asset_addresses(asset_derivation_key, &address_merkle_context);
+    let asset_address_vec = vec![asset_address.to_bytes(), asset_data_address.to_bytes()];
 
     let rpc_result = test_indexer
         .create_proof_for_compressed_accounts(
@@ -173,7 +176,7 @@ async fn create_group() {
             transferrable: true,
             royalties_initializable: true,
         },
-        group_derivation_key: derivation_key,
+        group_derivation_key,
         asset_derivation_key,
         lrp: LightRootParams {
             inputs: vec![group],
