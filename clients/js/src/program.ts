@@ -347,6 +347,30 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
     if (assetAuthority.toBase58() != asset.owner.toBase58()) {
       throw new Error("Invalid Asset Authority Public Key");
     }
+    const proof = await this.getValidityProof(
+      rpc,
+      [bn(assetAccount.hash)],
+      [royaltyAddress]
+    );
+    const newAddressesParam = this.getNewAddressParams(royaltySeed, proof);
+    const outputCompressedAccounts = [];
+    outputCompressedAccounts.push(
+      ...this.createNewAddressOutputState(assetAddress)
+    );
+    outputCompressedAccounts.push(
+      ...this.createNewAddressOutputState(royaltyAddress)
+    );
+
+    const {} = this.packWithInput(
+      [assetAccount],
+      outputCompressedAccounts,
+      newAddressesParams,
+      proof
+    );
+    const ix =
+      await FeatherAssetsProgram.getInstance().program.methods.addRoyaltiesToAsset(
+        {}
+      );
   }
   // ASSET UTILS <--------------------------------------------------------------------->
   static deriveAssetSeed(derivationKey: PublicKey): Uint8Array {
