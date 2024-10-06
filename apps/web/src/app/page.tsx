@@ -13,6 +13,8 @@ import {useWallet} from "@solana/wallet-adapter-react";
 import {createNftTx} from "@featherlabs/feather-assets/src/nft";
 import {Rpc} from "@lightprotocol/stateless.js";
 
+export const dynamic = 'force-dynamic'
+
 export default function CreateNFT() {
     const {publicKey, signTransaction} = useWallet();
     const [enforceRoyalties, setEnforceRoyalties] = useState(false);
@@ -203,19 +205,30 @@ export default function CreateNFT() {
                                 className="archivo-input flex-[3] text-xl text-[#BEBEBE] underline"
                             />
                             <div className="flex gap-2 mt-1">
-                                <Input
-                                    id="file-input"
-                                    type="text"
-                                    disabled={true}
-                                    value={uploadedImage ? 'Image uploaded'}
-                                    placeholder="File name, chosen by user"
-                                    className="archivo-input flex-[3] text-xl text-[#BEBEBE] underline"
-                                />
                                 <div>
                                     <label htmlFor="file-upload" className="cursor-pointer">
                                         <div
                                             className="archivo-input border-[0.5px] border-[#888888] rounded-xl bg-[#6D6477] text-[20px] font-new-black px-4 py-[10px] text-white flex items-center justify-center gap-2 transition-colors hover:bg-[#4F455A] active:bg-[#463C51]">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                id="Plus-Math-Symbol-Circle--Streamline-Ultimate"
+                                                height="24"
+                                                width="24"
+                                            >
+                                                <desc>Plus Math Symbol Circle Streamline Icon</desc>
+                                                <path
+                                                    fill="#ffffff"
+                                                    fillRule="evenodd"
+                                                    d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0Zm-0.05 5.6a0.75 0.75 0 0 1 0.75 0.75v4.85h4.85a0.75 0.75 0 0 1 0 1.5H12.7v4.95a0.75 0.75 0 1 1-1.5 0V12.7H6.35a0.75 0.75 0 0 1 0-1.5h4.85V6.35a0.75 0.75 0 0 1 0.75-0.75Z"
+                                                    clipRule="evenodd"
+                                                    strokeWidth="1"
+                                                ></path>
+                                            </svg>
                                             Choose File
+
+
                                         </div>
                                     </label>
                                     <input
@@ -562,16 +575,12 @@ export default function CreateNFT() {
                         </div>
 
 
-
-
-
                     </motion.div>
 
                 </div>
                 <div className="hidden md:block col-span-1">
                     <NFTCard
                         image={uploadedImage}
-                        video={uploadedVideo} // Pass the uploaded video
                         name={name}
                         description={description}
                         website={website}

@@ -7,6 +7,8 @@ import NFTCard from "../../../components/NFTCard";
 import {useState} from "react";
 import {motion} from "framer-motion";
 
+export const dynamic = 'force-dynamic'
+
 export default function CreateCollectionNFT() {
     const [uploadedImage, setUploadedImage] = useState(null);
     const [imageName, setImageName] = useState("");
