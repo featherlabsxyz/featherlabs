@@ -9,7 +9,6 @@ import Link from "next/link";
 import {useState} from "react";
 import {AnimatePresence, motion} from "framer-motion";
 
-
 export default function CreateNFT() {
     const [enforceRoyalties, setEnforceRoyalties] = useState(false);
     const [uploadedImage, setUploadedImage] = useState(null);
@@ -20,7 +19,15 @@ export default function CreateNFT() {
         ""
     );
     const [website, setWebsite] = useState("");
+    const [creators, setCreators] = useState([{id: 1}]);
 
+    const addCreator = () => {
+        setCreators([...creators, {id: Date.now()}]);
+    };
+
+    const removeCreator = (indexToRemove: number) => {
+        setCreators((prevCreators) => prevCreators.filter((_, index) => index !== indexToRemove));
+    };
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
         if (files && files.length > 0) {
@@ -46,19 +53,59 @@ export default function CreateNFT() {
     const removeInputs = (indexToRemove: number) => {
         setInputs((prevInputs) => prevInputs.filter((_, index) => index !== indexToRemove));
     };
+
+    // const handleCreateNFT = async () => {
+    //     const nftData = {
+    //       authority: "",
+    //       name,
+    //       imageUri: uploadedImage,
+    //       mutable: true,
+    //       transferrable: true,
+    //       rentable: false,
+    //       nftAttributes: {
+    //         symbol: "SYMBOL",
+    //         description,
+    //         website,
+    //         animationUrl: "",
+    //       },
+    //       collection: "",
+    //       enforceRoyalties: enforceRoyalties ? {
+    //       } : undefined,
+    //     };
+    //
+    //     try {
+    //       const response = await fetch('/api/create-nft', {
+    //         method: 'POST',
+    //         headers: {
+    //           'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify(nftData),
+    //       });
+    //
+    //       if (!response.ok) {
+    //         throw new Error('Failed to create NFT');
+    //       }
+    //
+    //       const data = await response.json();
+    //       console.log('NFT transaction created:', data.transaction);
+    //     } catch (error) {
+    //       console.error('Error creating NFT:', error);
+    //     }
+    //   };
+
     // @ts-ignore
     return (
-        <motion.div  initial={{opacity: 0, filter: "blur(10px)"}}
-                     animate={{opacity: 1, filter: "blur(0)"}}
-                     exit={{
-                         opacity: 0,
-                         filter: "blur(10px)",
-                         transition: {duration: 0.5},
-                     }}
-                     className="container mx-auto px-40 mb-20">
+        <motion.div initial={{opacity: 0, filter: "blur(10px)"}}
+                    animate={{opacity: 1, filter: "blur(0)"}}
+                    exit={{
+                        opacity: 0,
+                        filter: "blur(10px)",
+                        transition: {duration: 0.5},
+                    }}
+                    className="container mx-auto px-40 mb-20">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-20">
                 <div
-                    className="col-span-1 md:col-span-2 h-full pb-10 mx-4 drop-shadow-2xl mt-8 bg-[#5A5465] font-new-black rounded-2xl text-5xl">
+                    className="col-span-1 md:col-span-2 h-full mx-4 drop-shadow-2xl mt-8 bg-[#5A5465] font-new-black rounded-2xl text-5xl">
                     <motion.div initial={{opacity: 0, filter: "blur(10px)"}}
                                 animate={{opacity: 1, filter: "blur(0)"}}
                                 exit={{
@@ -70,8 +117,16 @@ export default function CreateNFT() {
                         <div className="mr-10 flex justify-center">
                             <Link href="/create-collection-nft" className="flex justify-center">
                                 <button
-                                    className={`cursor-pointer border-[0.5px] border-[#888888] rounded-xl bg-[#6D6477] text-[17px] font-new-black px-4 py-2 text-white
+                                    className={`cursor-pointer flex items-center gap-2 border-[0.5px] border-[#888888] rounded-xl bg-[#6D6477] text-[17px] font-new-black px-4 py-2 text-white
                             transition-colors hover:bg-[#4F455A] active:bg-[#463C51]`}>Collection NFT
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
+                                         id="Arrow-Right-1--Streamline-Ultimate" height="20" width="20 ">
+                                        <desc>Arrow Right 1 Streamline Icon: https://streamlinehq.com</desc>
+                                        <path
+                                            d="M6.6395 0.975L17.1451 11.4806C17.4323 11.7673 17.4323 12.2327 17.1451 12.5194L6.6395 23.025"
+                                            fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round"
+                                            stroke-width="1.5"></path>
+                                    </svg>
                                 </button>
                             </Link>
                         </div>
@@ -147,6 +202,7 @@ export default function CreateNFT() {
                                         collection NFT yet it would be recommended to create one first by selecting
                                         collection as the NFT type as the first question.
                                     </p>
+
                                 </motion.div>
                             )}
                         </AnimatePresence>
@@ -217,32 +273,36 @@ export default function CreateNFT() {
                                 className="archivo-input flex-[3] text-xl text-[#BEBEBE] underline"
                             />
                             <div>
-                                <button
-                                    id="image-button"
-                                    type="button"
-                                    value="Choose File"
-                                    className="cursor-pointer archivo-input border-[0.5px] border-[#888888] rounded-xl bg-[#6D6477] text-[20px] font-new-black px-4 py-[10px] text-white flex items-center justify-center gap-2
-    transition-colors hover:bg-[#4F455A] active:bg-[#463C51]"
-                                >
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        id="Plus-Math-Symbol-Circle--Streamline-Ultimate"
-                                        height="24"
-                                        width="24"
-                                    >
-                                        <desc>Plus Math Symbol Circle Streamline Icon</desc>
-                                        <path
-                                            fill="#ffffff"
-                                            fill-rule="evenodd"
-                                            d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0Zm-0.05 5.6a0.75 0.75 0 0 1 0.75 0.75v4.85h4.85a0.75 0.75 0 0 1 0 1.5H12.7v4.95a0.75 0.75 0 1 1-1.5 0V12.7H6.35a0.75 0.75 0 0 1 0-1.5h4.85V6.35a0.75 0.75 0 0 1 0.75-0.75Z"
-                                            clip-rule="evenodd"
-                                            stroke-width="1"
-                                        ></path>
-                                    </svg>
-                                    Choose File
-                                </button>
+                                <label htmlFor="file-upload" className="cursor-pointer">
+                                    <div
+                                        className="archivo-input border-[0.5px] border-[#888888] rounded-xl bg-[#6D6477] text-[20px] font-new-black px-4 py-[10px] text-white flex items-center justify-center gap-2 transition-colors hover:bg-[#4F455A] active:bg-[#463C51]">
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            id="Plus-Math-Symbol-Circle--Streamline-Ultimate"
+                                            height="24"
+                                            width="24"
+                                        >
+                                            <desc>Plus Math Symbol Circle Streamline Icon</desc>
+                                            <path
+                                                fill="#ffffff"
+                                                fillRule="evenodd"
+                                                d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0Zm-0.05 5.6a0.75 0.75 0 0 1 0.75 0.75v4.85h4.85a0.75 0.75 0 0 1 0 1.5H12.7v4.95a0.75 0.75 0 1 1-1.5 0V12.7H6.35a0.75 0.75 0 0 1 0-1.5h4.85V6.35a0.75 0.75 0 0 1 0.75-0.75Z"
+                                                clipRule="evenodd"
+                                                strokeWidth="1"
+                                            ></path>
+                                        </svg>
+                                        Choose File
+                                    </div>
+                                </label>
+                                <input
+                                    id="file-upload"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                    className="hidden"
+                                />
                             </div>
                         </div>
                         <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">
@@ -379,17 +439,102 @@ export default function CreateNFT() {
                         </div>
 
 
-                        <Label htmlFor="website" className="text-[20px] archivo-label">
-                            Collection
-                        </Label>
-                        <Input id="website" type="text" className="archivo-label"/>
-                        <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">The collection address that
-                            your
-                            NFT will be added to. If you haven&apos;t created a collection NFT yet it would be
-                            recommended to
-                            create one first by selecting collection as the NFT type as the first question.</p>
+                        <div>
+                            <Label htmlFor="creators" className="text-[20px] archivo-label">
+                                Creators
+                            </Label>
+
+                            {creators.map((creator, index) => (
+                                <AnimatePresence key={creator.id}>
+                                    <motion.div
+                                        initial={{opacity: 0, filter: "blur(10px)"}}
+                                        animate={{opacity: 1, filter: "blur(0)"}}
+                                        exit={{
+                                            opacity: 0,
+                                            filter: "blur(10px)",
+                                            transition: {duration: 0.5},
+                                        }}
+                                        className="flex gap-2 mt-1"
+                                    >
+                                        <Input
+                                            id={`creator-address-${index}`}
+                                            type="text"
+                                            placeholder="Address"
+                                            className="archivo-input flex-[3] text-xl text-[#BEBEBE] underline"
+                                        />
+                                        <Input
+                                            id={`creator-share-${index}`}
+                                            type="text"
+                                            placeholder="Share"
+                                            className="archivo-input flex-[3] text-xl text-[#BEBEBE] underline"
+                                        />
+                                        <div className="flex flex-col gap-2">
+                                            <button
+                                                id={`remove-creator-${index}`}
+                                                type="button"
+                                                onClick={() => {
+                                                    if (creators.length > 1) {
+                                                        removeCreator(index);
+                                                    }
+                                                }}
+                                                className={`cursor-pointer archivo-input border-[0.5px] border-[#888888] rounded-xl bg-[#6D6477] text-[20px] font-new-black px-4 py-[10px] text-white flex items-center justify-center gap-2 transition-colors ${creators.length === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#4F455A] active:bg-[#463C51]'}`}
+                                                disabled={creators.length === 1}
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14"
+                                                     height="24" width="24">
+                                                    <path fill="#ffffff" fillRule="evenodd"
+                                                          d="M1.83645 1.83645C3.06046 0.612432 4.82797 0 7 0s3.9395 0.612432 5.1636 1.83645C13.3876 3.06046 14 4.82797 14 7s-0.6124 3.9395 -1.8364 5.1636C10.9395 13.3876 9.17203 14 7 14s-3.93954 -0.6124 -5.16355 -1.8364C0.612432 10.9395 0 9.17203 0 7s0.612432 -3.93954 1.83645 -5.16355ZM10.5625 7c0 0.34518 -0.2798 0.625 -0.625 0.625h-5.875c-0.34518 0 -0.625 -0.27982 -0.625 -0.625s0.27982 -0.625 0.625 -0.625h5.875c0.3452 0 0.625 0.27982 0.625 0.625Z"
+                                                          clipRule="evenodd" strokeWidth="1"></path>
+                                                </svg>
+                                            </button>
+
+                                            {index === creators.length - 1 && (
+                                                <button
+                                                    id="add-creator"
+                                                    type="button"
+                                                    onClick={addCreator}
+                                                    className="cursor-pointer archivo-input border-[0.5px] border-[#888888] rounded-xl bg-[#6D6477] text-[20px] font-new-black px-4 py-[10px] text-white flex items-center justify-center gap-2 transition-colors hover:bg-[#4F455A] active:bg-[#463C51]"
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                         viewBox="0 0 24 24" height="24" width="24">
+                                                        <path fill="#ffffff" fillRule="evenodd"
+                                                              d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0Zm-0.05 5.6a0.75 0.75 0 0 1 0.75 0.75v4.85h4.85a0.75 0.75 0 0 1 0 1.5H12.7v4.95a0.75 0.75 0 1 1-1.5 0V12.7H6.35a0.75 0.75 0 0 1 0-1.5h4.85V6.35a0.75 0.75 0 0 1 0.75-0.75Z"
+                                                              clipRule="evenodd" strokeWidth="1"></path>
+                                                    </svg>
+                                                </button>
+                                            )}
+                                        </div>
+                                    </motion.div>
+                                </AnimatePresence>
+                            ))}
+
+                            <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">
+                                The creators fields are used to define who created the NFT and who should recieve
+                                royalties from secondary sales. The share field is a percentage of the sale price that
+                                the creator recieves. The total share of all creators must equal 100% across all
+                                creators.
+                            </p>
+                        </div>
 
                     </motion.div>
+                    <motion.div initial={{opacity: 0, filter: "blur(10px)"}}
+                                animate={{opacity: 1, filter: "blur(0)"}}
+                                exit={{
+                                    opacity: 0,
+                                    filter: "blur(10px)",
+                                    transition: {duration: 0.5},
+                                }}
+                                className="border-t-[0.5px] mt-5 pt-4 border-[#888888] flex justify-between items-center">
+                        <div className="mx-8 text-[25px] font-archivo font-[900] archivo-heading"></div>
+                        <div className="mr-10 flex justify-center">
+                                <button
+                                    className={`flex items-center gap-2 cursor-pointer border-[0.5px] border-[#888888] rounded-xl bg-[#6D6477] text-[17px] font-new-black px-4 py-2 text-white
+        transition-colors hover:bg-[#4F455A] active:bg-[#463C51]`}>
+                                    Create NFT
+                                </button>
+                        </div>
+                    </motion.div>
+
                 </div>
                 <div className="hidden md:block col-span-1">
                     <NFTCard
