@@ -26,10 +26,17 @@ pub fn handler<'info>(
         asset_address,
     };
     ctx.check_constraints(&inputs)?;
-    ctx.derive_address_seeds(lrp.address_merkle_context, &inputs);
-    let asset_data = &mut ctx.light_accounts.asset_data;
+    // ctx.derive_address_seeds(lrp.address_merkle_context, &inputs);
     let asset = &mut ctx.light_accounts.asset;
-
+    asset.set_address_seed(derive_address_seed(
+        &[asset_derivation_key.to_bytes().as_ref()],
+        &crate::ID,
+    ));
+    let asset_data = &mut ctx.light_accounts.asset_data;
+    asset_data.set_address_seed(derive_address_seed(
+        &[ASSET_DATA_SEED, asset_address.to_bytes().as_ref()],
+        &crate::ID,
+    ));
     if asset.has_metadata {
         return Err(FeatherErrorCode::MetadataAccountExistAlready.into());
     }

@@ -30,6 +30,7 @@ import {
   CreateAssetArgsV1,
   CreateGroupArgsV1,
   GroupV1,
+  RoyaltyArgsV1,
 } from "./types";
 import {
   ASSET_DATA_SEED,
@@ -323,7 +324,8 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
   static async addRoyalties(
     rpc: Rpc,
     assetAddress: PublicKey,
-    assetAuthority: PublicKey
+    assetAuthority: PublicKey,
+    args: RoyaltyArgsV1
   ) {
     const assetAccountPromise = rpc.getCompressedAccount(
       bn(assetAddress.toBytes())
@@ -352,7 +354,7 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       [bn(assetAccount.hash)],
       [royaltyAddress]
     );
-    const newAddressesParam = this.getNewAddressParams(royaltySeed, proof);
+    const newAddressesParams = [this.getNewAddressParams(royaltySeed, proof)];
     const outputCompressedAccounts = [];
     outputCompressedAccounts.push(
       ...this.createNewAddressOutputState(assetAddress)
@@ -361,16 +363,40 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
       ...this.createNewAddressOutputState(royaltyAddress)
     );
 
-    const {} = this.packWithInput(
+    const {
+      addressMerkleContext,
+      addressMerkleTreeRootIndex,
+      merkleContext,
+      remainingAccounts,
+    } = this.packWithInput(
       [assetAccount],
       outputCompressedAccounts,
       newAddressesParams,
       proof
     );
-    const ix =
-      await FeatherAssetsProgram.getInstance().program.methods.addRoyaltiesToAsset(
-        {}
-      );
+    const ix = await FeatherAssetsProgram.getInstance()
+      .program.methods.addRoyaltiesToAsset(
+        {
+          addressMerkleContext,
+          addressMerkleTreeRootIndex,
+          inputs: [assetAccount.data.data],
+          merkleContext,
+          merkleTreeRootIndex: proof.rootIndices[0],
+          proof: proof.compressedProof,
+        },
+        asset.derivationKey,
+        args
+      )
+      .accounts({
+        authority: assetAuthority,
+        ...this.lightAccounts(),
+      })
+      .remainingAccounts(toAccountMetas(remainingAccounts))
+      .instruction();
+    return {
+      instruction: ix,
+      royaltyAddress,
+    };
   }
   // ASSET UTILS <--------------------------------------------------------------------->
   static deriveAssetSeed(derivationKey: PublicKey): Uint8Array {

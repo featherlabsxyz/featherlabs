@@ -3,6 +3,7 @@ import { PublicKey, SendTransactionError } from "@solana/web3.js";
 import { createRpc, Rpc, sendAndConfirmTx } from "@lightprotocol/stateless.js";
 import { keccak_256 } from "@noble/hashes/sha3";
 import {
+  addRoyaltyToAsset,
   createGroupTx,
   createMemberAssetTx,
 } from "@featherlabs/feather-assets/src/core";
@@ -15,6 +16,7 @@ describe("feather_assets", () => {
   });
 
   let ga: PublicKey;
+  let aa: PublicKey;
   it("Create Group", async () => {
     const {
       groupAddress,
@@ -55,6 +57,34 @@ describe("feather_assets", () => {
             uri: "a",
           }
         );
+      transaction.sign([wallet.payer]);
+      const sig = await sendAndConfirmTx(rpc, transaction, {
+        commitment: "confirmed",
+      });
+      let log = await rpc.getTransaction(sig, {
+        commitment: "confirmed",
+        maxSupportedTransactionVersion: 0,
+      });
+      console.log("Your transaction signature", sig);
+      console.log(log.meta.logMessages);
+      aa = assetAddress;
+    } catch (error) {
+      if (error instanceof SendTransactionError) {
+        const logs = await error.getLogs(provider.connection);
+        console.error("Transaction failed. Logs:", logs);
+      } else {
+        console.error("An unexpected error occurred:", error);
+      }
+    }
+  });
+  it("Add royalties to asset!", async () => {
+    try {
+      const { royaltyAddress, transaction } = await addRoyaltyToAsset(
+        rpc,
+        aa,
+        wallet.publicKey,
+        { basisPoints: 100, creators: [], ruleset: { none: {} } }
+      );
       transaction.sign([wallet.payer]);
       const sig = await sendAndConfirmTx(rpc, transaction, {
         commitment: "confirmed",

@@ -25,9 +25,17 @@ pub fn handler<'info>(
         asset_address,
     };
     ctx.check_constraints(&inputs)?;
-    ctx.derive_address_seeds(lrp.address_merkle_context, &inputs);
+    // ctx.derive_address_seeds(lrp.address_merkle_context, &inputs);
     let asset = &mut ctx.light_accounts.asset;
+    asset.set_address_seed(derive_address_seed(
+        &[asset_derivation_key.to_bytes().as_ref()],
+        &crate::ID,
+    ));
     let asset_royalty = &mut ctx.light_accounts.asset_royalty;
+    asset_royalty.set_address_seed(derive_address_seed(
+        &[ASSET_ROYALTY_SEED, asset_address.to_bytes().as_ref()],
+        &crate::ID,
+    ));
     if asset.royalty_state != RoyalyState::Unintialized {
         return Err(FeatherErrorCode::RoyaltyAlreadyInitializedOrDisabled.into());
     }

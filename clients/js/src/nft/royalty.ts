@@ -1,1 +1,1 @@
-export { getRoyalty } from "../core";
+export { getRoyalty, addRoyaltyToAsset as addRoyaltyToNft } from "../core";
