@@ -5,7 +5,7 @@ import {Textarea} from "@/components/ui/textarea";
 import Link from "next/link";
 import NFTCard from "../../../components/NFTCard";
 import {useState} from "react";
-
+import {motion} from "framer-motion";
 
 export const dynamic = 'force-dynamic'
 
@@ -46,10 +46,17 @@ export default function CreateCollectionNFT() {
     };
 
     return (
-        <div className="container mx-auto px-40 mb-20">
+        <motion.div initial={{opacity: 0, filter: "blur(10px)"}}
+                    animate={{opacity: 1, filter: "blur(0)"}}
+                    exit={{
+                        opacity: 0,
+                        filter: "blur(10px)",
+                        transition: {duration: 0.5},
+                    }}
+                    className="container mx-auto px-40 mb-20">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-20">
                 <div
-                    className="col-span-1 md:col-span-2 h-full pb-10 mx-4 drop-shadow-2xl bg-[#5A5465] font-new-black rounded-2xl text-5xl">
+                    className="col-span-1 md:col-span-2 h-full pb-10 mt-8 mx-4 drop-shadow-2xl bg-[#5A5465] font-new-black rounded-2xl text-5xl">
                     <div className="border-b-[0.5px] py-4 border-[#888888] flex justify-between items-center">
                         <div className="mx-8 text-[25px] font-archivo font-[900] archivo-heading">Create Collection
                             NFT
@@ -129,7 +136,8 @@ export default function CreateCollectionNFT() {
                             Symbol
                         </Label>
                         <Input id="symbol" type="text" className="archivo-label"/>
-                        <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">A shorthand ticker symbol for your
+                        <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">A shorthand ticker symbol for
+                            your
                             NFT.</p>
 
 
@@ -144,7 +152,8 @@ export default function CreateCollectionNFT() {
                             Website
                         </Label>
                         <Input id="website" type="text" className="archivo-label"/>
-                        <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">A link to a website owned by the
+                        <p className="archivo-label text-[14px] mt-2 text-[#BEBEBE]">A link to a website owned by
+                            the
                             project.</p>
 
                     </div>
@@ -158,6 +167,6 @@ export default function CreateCollectionNFT() {
                     />
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 }
