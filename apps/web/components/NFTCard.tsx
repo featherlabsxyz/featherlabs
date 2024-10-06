@@ -15,7 +15,7 @@ export default function NFTCard({ image, name, description, website }: NFTCardPr
     const [imageLoaded, setImageLoaded] = useState(false);
 
     const SkeletonNoise = () => (
-        <div className="absolute inset-0 w-full h-full bg-[#5A5465] animate-pulse">
+        <div className="absolute inset-0  max-w-[320px] h-full bg-[#5A5465] animate-pulse">
             <div className="w-full h-full relative overflow-hidden">
                 {[...Array(100)].map((_, i) => (
                     <div
