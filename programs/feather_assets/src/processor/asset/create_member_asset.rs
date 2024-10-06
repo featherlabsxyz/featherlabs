@@ -29,14 +29,26 @@ pub fn handler<'info>(
         asset_derivation_key,
     };
     ctx.check_constraints(inputs)?;
-    ctx.derive_address_seeds(lrp.address_merkle_context, inputs);
+    // ctx.derive_address_seeds(lrp.address_merkle_context, inputs);
     let group = &mut ctx.light_accounts.group;
+    group.set_address_seed(derive_address_seed(
+        &[group_derivation_key.to_bytes().as_ref()],
+        &crate::ID,
+    ));
     let asset = &mut ctx.light_accounts.asset;
+    asset.set_address_seed(derive_address_seed(
+        &[asset_derivation_key.to_bytes().as_ref()],
+        &crate::ID,
+    ));
     let asset_address_param = &mut asset.new_address_params().unwrap();
     let mut output_compressed_accounts: Vec<OutputCompressedAccountWithPackedContext> = vec![];
     let mut new_address_params = vec![asset_address_param.clone()];
     let address_merkle_context =
         unpack_address_merkle_context(lrp.address_merkle_context, remaining_accounts);
+    msg!(
+        "asset address seed: {:?}",
+        Pubkey::new_from_array(asset_address_param.seed)
+    );
     let asset_address = Pubkey::new_from_array(derive_address(
         &asset_address_param.seed,
         &address_merkle_context,
