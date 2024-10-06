@@ -1,8 +1,6 @@
-"use client";
-
+import React, {useState, useEffect} from 'react';
 import Image from "next/image";
-import { motion } from "framer-motion";
-import { useState } from "react";
+import {motion, AnimatePresence} from "framer-motion";
 
 interface NFTCardProps {
     image: string | null;
@@ -11,8 +9,47 @@ interface NFTCardProps {
     website: string;
 }
 
-export default function NFTCard({ image, name, description, website }: NFTCardProps) {
+export default function NFTCard({image, name, description, website}: NFTCardProps) {
     const [imageLoaded, setImageLoaded] = useState(false);
+    const [key, setKey] = useState(0);
+
+    useEffect(() => {
+        setImageLoaded(false);
+        setKey(prevKey => prevKey + 1);
+    }, [image]);
+
+    const SkeletonNoise = () => (
+        <div className="absolute inset-0 w-full h-full bg-[#5A5465] animate-pulse">
+            <div className="w-full h-full relative overflow-hidden">
+                {[...Array(100)].map((_, i) => (
+                    <div
+                        key={i}
+                        className="absolute bg-gray-500 rounded-full"
+                        style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                            width: `${Math.random() * 5 + 2}px`,
+                            height: `${Math.random() * 5 + 2}px`,
+                            opacity: Math.random() * 0.5 + 0.2,
+                            animation: `move${i} 3s ease-in-out infinite`,
+                        }}
+                    />
+                ))}
+            </div>
+        </div>
+    );
+    const styles = `
+  ${[...Array(100)].map((_, i) => `
+    @keyframes move${i} {
+      0% { transform: translate(0, 0); }
+      50% { transform: translate(${Math.random() * 10}px, ${Math.random() * 10}px); }
+      100% { transform: translate(0, 0); }
+    }
+  `).join('')}
+`;
+
+    document.head.insertAdjacentHTML("beforeend", `<style>${styles}</style>`);
+
 
     return (
         <div className="w-full sticky top-10 pt-8 mx-auto">
@@ -21,30 +58,41 @@ export default function NFTCard({ image, name, description, website }: NFTCardPr
                     imageLoaded ? "drop-shadow-2xl" : ""
                 }`}
             >
+                <AnimatePresence mode="wait">
+                    {!image && (
+                        <motion.div
+                            key="skeleton"
+                            initial={{opacity: 0}}
+                            animate={{opacity: 1}}
+                            exit={{opacity: 0}}
+                            transition={{duration: 0.5}}
+                        >
+                            <SkeletonNoise/>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
                 {image && (
                     <motion.div
-                        initial={{ opacity: 0, filter: "blur(50px)" }}
-                        animate={{ opacity: 1, filter: "blur(0)" }}
-                        exit={{
-                            opacity: 0,
-                            filter: "blur(10px)",
-                            transition: { duration: 0.5 },
-                        }}
+                        key={`image-${key}`}
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}
+                        exit={{opacity: 0}}
+                        transition={{duration: 0.5}}
                         className="absolute inset-0 w-full h-full"
                     >
                         <Image
                             src={image}
                             alt="Uploaded NFT"
-                            width={590}
-                            height={590}
-                            className="w-full h-full object-cover z-0"
+                            layout="fill"
+                            objectFit="cover"
                             onLoadingComplete={() => setImageLoaded(true)}
                         />
                     </motion.div>
                 )}
-
                 {imageLoaded && (
-                    <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
+                    <div
+                        className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
                 )}
 
                 <div className="absolute bottom-0 z-10 p-4 text-white w-full">
