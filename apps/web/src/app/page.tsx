@@ -49,95 +49,86 @@ export default function CreateNFT() {
     }
 
     // @ts-ignore
-    // @ts-ignore
     toast.promise(
-      async () => {
-        const image: string | null = imageUri;
-        const rpc: Rpc = createRpc(endpoint, endpoint, endpoint, {
-          commitment: "confirmed",
-        });
-        let transaction: VersionedTransaction;
-        let assetAddress: PublicKey;
-        console.log(image);
-        if (!name || !image || name.length === 0 || image.length === 0) {
-          throw new Error("Name and Image can't be empty");
-        }
-        if (collection) {
-          const { assetAddress: aa, transaction: t } = await createNftMemberTx(
-            rpc,
-            publicKey,
-            name,
-            image,
-            collection,
-            mutable,
-            rentable,
-            transferrable,
-            royaltyInitializable
-          );
-          transaction = t;
-          assetAddress = aa;
-        } else {
-          const { assetAddress: aa, transaction: t } = await createNftAloneTx(
-            rpc,
-            publicKey,
-            name,
-            image,
-            mutable,
-            rentable,
-            transferrable,
-            royaltyInitializable
-          );
-          transaction = t;
-          assetAddress = aa;
-        }
-        const signedTransaction = await signTransaction(transaction);
+        // @ts-ignore
+        async () => {
+          const image: string | null = imageUri;
+          const rpc: Rpc = createRpc(endpoint, endpoint, endpoint, {
+            commitment: "confirmed",
+          });
+          let transaction: VersionedTransaction;
+          let assetAddress: PublicKey;
 
-        const signature = await rpc.sendRawTransaction(
-          signedTransaction.serialize()
-        );
-        const log = await getTransactionWithRetry(rpc, signature);
-        if (!log) {
-          throw new Error("Log is undefined");
-        }
-        const cost = await calculateNFTMintingCost(rpc, log);
-        return { cost, aa: assetAddress.toBase58() };
-      },
+          if (!name || !image || name.length === 0 || image.length === 0) {
+            throw new Error("Name and Image can't be empty");
+          }
+
+          if (collection) {
+            const { assetAddress: aa, transaction: t } = await createNftMemberTx(
+                rpc,
+                publicKey,
+                name,
+                image,
+                collection,
+                mutable,
+                rentable,
+                transferrable,
+                royaltyInitializable
+            );
+            transaction = t;
+            assetAddress = aa;
+          } else {
+            const { assetAddress: aa, transaction: t } = await createNftAloneTx(
+                rpc,
+                publicKey,
+                name,
+                image,
+                mutable,
+                rentable,
+                transferrable,
+                royaltyInitializable
+            );
+            transaction = t;
+            assetAddress = aa;
+          }
+
+          const signedTransaction = await signTransaction(transaction);
+          const signature = await rpc.sendRawTransaction(signedTransaction.serialize());
+          const log = await getTransactionWithRetry(rpc, signature);
+
+          if (!log) {
+            throw new Error("Log is undefined");
+          }
+
+          const cost = await calculateNFTMintingCost(rpc, log);
+          return { cost, aa: assetAddress.toBase58() };
+        },
         {
-          loading: {
-            title: "Creating NFT",
-            message: "Please wait while we create your NFT...",
-            style: {
-              background: "#3A3043",
-              color: "#FFFFFF",
-              border: "1px solid #4A4053",
-            },
-          },
-          success: ({ aa, cost }: any) => ({
-            title: "NFT Created Successfully!",
-            message: (
-                <div>
+          loading: (
+              <div style={{ background: "#3A3043", color: "#FFFFFF", border: "1px solid #4A4053" }}>
+                <strong>Creating NFT</strong>
+                <p>Please wait while we create your NFT...</p>
+              </div>
+          ),
+          success: ({ aa, cost }: { aa: string; cost: number }) => (
+              <div style={{ background: "#3A3043", color: "#FFFFFF", border: "1px solid #4A4053" }}>
+                <strong>NFT Created Successfully!</strong>
+                <p>
                   Cost: <span style={{ color: "#FFD700", fontWeight: "bold" }}>{cost?.toFixed(6)} SOL</span>
                   <br />
                   Asset address: {aa}
-                </div>
-            ),
-            style: {
-              background: "#3A3043",
-              color: "#FFFFFF",
-              border: "1px solid #4A4053",
-            },
-          }),
-          error: (error: any) => ({
-            title: "Error Creating NFT",
-            message: error.message,
-            style: {
-              background: "#3A3043",
-              color: "#FFFFFF",
-              border: "1px solid #4A4053",
-            },
-          }),
+                </p>
+              </div>
+          ),
+          error: (error: any) => (
+              <div style={{ background: "#3A3043", color: "#FFFFFF", border: "1px solid #4A4053" }}>
+                <strong>Error Creating NFT</strong>
+                <p>{error.message}</p>
+              </div>
+          ),
         }
     );
+
   };
   const handleImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
