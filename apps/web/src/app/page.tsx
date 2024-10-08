@@ -48,6 +48,8 @@ export default function CreateNFT() {
       return;
     }
 
+    // @ts-ignore
+    // @ts-ignore
     toast.promise(
       async () => {
         const image: string | null = imageUri;
@@ -100,14 +102,41 @@ export default function CreateNFT() {
         const cost = await calculateNFTMintingCost(rpc, log);
         return { cost, aa: assetAddress.toBase58() };
       },
-      {
-        loading: "Creating NFT...",
-        success: ({ aa, cost }) =>
-          `NFT created successfully! Cost: ${cost?.toFixed(
-            6
-          )} SOL! Asset address: ${aa}`,
-        error: (error) => `Error creating NFT: ${error.message}`,
-      }
+        {
+          loading: {
+            title: "Creating NFT",
+            message: "Please wait while we create your NFT...",
+            style: {
+              background: "#3A3043",
+              color: "#FFFFFF",
+              border: "1px solid #4A4053",
+            },
+          },
+          success: ({ aa, cost }: any) => ({
+            title: "NFT Created Successfully!",
+            message: (
+                <div>
+                  Cost: <span style={{ color: "#FFD700", fontWeight: "bold" }}>{cost?.toFixed(6)} SOL</span>
+                  <br />
+                  Asset address: {aa}
+                </div>
+            ),
+            style: {
+              background: "#3A3043",
+              color: "#FFFFFF",
+              border: "1px solid #4A4053",
+            },
+          }),
+          error: (error: any) => ({
+            title: "Error Creating NFT",
+            message: error.message,
+            style: {
+              background: "#3A3043",
+              color: "#FFFFFF",
+              border: "1px solid #4A4053",
+            },
+          }),
+        }
     );
   };
   const handleImageUpload = async (
@@ -237,7 +266,7 @@ export default function CreateNFT() {
             <Label htmlFor="image" className="text-[20px] archivo-label">
               Image
             </Label>
-            <div className="flex gap-2 mt-1">
+            <div className="flex gap-2">
               <Input
                 id="image-input"
                 type="text"
@@ -245,7 +274,7 @@ export default function CreateNFT() {
                 value={imageName}
                 onChange={handleImageUpload}
                 placeholder="File name, chosen by user"
-                className="archivo-input flex-[3] text-xl text-[#BEBEBE] underline"
+                className="archivo-input flex-[3] mt-[4px] text-xl text-[#BEBEBE] underline"
               />
               <div className="flex gap-2 mt-1">
                 <div>
