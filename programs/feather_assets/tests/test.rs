@@ -67,7 +67,6 @@ async fn create_group() {
         args: CreateGroupArgsV1 {
             max_size: 10,
             metadata: Some(GroupMetadataArgsV1 {
-                attributes: Vec::new(),
                 mutable: true,
                 name: "Group 1".to_string(),
                 uri: "uri".to_string(),
@@ -167,7 +166,6 @@ async fn create_group() {
     let ix_data = CreateMemberAssetIx {
         args: CreateAssetArgsV1 {
             metadata: Some(AssetMetadataArgsV1 {
-                attributes: Vec::new(),
                 mutable: true,
                 name: "Asset".to_string(),
                 uri: "uri".to_string(),

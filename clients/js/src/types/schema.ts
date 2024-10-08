@@ -1,6 +1,11 @@
 import { PublicKey } from "@solana/web3.js";
-import { AttributeV1 } from ".";
-import { AssetAuthorityVariantV1, AssetStateV1, RuleSetV1 } from "./variants";
+// import { AttributeV1 } from ".";
+import {
+  AssetAuthorityVariantV1,
+  AssetStateV1,
+  RoyaltyState,
+  RuleSetV1,
+} from "./variants";
 
 // Groupinterfaces
 export interface GroupV1 {
@@ -16,7 +21,7 @@ export interface GroupDataV1 {
   uri: string;
   mutable: boolean;
   groupKey: PublicKey;
-  attributes: AttributeV1[];
+  // attributes: AttributeV1[];
 }
 
 // Asset interfaces
@@ -28,7 +33,7 @@ export interface AssetV1 {
   groupMembership: GroupMembership | null;
   transferable: boolean;
   rentable: boolean;
-  hasRoyalties: boolean;
+  royaltyState: RoyaltyState;
   hasMetadata: boolean;
   hasMultisig: boolean;
 }
@@ -43,16 +48,18 @@ export interface AssetDataV1 {
   uri: string;
   mutable: boolean;
   assetKey: PublicKey;
-  attributes: AttributeV1[];
-  privilegeAttributes: AttributeV1[];
+  updateAuthority: PublicKey;
+  // attributes: AttributeV1[];
+  // privilegeAttributes: AttributeV1[];
 }
 
 // Asset Royalty interfaces
-export interface RoyaltyV1 {
+export interface AssetRoyaltiesV1 {
   basisPoints: number;
   creators: CreatorArgsV1[];
   ruleset: RuleSetV1;
   assetKey: PublicKey;
+  updateAuthority: PublicKey;
 }
 
 export interface CreatorArgsV1 {

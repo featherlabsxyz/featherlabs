@@ -5,6 +5,7 @@ import { Navbar } from "../../components/Navbar";
 import localFont from "next/font/local";
 import { Footer } from "../../components/Footer";
 import { WalletConnectionProvider } from "./provider";
+import { Toaster } from "sonner";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -64,6 +65,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${newBlackTypeface.variable} ${archivoSemiCondensed.variable} font-sans antialiased`}
       >
         <WalletConnectionProvider>
+          <Toaster richColors={true} />
           <Navbar />
           {children}
           <Footer />

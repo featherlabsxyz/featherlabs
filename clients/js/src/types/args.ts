@@ -1,4 +1,5 @@
-import { AttributeV1, RuleSetV1 } from ".";
+import { PublicKey } from "@solana/web3.js";
+import { RuleSetV1 } from ".";
 import { CreatorArgsV1 } from "./schema";
 export * from "./schema";
 
@@ -10,7 +11,7 @@ export interface GroupMetadataArgsV1 {
   name: string;
   uri: string;
   mutable: boolean;
-  attributes: AttributeV1[];
+  // attributes: AttributeV1[];
 }
 
 export interface CreateAssetArgsV1 {
@@ -24,6 +25,7 @@ export interface RoyaltyArgsV1 {
   basisPoints: number;
   creators: CreatorArgsV1[];
   ruleset: RuleSetV1;
+  updateAuthority: PublicKey;
 }
 /**
  * Asset Metadata
@@ -35,5 +37,6 @@ export interface AssetMetadataArgsV1 {
   /**
    * Custom Additional Attributes
    */
-  attributes: AttributeV1[];
+  // attributes: AttributeV1[];
+  updateAuthority: PublicKey;
 }

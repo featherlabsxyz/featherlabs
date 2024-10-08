@@ -1,8 +1,9 @@
 import { deriveAddress, Rpc } from "@lightprotocol/stateless.js";
 import { PublicKey } from "@solana/web3.js";
 import BN from "bn.js";
+import { FeatherAssetsConstants } from "../constants";
 import { FeatherAssetsProgram } from "../program";
-import { RoyaltyArgsV1, RoyaltyV1 } from "../types";
+import { AssetRoyaltiesV1, RoyaltyArgsV1 } from "../types";
 
 /**
  * Adds a royalty to an asset.
@@ -36,18 +37,22 @@ export async function addRoyaltyToAsset(
 export async function getRoyalty(
   rpc: Rpc,
   assetAddress: PublicKey
-): Promise<RoyaltyV1> {
+): Promise<AssetRoyaltiesV1> {
   const assetRoyaltySeed =
     FeatherAssetsProgram.deriveAssetRoyaltySeed(assetAddress);
-  const royaltyAddress = await deriveAddress(assetRoyaltySeed);
+  const royaltyAddress = await deriveAddress(
+    assetRoyaltySeed,
+    FeatherAssetsConstants.addressTree
+  );
+  console.log(royaltyAddress.toBase58());
   const royaltyAccount = await rpc.getCompressedAccount(
     new BN(royaltyAddress.toBytes())
   );
   if (!royaltyAccount || !royaltyAccount.data) {
-    throw new Error("Group Account Does Not Exist or Invalid Group Id");
+    throw new Error("Royalty Account Does Not Exist or Invalid Asset Id");
   }
-  const royalty = FeatherAssetsProgram.decodeTypes<RoyaltyV1>(
-    "RoyaltyV1",
+  const royalty = FeatherAssetsProgram.decodeTypes<AssetRoyaltiesV1>(
+    "AssetRoyaltiesV1",
     royaltyAccount.data.data
   );
   return royalty;

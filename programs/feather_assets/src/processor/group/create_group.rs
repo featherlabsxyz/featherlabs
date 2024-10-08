@@ -52,7 +52,7 @@ pub fn handler<'info>(
             if metadata_args.name.len() == 0 || metadata_args.uri.len() == 0 {
                 return Err(FeatherErrorCode::EmptyValueError.into());
             }
-            group_data.attributes = metadata_args.attributes;
+            // group_data.attributes = metadata_args.attributes.try_to_vec()?;
             group_data.name = metadata_args.name;
             group_data.mutable = metadata_args.mutable;
             group_data.group_key = group_address;

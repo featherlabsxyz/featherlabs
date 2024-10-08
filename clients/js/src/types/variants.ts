@@ -51,6 +51,19 @@ export type OwnerPermanentDelegateVariant = {
 
 type OwnerVariant = undefined;
 
+export type RoyaltyState =
+  | {
+      unintialized: {};
+    }
+  | { initialized: {} }
+  | { disabled: {} }
+  | { freeze: {} };
+
+export type RoyaltyStateType =
+  | "unintialized"
+  | "intialized"
+  | "disabled"
+  | "freeze";
 export type AssetAuthorityVariantV1 =
   | { owner: {} }
   | { renter: RenterVariant }

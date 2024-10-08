@@ -42,11 +42,11 @@ pub fn handler<'info>(
     }
     asset.has_metadata = true;
     asset_data.asset_key = asset_address;
-    asset_data.attributes = args.attributes;
+    // asset_data.attributes = args.attributes.try_to_vec()?;
     asset_data.mutable = args.mutable;
     asset_data.name = args.name;
     asset_data.uri = args.uri;
-    asset_data.privilege_attributes = Vec::new();
+    asset_data.update_authority = args.update_authority;
     let address = Pubkey::new_from_array(derive_address(
         &asset_data.new_address_params().unwrap().seed,
         &address_merkle_context,

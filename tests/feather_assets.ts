@@ -6,7 +6,16 @@ import {
   addRoyaltyToAsset,
   createGroupTx,
   createMemberAssetTx,
+  getAsset,
+  getRoyalty,
 } from "@featherlabs/feather-assets/src/core";
+import {
+  createCollectionTx,
+  createNftMemberTx,
+  fetchAllCollection,
+  fetchCollection,
+  fetchNft,
+} from "@featherlabs/feather-assets/src/nft";
 describe("feather_assets", () => {
   const provider = anchor.AnchorProvider.env();
   const wallet = provider.wallet as anchor.Wallet;
@@ -22,12 +31,20 @@ describe("feather_assets", () => {
       groupAddress,
       groupDataAddress,
       transaction: tx1,
-    } = await createGroupTx(rpc, 100, wallet.publicKey, wallet.publicKey, {
-      attributes: [],
-      mutable: true,
-      name: "a",
-      uri: "a",
-    });
+    } = await createCollectionTx(
+      rpc,
+      100,
+      wallet.publicKey,
+      "name",
+      "uri",
+      true
+      // {
+      //   animationUrl: "asasasasasasasasasasasasasasasasasas",
+      //   description: "ad",
+      //   symbol: "aadd",
+      //   website: "daada",
+      // }
+    );
     tx1.sign([wallet.payer]);
     const sig = await sendAndConfirmTx(rpc, tx1, {
       skipPreflight: true,
@@ -40,22 +57,28 @@ describe("feather_assets", () => {
     console.log("Your transaction signature", sig);
     console.log(log.meta.logMessages);
     ga = groupAddress;
+    console.log(await fetchCollection(rpc, groupAddress));
   });
+  // return;
   it("Create Member Asset!", async () => {
     try {
       const { assetAddress, assetDataAddress, transaction } =
-        await createMemberAssetTx(
+        await createNftMemberTx(
           rpc,
           wallet.publicKey,
-          wallet.publicKey,
+          "aasadadaaasadadaaasadadaaasadadaaasadadaaasadadaaasadadaaasadada",
+          "uri",
+          // {
+          //   animationUrl: "as",
+          //   description: "ad",
+          //   symbol: "aadd",
+          //   website: "daada",
+          // },
           ga,
-          wallet.publicKey,
-          {
-            attributes: [],
-            mutable: true,
-            name: "a",
-            uri: "a",
-          }
+          true,
+          true,
+          true,
+          true
         );
       transaction.sign([wallet.payer]);
       const sig = await sendAndConfirmTx(rpc, transaction, {
@@ -68,6 +91,7 @@ describe("feather_assets", () => {
       console.log("Your transaction signature", sig);
       console.log(log.meta.logMessages);
       aa = assetAddress;
+      console.log(await fetchNft(rpc, assetAddress));
     } catch (error) {
       if (error instanceof SendTransactionError) {
         const logs = await error.getLogs(provider.connection);
@@ -83,7 +107,12 @@ describe("feather_assets", () => {
         rpc,
         aa,
         wallet.publicKey,
-        { basisPoints: 100, creators: [], ruleset: { none: {} } }
+        {
+          basisPoints: 100,
+          creators: [],
+          ruleset: { none: {} },
+          updateAuthority: wallet.publicKey,
+        }
       );
       transaction.sign([wallet.payer]);
       const sig = await sendAndConfirmTx(rpc, transaction, {
@@ -95,6 +124,8 @@ describe("feather_assets", () => {
       });
       console.log("Your transaction signature", sig);
       console.log(log.meta.logMessages);
+      console.log(await getRoyalty(rpc, aa));
+      await fetchAllCollection(rpc, wallet.publicKey);
     } catch (error) {
       if (error instanceof SendTransactionError) {
         const logs = await error.getLogs(provider.connection);

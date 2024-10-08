@@ -1,12 +1,14 @@
+import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 import { Rpc } from "@lightprotocol/stateless.js";
 import { PublicKey } from "@solana/web3.js";
-import { Collection, NftAttributes } from ".";
+import { Collection } from ".";
 import {
   CreateGroupResult,
   createGroupTx,
   getGroupWithMetadata,
   getMultipleGroupsWithMetadata,
 } from "../core/group";
+import { FeatherAssetsProgram } from "../program";
 import { GroupDataV1, GroupMetadataArgsV1, GroupV1 } from "../types";
 
 /**
@@ -17,7 +19,6 @@ import { GroupDataV1, GroupMetadataArgsV1, GroupV1 } from "../types";
  * @param name Collection Name
  * @param imageUri Collection Image URI
  * @param mutable Setting mutable to false will prevent updating group metadata
- * @param nftAttributes Common with additional attributes
  * @returns A promise that resolves to the `CreateGroupResult`.
  */
 export async function createCollectionTx(
@@ -26,19 +27,19 @@ export async function createCollectionTx(
   authority: PublicKey,
   name: string,
   imageUri: string,
-  mutable: boolean,
-  nftAttributes: NftAttributes
+  mutable: boolean
+  // nftAttributes: NftAttributes
 ): Promise<CreateGroupResult> {
-  const attributesArray = Object.entries(nftAttributes).map(([key, value]) => ({
-    key,
-    value,
-  }));
+  // const attributesArray = Object.entries(nftAttributes).map(([key, value]) => ({
+  //   key,
+  //   value,
+  // }));
 
   const metadata: GroupMetadataArgsV1 = {
     name,
     uri: imageUri,
     mutable,
-    attributes: attributesArray,
+    // attributes: attributesArray,
   };
   const response = await createGroupTx(
     rpc,
@@ -85,14 +86,14 @@ function convertGroupToCollection(
     currentSize: group.size,
     mutable: groupMetadata.mutable,
     owner: group.owner,
-    attributes: {
-      symbol: groupMetadata.attributes[0].value,
-      description: groupMetadata.attributes[1].value,
-      website: groupMetadata.attributes[2].value,
-      animationUrl: groupMetadata.attributes[3].value,
-      ...Object.fromEntries(
-        groupMetadata.attributes.slice(4).map((attr) => [attr.key, attr.value])
-      ),
-    },
+    // attributes: {
+    //   symbol: groupMetadata.attributes[0].value,
+    //   description: groupMetadata.attributes[1].value,
+    //   website: groupMetadata.attributes[2].value,
+    //   animationUrl: groupMetadata.attributes[3].value,
+    //   ...Object.fromEntries(
+    //     groupMetadata.attributes.slice(4).map((attr) => [attr.key, attr.value])
+    //   ),
+    // },
   };
 }

@@ -31,7 +31,11 @@ impl AttributeVecExt for Vec<AttributeV1> {
             .collect()
     }
 }
-
+impl AttributeVecExt for Vec<u8> {
+    fn as_byte_vec(&self) -> Vec<Vec<u8>> {
+        self.iter().map(|&byte| vec![byte]).collect()
+    }
+}
 // <---------------------GroupArgs------------------------>
 
 #[derive(Clone, Debug, AnchorSerialize, AnchorDeserialize)]
@@ -44,13 +48,13 @@ pub struct GroupMetadataArgsV1 {
     pub name: String,
     pub uri: String,
     pub mutable: bool,
-    pub attributes: Vec<super::AttributeV1>,
+    // pub attributes: Vec<super::AttributeV1>,
 }
 #[derive(Clone, Debug, AnchorSerialize, AnchorDeserialize)]
 pub struct UpdateGroupMetadataArgsV1 {
     pub name: Option<String>,
     pub uri: Option<String>,
-    pub attributes: Option<Vec<super::AttributeV1>>,
+    // pub attributes: Option<Vec<super::AttributeV1>>,
 }
 
 // <---------------------AssetArgs------------------------>
@@ -67,13 +71,15 @@ pub struct RoyaltyArgsV1 {
     pub basis_points: u8,
     pub creators: Vec<CreatorArgsV1>,
     pub ruleset: RuleSetV1,
+    pub update_authority: Pubkey,
 }
 #[derive(Clone, Debug, AnchorSerialize, AnchorDeserialize)]
 pub struct AssetMetadataArgsV1 {
     pub name: String,
     pub uri: String,
     pub mutable: bool,
-    pub attributes: Vec<AttributeV1>,
+    // pub attributes: Vec<AttributeV1>,
+    pub update_authority: Pubkey,
 }
 #[derive(Clone, Debug, AnchorSerialize, AnchorDeserialize)]
 pub struct UpdateRoyaltyArgsV1 {
@@ -85,5 +91,5 @@ pub struct UpdateRoyaltyArgsV1 {
 pub struct UpdateAssetMetadataArgsV1 {
     pub name: Option<String>,
     pub uri: Option<String>,
-    pub attributes: Option<Vec<AttributeV1>>,
+    // pub attributes: Option<Vec<AttributeV1>>,
 }

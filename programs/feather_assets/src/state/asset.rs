@@ -14,7 +14,7 @@ pub struct AssetV1 {
     pub transferable: bool,
     pub rentable: bool,
 
-    pub royalty_state: RoyalyState,
+    pub royalty_state: RoyaltyState,
     // Irreversible after setting it to true
     pub has_metadata: bool,
     pub has_multisig: bool,
@@ -24,18 +24,20 @@ pub struct AssetV1 {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, AnchorSerialize, AnchorDeserialize, Default)]
-pub enum RoyalyState {
+pub enum RoyaltyState {
     Unintialized,
     Initialized,
     #[default]
     Disabled,
+    Freeze,
 }
-impl RoyalyState {
+impl RoyaltyState {
     fn as_byte_vec(&self) -> Vec<Vec<u8>> {
         match self {
-            RoyalyState::Unintialized => vec![vec![0]],
-            RoyalyState::Initialized => vec![vec![1]],
-            RoyalyState::Disabled => vec![vec![2]],
+            RoyaltyState::Unintialized => vec![vec![0]],
+            RoyaltyState::Initialized => vec![vec![1]],
+            RoyaltyState::Disabled => vec![vec![2]],
+            RoyaltyState::Freeze => vec![vec![3]],
         }
     }
 }

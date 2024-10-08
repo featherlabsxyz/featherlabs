@@ -6,7 +6,7 @@ pub fn handler<'info>(
     derivation_key: Pubkey,
     args: UpdateGroupMetadataArgsV1,
 ) -> Result<()> {
-    if args.attributes.is_none() && args.name.is_none() && args.uri.is_none() {
+    if args.name.is_none() && args.uri.is_none() {
         return Err(FeatherErrorCode::ArgumentsNotFound.into());
     }
     let address_merkle_context =
@@ -34,9 +34,6 @@ pub fn handler<'info>(
         &address_merkle_context,
     ));
     msg!("Group Data Compressed Account: {:?}", group_data_address);
-    if let Some(val) = args.attributes {
-        group_data.attributes = val
-    }
     if let Some(val) = args.name {
         group_data.name = val
     }

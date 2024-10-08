@@ -6,3 +6,5 @@ pub mod add_metadata_asset;
 pub use add_metadata_asset::*;
 pub mod add_royalties_asset;
 pub use add_royalties_asset::*;
+pub mod transfer;
+pub use transfer::*;

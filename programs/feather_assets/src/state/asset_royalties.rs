@@ -7,7 +7,10 @@ pub struct AssetRoyaltiesV1 {
     pub basis_points: u8,
     pub creators: Vec<CreatorArgsV1>,
     pub ruleset: RuleSetV1,
+    #[truncate]
     pub asset_key: Pubkey,
+    #[truncate]
+    pub update_authority: Pubkey,
 }
 
 #[light_account]

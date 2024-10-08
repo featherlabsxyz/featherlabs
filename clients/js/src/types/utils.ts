@@ -5,6 +5,8 @@ import {
   AssetPrivilegeVariantType,
   AssetStateType,
   AssetStateV1,
+  RoyaltyState,
+  RoyaltyStateType,
 } from "./variants";
 
 export function getAssetPrivilegeVariant(
@@ -51,5 +53,19 @@ export function getAssetState(state: AssetStateV1): AssetStateType {
     return "lockedByOwner";
   } else {
     throw new Error("Invalid AssetStateV1");
+  }
+}
+
+export function getRoyaltyState(state: RoyaltyState): RoyaltyStateType {
+  if ("unintialized" in state) {
+    return "unintialized";
+  } else if ("intialized" in state) {
+    return "intialized";
+  } else if ("disabled" in state) {
+    return "disabled";
+  } else if ("freeze" in state) {
+    return "freeze";
+  } else {
+    throw new Error("Invalid RoyaltyState");
   }
 }

@@ -36,14 +36,15 @@ pub fn handler<'info>(
         &[ASSET_ROYALTY_SEED, asset_address.to_bytes().as_ref()],
         &crate::ID,
     ));
-    if asset.royalty_state != RoyalyState::Unintialized {
+    if asset.royalty_state != RoyaltyState::Unintialized {
         return Err(FeatherErrorCode::RoyaltyAlreadyInitializedOrDisabled.into());
     }
-    asset.royalty_state = RoyalyState::Initialized;
+    asset.royalty_state = RoyaltyState::Initialized;
     asset_royalty.asset_key = asset_address;
     asset_royalty.basis_points = args.basis_points;
     asset_royalty.creators = args.creators;
     asset_royalty.ruleset = args.ruleset;
+    asset_royalty.update_authority = args.update_authority;
     let address = Pubkey::new_from_array(derive_address(
         &asset_royalty.new_address_params().unwrap().seed,
         &address_merkle_context,

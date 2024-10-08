@@ -9,7 +9,7 @@ import { PublicKey, SystemProgram } from "@solana/web3.js";
 import { keccak_256 } from "@noble/hashes/sha3";
 export class FeatherAssetsConstants {
   static readonly programId: PublicKey = new PublicKey(
-    "HNyzkDmhZayxRG77bk84oxe13Qp3PcRhd5o5NJEF6E5W"
+    "Ddm99VrLgcxpjKY6yA96wWus2ckArZhRjMtmtC326jFK"
   );
   static readonly accountCompressionAuthority =
     staticAccounts().accountCompressionAuthority;

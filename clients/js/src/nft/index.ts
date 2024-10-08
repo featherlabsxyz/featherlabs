@@ -3,6 +3,7 @@ import {
   AssetAuthorityVariantReturn,
   AssetStateType,
   GroupMembership as CollectionMeta,
+  RoyaltyStateType,
 } from "../types";
 
 export * from "./collection";
@@ -18,7 +19,7 @@ export interface Collection {
   name: string;
   imageUri: string;
   mutable: boolean;
-  attributes: NftAttributes;
+  // attributes: NftAttributes;
 }
 
 // Nft interface
@@ -33,9 +34,9 @@ export interface Nft {
   name: string;
   imageUri: string;
   mutable: boolean;
-  attributes: NftAttributes;
+  // attributes: NftAttributes;
   // Royalty
-  hasRoyalties: boolean;
+  royaltyState: RoyaltyStateType;
 }
 
 // Complete Collection Data
@@ -47,10 +48,10 @@ export interface CollectionWithNfts {
   };
 }
 
-export interface NftAttributes {
-  symbol: string;
-  description: string;
-  website: string;
-  animationUrl: string;
-  [key: string]: string;
-}
+// export interface NftAttributes {
+//   symbol: string;
+//   description: string;
+//   website: string;
+//   animationUrl: string;
+//   [key: string]: string;
+// }

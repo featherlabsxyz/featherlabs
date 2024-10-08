@@ -1,6 +1,6 @@
 import { Rpc } from "@lightprotocol/stateless.js";
 import { PublicKey } from "@solana/web3.js";
-import { Nft, NftAttributes } from ".";
+import { Nft } from ".";
 import {
   CreateAssetResult,
   createAssetTx,
@@ -14,6 +14,7 @@ import {
   AssetV1,
   getAssetAuthorityVariant,
   getAssetState,
+  getRoyaltyState,
 } from "../types";
 /**
  * Creates a transaction for a standalone NFT.
@@ -21,7 +22,6 @@ import {
  * @param authority The public key of the authority.
  * @param name The name of the NFT.
  * @param imageUri The URI of the NFT image.
- * @param nftAttributes The attributes of the NFT.
  * @param mutable Whether the NFT is mutable (default: true).
  * @param rentable Whether the NFT is rentable.
  * @param transferrable Whether the NFT is transferrable.
@@ -33,22 +33,23 @@ export async function createNftAloneTx(
   authority: PublicKey,
   name: string,
   imageUri: string,
-  nftAttributes: NftAttributes,
+  // nftAttributes: NftAttributes,
   mutable: boolean = true,
   rentable?: boolean,
   transferrable?: boolean,
   royaltiesInitializable?: boolean
 ): Promise<CreateAssetResult> {
-  const attributesArray = Object.entries(nftAttributes).map(([key, value]) => ({
-    key,
-    value,
-  }));
+  // const attributesArray = Object.entries(nftAttributes).map(([key, value]) => ({
+  //   key,
+  //   value,
+  // }));
 
   const metadata: AssetMetadataArgsV1 = {
     name,
     uri: imageUri,
     mutable,
-    attributes: attributesArray,
+    // attributes: attributesArray,
+    updateAuthority: authority,
   };
 
   return await createAssetTx(
@@ -68,7 +69,6 @@ export async function createNftAloneTx(
  * @param authority The public key of the authority.
  * @param name The name of the NFT.
  * @param imageUri The URI of the NFT image.
- * @param nftAttributes The attributes of the NFT.
  * @param collection The public key of the collection.
  * @param mutable Whether the NFT is mutable (default: true).
  * @param rentable Whether the NFT is rentable.
@@ -81,23 +81,24 @@ export async function createNftMemberTx(
   authority: PublicKey,
   name: string,
   imageUri: string,
-  nftAttributes: NftAttributes,
+  // nftAttributes: NftAttributes,
   collection: PublicKey,
   mutable: boolean = true,
   rentable?: boolean,
   transferrable?: boolean,
   royaltiesInitializable?: boolean
 ): Promise<CreateAssetResult> {
-  const attributesArray = Object.entries(nftAttributes).map(([key, value]) => ({
-    key,
-    value,
-  }));
+  // const attributesArray = Object.entries(nftAttributes).map(([key, value]) => ({
+  //   key,
+  //   value,
+  // }));
 
   const metadata: AssetMetadataArgsV1 = {
     name,
     uri: imageUri,
     mutable,
-    attributes: attributesArray,
+    // attributes: attributesArray,
+    updateAuthority: authority,
   };
 
   return await createMemberAssetTx(
@@ -141,19 +142,19 @@ export function assetToNft({
     mutable: assetMetadata.mutable,
     owner: asset.owner,
     assetAuthortyState: getAssetAuthorityVariant(asset.assetAuthorityState),
+    royaltyState: getRoyaltyState(asset.royaltyState),
     assetState: getAssetState(asset.assetState),
     rentable: asset.rentable,
     transferrable: asset.transferable,
     collection: asset.groupMembership ? asset.groupMembership : undefined,
-    hasRoyalties: asset.hasRoyalties,
-    attributes: {
-      symbol: assetMetadata.attributes[0].value,
-      description: assetMetadata.attributes[1].value,
-      website: assetMetadata.attributes[2].value,
-      animationUrl: assetMetadata.attributes[3].value,
-      ...Object.fromEntries(
-        assetMetadata.attributes.slice(4).map((attr) => [attr.key, attr.value])
-      ),
-    },
+    // attributes: {
+    //   symbol: assetMetadata.attributes[0].value,
+    //   description: assetMetadata.attributes[1].value,
+    //   website: assetMetadata.attributes[2].value,
+    //   animationUrl: assetMetadata.attributes[3].value,
+    //   ...Object.fromEntries(
+    //     assetMetadata.attributes.slice(4).map((attr) => [attr.key, attr.value])
+    //   ),
+    // },
   };
 }

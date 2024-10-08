@@ -1,6 +1,7 @@
 import { deriveAddress, Rpc } from "@lightprotocol/stateless.js";
 import { PublicKey, VersionedTransaction } from "@solana/web3.js";
 import BN from "bn.js";
+import { FeatherAssetsConstants } from "../constants";
 import { FeatherAssetsProgram } from "../program";
 import { AssetDataV1, AssetMetadataArgsV1, AssetV1 } from "../types";
 
@@ -39,11 +40,13 @@ export async function createAssetTx(
     rentable,
     transferrable,
   });
+
   const transaction = await FeatherAssetsProgram.buildTxWithComputeBudget(
     rpc,
     [ix],
     payerPublicKey
   );
+
   return {
     assetAddress,
     assetDataAddress,
@@ -149,17 +152,25 @@ export async function getMultipleAssetWithMetadata(
 ): Promise<Array<{ asset: AssetV1; assetMetadata: AssetDataV1 }>> {
   const assetDataAddresses = await Promise.all(
     assetAddresses.map((address) =>
-      deriveAddress(FeatherAssetsProgram.deriveAssetDataSeed(address))
+      deriveAddress(
+        FeatherAssetsProgram.deriveAssetDataSeed(address),
+        FeatherAssetsConstants.addressTree
+      )
     )
   );
-  const accounts = await rpc.getMultipleCompressedAccounts([
-    ...assetAddresses.map((addr) => new BN(addr.toBytes())),
-    ...assetDataAddresses.map((addr) => new BN(addr.toBytes())),
-  ]);
+  const assetAccountPromises = assetAddresses.map((address) =>
+    rpc.getCompressedAccount(new BN(address.toBytes()))
+  );
+  const assetDataAccountPromises = assetDataAddresses.map((address) =>
+    rpc.getCompressedAccount(new BN(address.toBytes()))
+  );
+  const assetAccounts = await Promise.all(assetAccountPromises);
+  const assetDataAccounts = await Promise.all(assetDataAccountPromises);
+
   const result: Array<{ asset: AssetV1; assetMetadata: AssetDataV1 }> = [];
   for (let i = 0; i < assetAddresses.length; i++) {
-    const assetAccount = accounts[i];
-    const assetDataAccount = accounts[i + assetAddresses.length];
+    const assetAccount = assetAccounts[i];
+    const assetDataAccount = assetDataAccounts[i];
 
     if (!assetAccount || !assetAccount.data) {
       throw new Error(

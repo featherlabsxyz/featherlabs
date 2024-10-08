@@ -4,11 +4,13 @@ use light_sdk::light_account;
 #[light_account]
 #[derive(Clone, Debug, Default)]
 pub struct AssetDataV1 {
+    #[truncate]
     pub name: String,
+    #[truncate]
     pub uri: String,
     pub mutable: bool,
+    #[truncate]
     pub asset_key: Pubkey,
-    pub attributes: Vec<super::AttributeV1>,
-    /// owner can't mutate this, only renter/delegate of asset with `AssetMetadataPrivilegeAttributes` can
-    pub privilege_attributes: Vec<super::AttributeV1>,
+    #[truncate]
+    pub update_authority: Pubkey,
 }

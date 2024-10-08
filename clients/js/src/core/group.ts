@@ -1,6 +1,7 @@
 import { deriveAddress, Rpc } from "@lightprotocol/stateless.js";
 import { PublicKey, VersionedTransaction } from "@solana/web3.js";
 import BN from "bn.js";
+import { FeatherAssetsConstants } from "../constants";
 import { FeatherAssetsProgram } from "../program";
 import { GroupDataV1, GroupMetadataArgsV1, GroupV1 } from "../types";
 
@@ -76,9 +77,11 @@ export async function getMultipleGroups(
   rpc: Rpc,
   groupAddresses: PublicKey[]
 ): Promise<GroupV1[]> {
-  const accounts = await rpc.getMultipleCompressedAccounts(
-    groupAddresses.map((address) => new BN(address.toBytes()))
+  const accountPromises = groupAddresses.map((address) =>
+    rpc.getCompressedAccount(new BN(address.toBytes()))
   );
+
+  const accounts = await Promise.all(accountPromises);
 
   const groups: GroupV1[] = [];
 
@@ -129,21 +132,26 @@ export async function getMultipleGroupsWithMetadata(
 ): Promise<Array<{ group: GroupV1; groupMetadata: GroupDataV1 }>> {
   const groupDataAddresses = await Promise.all(
     groupAddresses.map((address) =>
-      deriveAddress(FeatherAssetsProgram.deriveGroupDataSeed(address))
+      deriveAddress(
+        FeatherAssetsProgram.deriveGroupDataSeed(address),
+        FeatherAssetsConstants.addressTree
+      )
     )
   );
-
-  const accounts = await rpc.getMultipleCompressedAccounts([
-    ...groupAddresses.map((address) => new BN(address.toBytes())),
-    ...groupDataAddresses.map((address) => new BN(address.toBytes())),
-  ]);
+  const groupAccountPromises = groupAddresses.map((address) =>
+    rpc.getCompressedAccount(new BN(address.toBytes()))
+  );
+  const groupDataAccountPromises = groupDataAddresses.map((address) =>
+    rpc.getCompressedAccount(new BN(address.toBytes()))
+  );
+  const groupAccounts = await Promise.all(groupAccountPromises);
+  const groupDataAccounts = await Promise.all(groupDataAccountPromises);
 
   const result: Array<{ group: GroupV1; groupMetadata: GroupDataV1 }> = [];
 
   for (let i = 0; i < groupAddresses.length; i++) {
-    const groupAccount = accounts[i];
-    const groupDataAccount = accounts[i + groupAddresses.length];
-
+    const groupAccount = groupAccounts[i];
+    const groupDataAccount = groupDataAccounts[i];
     if (!groupAccount || !groupAccount.data) {
       throw new Error(
         `Group Account Does Not Exist or Invalid Group Id for address ${groupAddresses[

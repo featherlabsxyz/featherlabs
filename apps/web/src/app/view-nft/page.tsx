@@ -1,9 +1,11 @@
-export default function ViewNFT() {
-    return (
-        <>
-            <div className="h-screen w-screen flex justify-center items-center">
+import { useWallet } from "@solana/wallet-adapter-react";
 
-            </div>
-        </>
-    )
+export default function ViewNFT() {
+  const { publicKey } = useWallet();
+
+  return (
+    <>
+      <div className="h-screen w-screen flex justify-center items-center"></div>
+    </>
+  );
 }

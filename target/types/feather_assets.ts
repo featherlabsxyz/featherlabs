@@ -773,28 +773,8 @@ export type FeatherAssets = {
             "type": "bool"
           },
           {
-            "name": "attributes",
-            "type": {
-              "vec": {
-                "defined": "AttributeV1"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "AttributeV1",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "key",
-            "type": "string"
-          },
-          {
-            "name": "value",
-            "type": "string"
+            "name": "updateAuthority",
+            "type": "publicKey"
           }
         ]
       }
@@ -863,14 +843,6 @@ export type FeatherAssets = {
           {
             "name": "mutable",
             "type": "bool"
-          },
-          {
-            "name": "attributes",
-            "type": {
-              "vec": {
-                "defined": "AttributeV1"
-              }
-            }
           }
         ]
       }
@@ -897,6 +869,10 @@ export type FeatherAssets = {
             "type": {
               "defined": "RuleSetV1"
             }
+          },
+          {
+            "name": "updateAuthority",
+            "type": "publicKey"
           }
         ]
       }
@@ -916,16 +892,6 @@ export type FeatherAssets = {
             "name": "uri",
             "type": {
               "option": "string"
-            }
-          },
-          {
-            "name": "attributes",
-            "type": {
-              "option": {
-                "vec": {
-                  "defined": "AttributeV1"
-                }
-              }
             }
           }
         ]
@@ -1084,7 +1050,7 @@ export type FeatherAssets = {
           {
             "name": "royaltyState",
             "type": {
-              "defined": "RoyalyState"
+              "defined": "RoyaltyState"
             }
           },
           {
@@ -1127,7 +1093,7 @@ export type FeatherAssets = {
       }
     },
     {
-      "name": "RoyalyState",
+      "name": "RoyaltyState",
       "type": {
         "kind": "enum",
         "variants": [
@@ -1139,6 +1105,9 @@ export type FeatherAssets = {
           },
           {
             "name": "Disabled"
+          },
+          {
+            "name": "Freeze"
           }
         ]
       }
@@ -1165,23 +1134,8 @@ export type FeatherAssets = {
             "type": "publicKey"
           },
           {
-            "name": "attributes",
-            "type": {
-              "vec": {
-                "defined": "AttributeV1"
-              }
-            }
-          },
-          {
-            "name": "privilegeAttributes",
-            "docs": [
-              "owner can't mutate this, only renter/delegate of asset with `AssetMetadataPrivilegeAttributes` can"
-            ],
-            "type": {
-              "vec": {
-                "defined": "AttributeV1"
-              }
-            }
+            "name": "updateAuthority",
+            "type": "publicKey"
           }
         ]
       }
@@ -1240,6 +1194,10 @@ export type FeatherAssets = {
           },
           {
             "name": "assetKey",
+            "type": "publicKey"
+          },
+          {
+            "name": "updateAuthority",
             "type": "publicKey"
           }
         ]
@@ -1345,14 +1303,6 @@ export type FeatherAssets = {
           {
             "name": "groupKey",
             "type": "publicKey"
-          },
-          {
-            "name": "attributes",
-            "type": {
-              "vec": {
-                "defined": "AttributeV1"
-              }
-            }
           }
         ]
       }
@@ -2297,28 +2247,8 @@ export const IDL: FeatherAssets = {
             "type": "bool"
           },
           {
-            "name": "attributes",
-            "type": {
-              "vec": {
-                "defined": "AttributeV1"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "AttributeV1",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "key",
-            "type": "string"
-          },
-          {
-            "name": "value",
-            "type": "string"
+            "name": "updateAuthority",
+            "type": "publicKey"
           }
         ]
       }
@@ -2387,14 +2317,6 @@ export const IDL: FeatherAssets = {
           {
             "name": "mutable",
             "type": "bool"
-          },
-          {
-            "name": "attributes",
-            "type": {
-              "vec": {
-                "defined": "AttributeV1"
-              }
-            }
           }
         ]
       }
@@ -2421,6 +2343,10 @@ export const IDL: FeatherAssets = {
             "type": {
               "defined": "RuleSetV1"
             }
+          },
+          {
+            "name": "updateAuthority",
+            "type": "publicKey"
           }
         ]
       }
@@ -2440,16 +2366,6 @@ export const IDL: FeatherAssets = {
             "name": "uri",
             "type": {
               "option": "string"
-            }
-          },
-          {
-            "name": "attributes",
-            "type": {
-              "option": {
-                "vec": {
-                  "defined": "AttributeV1"
-                }
-              }
             }
           }
         ]
@@ -2608,7 +2524,7 @@ export const IDL: FeatherAssets = {
           {
             "name": "royaltyState",
             "type": {
-              "defined": "RoyalyState"
+              "defined": "RoyaltyState"
             }
           },
           {
@@ -2651,7 +2567,7 @@ export const IDL: FeatherAssets = {
       }
     },
     {
-      "name": "RoyalyState",
+      "name": "RoyaltyState",
       "type": {
         "kind": "enum",
         "variants": [
@@ -2663,6 +2579,9 @@ export const IDL: FeatherAssets = {
           },
           {
             "name": "Disabled"
+          },
+          {
+            "name": "Freeze"
           }
         ]
       }
@@ -2689,23 +2608,8 @@ export const IDL: FeatherAssets = {
             "type": "publicKey"
           },
           {
-            "name": "attributes",
-            "type": {
-              "vec": {
-                "defined": "AttributeV1"
-              }
-            }
-          },
-          {
-            "name": "privilegeAttributes",
-            "docs": [
-              "owner can't mutate this, only renter/delegate of asset with `AssetMetadataPrivilegeAttributes` can"
-            ],
-            "type": {
-              "vec": {
-                "defined": "AttributeV1"
-              }
-            }
+            "name": "updateAuthority",
+            "type": "publicKey"
           }
         ]
       }
@@ -2764,6 +2668,10 @@ export const IDL: FeatherAssets = {
           },
           {
             "name": "assetKey",
+            "type": "publicKey"
+          },
+          {
+            "name": "updateAuthority",
             "type": "publicKey"
           }
         ]
@@ -2869,14 +2777,6 @@ export const IDL: FeatherAssets = {
           {
             "name": "groupKey",
             "type": "publicKey"
-          },
-          {
-            "name": "attributes",
-            "type": {
-              "vec": {
-                "defined": "AttributeV1"
-              }
-            }
           }
         ]
       }

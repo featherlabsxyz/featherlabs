@@ -56,11 +56,12 @@ pub fn handler<'info>(
                 return Err(FeatherErrorCode::EmptyValueError.into());
             }
             acc.asset_key = asset_address;
-            acc.attributes = metadata.attributes;
+            acc.update_authority = metadata.update_authority;
+            // acc.attributes = metadata.attributes.try_to_vec()?;
             acc.mutable = metadata.mutable;
             acc.name = metadata.name;
             acc.uri = metadata.uri;
-            acc.privilege_attributes = Vec::new();
+            // acc.privilege_attributes = Vec::new();
             let compressed = acc.output_compressed_account(&crate::ID, remaining_accounts)?;
             output_compressed_accounts.push(compressed);
             msg!("Asset Metadata Compressed Account: {:?}", address);
@@ -68,8 +69,8 @@ pub fn handler<'info>(
         None => asset.has_metadata = false,
     }
     match args.royalties_initializable {
-        true => asset.royalty_state = RoyalyState::Unintialized,
-        false => asset.royalty_state = RoyalyState::Disabled,
+        true => asset.royalty_state = RoyaltyState::Unintialized,
+        false => asset.royalty_state = RoyaltyState::Disabled,
     }
     output_compressed_accounts.insert(
         0,

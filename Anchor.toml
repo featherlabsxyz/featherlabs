@@ -6,7 +6,7 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-feather_assets = "HNyzkDmhZayxRG77bk84oxe13Qp3PcRhd5o5NJEF6E5W"
+feather_assets = "Ddm99VrLgcxpjKY6yA96wWus2ckArZhRjMtmtC326jFK"
 
 [registry]
 url = "https://api.apr.dev"

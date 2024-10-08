@@ -62,7 +62,7 @@ export class FeatherAssetsProgram extends FeatherAssetsConstants {
     if (!this._program) {
       const mockKeypair = Keypair.generate();
       const mockConnection = new Connection(
-        "http://127.0.0.1:8899",
+        "https://devnet.helius-rpc.com/?api-key=2a3681db-784a-40fb-9c8d-8fcab42275f8",
         "confirmed"
       );
       const mockProvider = new AnchorProvider(

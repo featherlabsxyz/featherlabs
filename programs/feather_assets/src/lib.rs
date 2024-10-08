@@ -14,7 +14,7 @@ use light_sdk::{
 };
 use processor::*;
 pub use state::*;
-declare_id!("HNyzkDmhZayxRG77bk84oxe13Qp3PcRhd5o5NJEF6E5W");
+declare_id!("Ddm99VrLgcxpjKY6yA96wWus2ckArZhRjMtmtC326jFK");
 
 #[program]
 pub mod feather_assets {

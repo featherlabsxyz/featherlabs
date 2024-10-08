@@ -773,28 +773,8 @@
             "type": "bool"
           },
           {
-            "name": "attributes",
-            "type": {
-              "vec": {
-                "defined": "AttributeV1"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "AttributeV1",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "key",
-            "type": "string"
-          },
-          {
-            "name": "value",
-            "type": "string"
+            "name": "updateAuthority",
+            "type": "publicKey"
           }
         ]
       }
@@ -863,14 +843,6 @@
           {
             "name": "mutable",
             "type": "bool"
-          },
-          {
-            "name": "attributes",
-            "type": {
-              "vec": {
-                "defined": "AttributeV1"
-              }
-            }
           }
         ]
       }
@@ -897,6 +869,10 @@
             "type": {
               "defined": "RuleSetV1"
             }
+          },
+          {
+            "name": "updateAuthority",
+            "type": "publicKey"
           }
         ]
       }
@@ -916,16 +892,6 @@
             "name": "uri",
             "type": {
               "option": "string"
-            }
-          },
-          {
-            "name": "attributes",
-            "type": {
-              "option": {
-                "vec": {
-                  "defined": "AttributeV1"
-                }
-              }
             }
           }
         ]
@@ -1084,7 +1050,7 @@
           {
             "name": "royaltyState",
             "type": {
-              "defined": "RoyalyState"
+              "defined": "RoyaltyState"
             }
           },
           {
@@ -1127,7 +1093,7 @@
       }
     },
     {
-      "name": "RoyalyState",
+      "name": "RoyaltyState",
       "type": {
         "kind": "enum",
         "variants": [
@@ -1139,6 +1105,9 @@
           },
           {
             "name": "Disabled"
+          },
+          {
+            "name": "Freeze"
           }
         ]
       }
@@ -1165,23 +1134,8 @@
             "type": "publicKey"
           },
           {
-            "name": "attributes",
-            "type": {
-              "vec": {
-                "defined": "AttributeV1"
-              }
-            }
-          },
-          {
-            "name": "privilegeAttributes",
-            "docs": [
-              "owner can't mutate this, only renter/delegate of asset with `AssetMetadataPrivilegeAttributes` can"
-            ],
-            "type": {
-              "vec": {
-                "defined": "AttributeV1"
-              }
-            }
+            "name": "updateAuthority",
+            "type": "publicKey"
           }
         ]
       }
@@ -1240,6 +1194,10 @@
           },
           {
             "name": "assetKey",
+            "type": "publicKey"
+          },
+          {
+            "name": "updateAuthority",
             "type": "publicKey"
           }
         ]
@@ -1345,14 +1303,6 @@
           {
             "name": "groupKey",
             "type": "publicKey"
-          },
-          {
-            "name": "attributes",
-            "type": {
-              "vec": {
-                "defined": "AttributeV1"
-              }
-            }
           }
         ]
       }
@@ -1521,6 +1471,6 @@
     }
   ],
   "metadata": {
-    "address": "HNyzkDmhZayxRG77bk84oxe13Qp3PcRhd5o5NJEF6E5W"
+    "address": "Ddm99VrLgcxpjKY6yA96wWus2ckArZhRjMtmtC326jFK"
   }
 }

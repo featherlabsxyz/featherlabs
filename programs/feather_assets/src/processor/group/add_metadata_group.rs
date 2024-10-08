@@ -31,7 +31,7 @@ pub fn handler<'info>(
         return Err(FeatherErrorCode::MetadataAccountExistAlready.into());
     }
     group_data.group_key = group_address;
-    group_data.attributes = args.attributes;
+    // group_data.attributes = args.attributes.try_to_vec()?;
     group_data.mutable = args.mutable;
     group_data.name = args.name;
     group_data.uri = args.uri;
