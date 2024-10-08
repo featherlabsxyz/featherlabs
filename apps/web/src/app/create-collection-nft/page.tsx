@@ -15,6 +15,10 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { createCollectionTx } from "@featherlabs/feather-assets/src/nft";
 import { createRpc, Rpc } from "@lightprotocol/stateless.js";
 import { GenericFile } from "@metaplex-foundation/umi";
+import {
+  calculateNFTMintingCost,
+  getTransactionWithRetry,
+} from "@featherlabs/feather-assets/src/types";
 
 export const dynamic = "force-dynamic";
 
@@ -70,14 +74,19 @@ export default function CreateCollectionNFT() {
         const signature = await rpc.sendRawTransaction(
           signedTransaction.serialize()
         );
-        await rpc.confirmTransaction(signature);
-
-        return groupAddress.toBase58();
+        const log = await getTransactionWithRetry(rpc, signature);
+        if (!log) {
+          throw new Error("Log is undefined");
+        }
+        const cost = await calculateNFTMintingCost(rpc, log);
+        return { cost, aa: groupAddress.toBase58() };
       },
       {
         loading: "Creating NFT...",
-        success: (groupAddress) =>
-          `NFT created successfully! Asset address: ${groupAddress}`,
+        success: ({ aa, cost }) =>
+          `NFT created successfully! Cost: ${cost?.toFixed(
+            6
+          )} SOL! Asset address: ${aa}`,
         error: (error) => `Error creating NFT: ${error.message}`,
       }
     );
