@@ -9,10 +9,10 @@ import {
   getAsset,
   getRoyalty,
 } from "@featherlabs/feather-assets/src/core";
+import { calculateNFTMintingCost } from "@featherlabs/feather-assets/src/types/utils";
 import {
   createCollectionTx,
   createNftMemberTx,
-  fetchAllCollection,
   fetchCollection,
   fetchNft,
 } from "@featherlabs/feather-assets/src/nft";
@@ -62,6 +62,7 @@ describe("feather_assets", () => {
   // return;
   it("Create Member Asset!", async () => {
     try {
+      const initialBalance = await rpc.getBalance(wallet.publicKey);
       const { assetAddress, assetDataAddress, transaction } =
         await createNftMemberTx(
           rpc,
@@ -91,7 +92,22 @@ describe("feather_assets", () => {
       console.log("Your transaction signature", sig);
       console.log(log.meta.logMessages);
       aa = assetAddress;
+      // Wait for a moment to ensure the balance is updated
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+
+      // Get final balance
+      const finalBalance = await rpc.getBalance(wallet.publicKey);
+      const costInLamports = initialBalance - finalBalance;
+      const costInSOL = costInLamports / 1e9;
+
+      console.log(`Initial balance: ${initialBalance / 1e9} SOL`);
+      console.log(`Final balance: ${finalBalance / 1e9} SOL`);
+      console.log(`Total minting cost: ${costInSOL} SOL`);
+      console.log(`Transaction signature: ${sig}`);
+
       console.log(await fetchNft(rpc, assetAddress));
+      const cost = await calculateNFTMintingCost(rpc, log);
+      console.log(cost);
     } catch (error) {
       if (error instanceof SendTransactionError) {
         const logs = await error.getLogs(provider.connection);
@@ -125,7 +141,6 @@ describe("feather_assets", () => {
       console.log("Your transaction signature", sig);
       console.log(log.meta.logMessages);
       console.log(await getRoyalty(rpc, aa));
-      await fetchAllCollection(rpc, wallet.publicKey);
     } catch (error) {
       if (error instanceof SendTransactionError) {
         const logs = await error.getLogs(provider.connection);

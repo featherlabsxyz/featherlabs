@@ -1,3 +1,5 @@
+import { Rpc } from "@lightprotocol/stateless.js";
+import { VersionedTransactionResponse } from "@solana/web3.js";
 import {
   AssetAuthorityVariantReturn,
   AssetAuthorityVariantV1,
@@ -67,5 +69,58 @@ export function getRoyaltyState(state: RoyaltyState): RoyaltyStateType {
     return "freeze";
   } else {
     throw new Error("Invalid RoyaltyState");
+  }
+}
+
+export async function calculateNFTMintingCost(
+  rpc: Rpc,
+  tx: VersionedTransactionResponse
+): Promise<number | null> {
+  if (!tx || !tx.meta) {
+    console.log("Transaction not found");
+    return null;
+  }
+
+  // 1. Transaction fee
+  const txFee = tx.meta.fee / 1e9; // Convert lamports to SOL
+  if (!txFee) {
+    return null;
+  }
+  // 2. Rent for new accounts
+  let totalRent = 0;
+  if (tx.meta?.postBalances && tx.meta.preBalances) {
+    for (let i = 0; i < tx.meta.postBalances.length; i++) {
+      const rentPaid = (tx.meta.postBalances[i] - tx.meta.preBalances[i]) / 1e9;
+      if (rentPaid > 0) {
+        totalRent += rentPaid;
+      }
+    }
+  }
+  const totalCost = txFee + totalRent;
+  return totalCost;
+}
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000; // 1 second
+
+export async function getTransactionWithRetry(rpc: Rpc, signature: string) {
+  let retries = 0;
+  while (retries < MAX_RETRIES) {
+    try {
+      const log = await rpc.getTransaction(signature, {
+        commitment: "confirmed",
+        maxSupportedTransactionVersion: 0,
+      });
+      if (!log) {
+        throw new Error("log undefined");
+      }
+      return log;
+    } catch (error) {
+      retries++;
+      if (retries >= MAX_RETRIES) {
+        throw error; // Rethrow the error if we've exhausted all retries
+      }
+      console.log(`Attempt ${retries} failed. Retrying in ${RETRY_DELAY}ms...`);
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY));
+    }
   }
 }
