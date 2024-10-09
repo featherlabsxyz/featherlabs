@@ -29,7 +29,7 @@ export default function ViewNFT() {
       }
       setError("");
       const fetchedNft = await fetchNft(rpc, address);
-      toast.info(JSON.stringify(fetchedNft));
+      toast.info(JSON.stringify(fetchedNft, null, 2));
       setError("Failed to fetch NFT. Please check the address and try again.");
     } finally {
       setLoading(false);
