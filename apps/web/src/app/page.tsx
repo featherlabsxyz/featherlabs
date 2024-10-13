@@ -28,7 +28,9 @@ import {
 export const dynamic = "force-dynamic";
 const endpoint =
     "https://devnet.helius-rpc.com/?api-key=2a3681db-784a-40fb-9c8d-8fcab42275f8";
+
 export default function CreateNFT() {
+
     const wallet = useWallet();
     const umi = createUmi(endpoint)
         .use(walletAdapterIdentity(wallet))
@@ -163,11 +165,11 @@ export default function CreateNFT() {
                 filter: "blur(10px)",
                 transition: {duration: 0.5},
             }}
-            className="container h-screen mx-auto px-2 sm:px-4 lg:px-6 mb-20 max-w-7xl"
+            className="container min-h-screen mx-auto px-2 sm:px-4 lg:px-6 md:mb-6 mb-10 max-w-7xl"
         >
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4 lg:mt-20">
+            <div className="grid grid-cols-1 lg:grid-cols-3 py-6 gap-4 mt-3 lg:mt-7">
                 <div
-                    className="col-span-1 lg:col-span-2 h-full mx-0 sm:mx-2 drop-shadow-2xl mt-4 sm:mt-8 bg-[#5A5465] font-new-black rounded-2xl text-2xl sm:text-3xl lg:text-5xl">
+                    className="col-span-1 lg:col-span-2 h-full mx-0 sm:mx-2 drop-shadow-2xl bg-[#5A5465] font-new-black rounded-2xl text-2xl sm:text-3xl lg:text-5xl">
                     <motion.div
                         initial={{opacity: 0, filter: "blur(10px)"}}
                         animate={{opacity: 1, filter: "blur(0)"}}
@@ -382,7 +384,7 @@ export default function CreateNFT() {
                     >
                         <div
                             className="mx-2 sm:mx-4 lg:mx-8 text-[18px] sm:text-[20px] lg:text-[25px] font-archivo font-[900] archivo-heading"></div>
-                        <div className="mx-2 sm:mx-4 lg:mr-10 flex justify-center">
+                        <div className="mx-2 sm:mx-4 lg:mr-10 mb-3 flex justify-center">
                             <button
                                 onClick={handleCreateNFT}
                                 className="flex items-center gap-1 sm:gap-2 cursor-pointer border-[0.5px] border-[#888888] rounded-xl bg-[#6D6477] text-[12px] sm:text-[14px] lg:text-[17px] font-new-black px-2 sm:px-3 lg:px-4 py-1 sm:py-2 text-white transition-colors hover:bg-[#4F455A] active:bg-[#463C51]">
