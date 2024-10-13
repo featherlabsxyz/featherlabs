@@ -55,7 +55,7 @@ export default function NFTCard({ image, name}: NFTCardProps) {
     }, []);
 
     return (
-        <div className="w-full sticky top-10 pt-8 mx-auto">
+        <div className="w-full sticky top-10 pt-2 md:pt-7 md mx-auto">
             <div
                 className="relative mx-4 font-new-black rounded-2xl text-5xl overflow-hidden h-[590px] mb-4 bg-[#5A5465]">
 
